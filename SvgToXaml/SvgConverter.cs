@@ -80,7 +80,7 @@ namespace SvgToXaml
                         {
                             var mx = skPoints[0].X;
                             var my = skPoints[0].Y;
-                            
+
                             sb.Append($"{(index > 0 ? " " : "")}M{mx.ToString(CultureInfo.InvariantCulture)},{my.ToString(CultureInfo.InvariantCulture)}");
 
                             for (int i = 1; i < skPoints.Count; i++)
