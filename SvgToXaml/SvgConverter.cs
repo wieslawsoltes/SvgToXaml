@@ -154,14 +154,14 @@ namespace SvgToXaml
 
                             ToPathData(skPath, sbPath);
 
+                            // var data = Svg.Skia.SkiaModelExtensions.ToSKPath(skPath).ToSvgPathData();
                             var data = sbPath.ToString();
 
                             if (skPaint.Style == SKPaintStyle.Fill)
                             {
                                 if (skPaint.Shader is ColorShader colorShader)
                                 {
-                                    var brush =
-                                        $"#{colorShader.Color.Alpha:X2}{colorShader.Color.Red:X2}{colorShader.Color.Green:X2}{colorShader.Color.Blue:X2}";
+                                    var brush = $"#{colorShader.Color.Alpha:X2}{colorShader.Color.Red:X2}{colorShader.Color.Green:X2}{colorShader.Color.Blue:X2}";
                                     sb.Append($"  <GeometryDrawing Brush=\"{brush}\" Geometry=\"{data}\"/>\r\n");
                                 }
                             }
