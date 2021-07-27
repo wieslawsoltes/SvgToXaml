@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Text;
 using ShimSkiaSharp;
 
@@ -41,7 +43,12 @@ namespace SvgToXaml
         {
             if (skShader is ColorShader colorShader)
             {
-                var brush = $"{indent}<SolidColorBrush Color=\"{ToHexColor(colorShader.Color)}\"/>\r\n";
+                var brush = "";
+
+                brush += $"{indent}<SolidColorBrush";
+                brush += $" Color=\"{ToHexColor(colorShader.Color)}\"";
+                brush += $"/>\r\n";
+
                 return brush;
             }
 
@@ -59,7 +66,10 @@ namespace SvgToXaml
                     end = localMatrix.MapPoint(end);
                 }
 
-                brush += $"{indent}<LinearGradientBrush StartPoint=\"{ToPoint(start)}\" EndPoint=\"{ToPoint(end)}\" SpreadMethod=\"{ToGradientSpreadMethod(linearGradientShader.Mode)}\">\r\n";
+                brush += $"{indent}<LinearGradientBrush";
+                brush += $" StartPoint=\"{ToPoint(start)}\"";
+                brush += $" EndPoint=\"{ToPoint(end)}\"";
+                brush += $" SpreadMethod=\"{ToGradientSpreadMethod(linearGradientShader.Mode)}\">\r\n";
                 brush += $"{indent}  <LinearGradientBrush.GradientStops>\r\n";
 
                 if (linearGradientShader.Colors is { } && linearGradientShader.ColorPos is { })
@@ -86,6 +96,78 @@ namespace SvgToXaml
             if (skShader is PictureShader pictureShader)
             {
                 // TODO:
+            }
+
+            return "";
+        }
+
+        public static string ToPenLineCap(SKStrokeCap strokeCap)
+        {
+            switch (strokeCap)
+            {
+                default:
+                case SKStrokeCap.Butt:
+                    return "Flat";
+
+                case SKStrokeCap.Round:
+                    return "Round";
+
+                case SKStrokeCap.Square:
+                    return "Square";
+            }
+        }
+
+        public static string ToPenLineJoin(SKStrokeJoin strokeJoin)
+        {
+            switch (strokeJoin)
+            {
+                default:
+                case SKStrokeJoin.Miter:
+                    return "Miter";
+
+                case SKStrokeJoin.Round:
+                    return "Round";
+
+                case SKStrokeJoin.Bevel:
+                    return "Bevel";
+            }
+        }
+
+        private static string ToPen(SKPaint skPaint, string indent = "")
+        {
+            if (skPaint.Shader is { })
+            {
+                var pen = "";
+
+                pen += $"{indent}<Pen";
+                pen += $" Thickness=\"{skPaint.StrokeWidth.ToString(CultureInfo.InvariantCulture)}\"";
+                pen += $" LineCap=\"{ToPenLineCap(skPaint.StrokeCap)}\"";
+                pen += $" LineJoin=\"{ToPenLineJoin(skPaint.StrokeJoin)}\"";
+                pen += $" MiterLimit=\"{skPaint.StrokeMiter.ToString(CultureInfo.InvariantCulture)}\"";
+                pen += $">\r\n";
+
+                if (skPaint.PathEffect is DashPathEffect dashPathEffect && dashPathEffect.Intervals is { })
+                {
+                    var dashes = new List<double>();
+
+                    foreach (var interval in dashPathEffect.Intervals)
+                    {
+                        dashes.Add(interval / skPaint.StrokeWidth);
+                    }
+
+                    var offset = dashPathEffect.Phase / skPaint.StrokeWidth;
+
+                    pen += $"{indent}  <Pen.DashStyle>\r\n";
+                    pen += $"{indent}    <DashStyle Dashes=\"{string.Join(",", dashes.Select(x => x.ToString(CultureInfo.InvariantCulture)))}\" Offset=\"{offset.ToString(CultureInfo.InvariantCulture)}\"/>\r\n";
+                    pen += $"{indent}  </Pen.DashStyle>\r\n";
+                }
+
+                pen += $"{indent}  <Pen.Brush>\r\n";
+                pen += ToBrush(skPaint.Shader, indent + "    ");
+                pen += $"{indent}  </Pen.Brush>\r\n";
+                pen += $"{indent}</Pen>\r\n";
+
+                return pen;
             }
 
             return "";
@@ -140,7 +222,19 @@ namespace SvgToXaml
                         }
                         case DrawPathCanvasCommand(var skPath, var skPaint):
                         {
-                            var data = Svg.Skia.SkiaModelExtensions.ToSKPath(skPath).ToSvgPathData();
+                            var path = Svg.Skia.SkiaModelExtensions.ToSKPath(skPath);
+                            var data = path.ToSvgPathData();
+
+                            if (skPath.FillType == SKPathFillType.EvenOdd)
+                            {
+                                // EvenOdd
+                                data = $"F0 {data}";
+                            }
+                            else
+                            {
+                                // Nonzero 
+                                data = $"F1 {data}";
+                            }
 
                             var brush = default(string);
                             var pen = default(string);
@@ -157,11 +251,7 @@ namespace SvgToXaml
                             {
                                 if (skPaint.Shader is { })
                                 {
-                                    pen = $"      <Pen Thickness=\"{skPaint.StrokeWidth.ToString(CultureInfo.InvariantCulture)}\">\r\n" +
-                                          $"        <Pen.Brush>\r\n" +
-                                          ToBrush(skPaint.Shader, "          ") +
-                                          $"        </Pen.Brush>\r\n" +
-                                          $"      </Pen>\r\n";
+                                    pen = ToPen(skPaint, "      ");
                                 }
                             }
 
