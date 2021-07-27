@@ -36,7 +36,7 @@ namespace SvgToXaml
                     }
                     case ArcToPathCommand(var rx, var ry, var xAxisRotate, var largeArc, var sweep, var x, var y):
                     {
-                        sb.Append($"{(index > 0 ? " " : "")}A{rx.ToString(CultureInfo.InvariantCulture)},{ry.ToString(CultureInfo.InvariantCulture)} {xAxisRotate.ToString(CultureInfo.InvariantCulture)}, {(largeArc == SKPathArcSize.Large ? "1" : "0")}, {(sweep == SKPathDirection.Clockwise ? "1" : "0")}, {x.ToString(CultureInfo.InvariantCulture)},{y.ToString(CultureInfo.InvariantCulture)});");
+                        sb.Append($"{(index > 0 ? " " : "")}A{rx.ToString(CultureInfo.InvariantCulture)},{ry.ToString(CultureInfo.InvariantCulture)} {xAxisRotate.ToString(CultureInfo.InvariantCulture)} {(largeArc == SKPathArcSize.Large ? "1" : "0")} {(sweep == SKPathDirection.Clockwise ? "1" : "0")} {x.ToString(CultureInfo.InvariantCulture)},{y.ToString(CultureInfo.InvariantCulture)});");
                         break;
                     }
                     case QuadToPathCommand(var x0, var y0, var x1, var y1):
