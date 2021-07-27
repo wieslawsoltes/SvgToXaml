@@ -8,10 +8,6 @@
 
   </UserControl.Resources>
   <Viewbox>
-    <Image>
-      <DrawingImage>
 
-      </DrawingImage>
-    </Image>
   </Viewbox>
 </UserControl>
