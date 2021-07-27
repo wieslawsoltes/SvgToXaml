@@ -16,6 +16,11 @@ namespace SvgToXaml
             return $"{skPoint.X.ToString(CultureInfo.InvariantCulture)},{skPoint.Y.ToString(CultureInfo.InvariantCulture)}";
         }
 
+        public static string ToPoint(SkiaSharp.SKPoint skPoint)
+        {
+            return $"{skPoint.X.ToString(CultureInfo.InvariantCulture)},{skPoint.Y.ToString(CultureInfo.InvariantCulture)}";
+        }
+
         public static string ToGradientSpreadMethod(SKShaderTileMode shaderTileMode)
         {
             switch (shaderTileMode)
@@ -44,12 +49,17 @@ namespace SvgToXaml
             {
                 var brush = "";
 
+                var start = Svg.Skia.SkiaModelExtensions.ToSKPoint(linearGradientShader.Start);
+                var end = Svg.Skia.SkiaModelExtensions.ToSKPoint(linearGradientShader.End);
+
                 if (linearGradientShader.LocalMatrix is { })
                 {
-                    // TODO:
+                    var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(linearGradientShader.LocalMatrix.Value);
+                    start = localMatrix.MapPoint(start);
+                    end = localMatrix.MapPoint(end);
                 }
 
-                brush += $"{indent}<LinearGradientBrush StartPoint=\"{ToPoint(linearGradientShader.Start)}\" EndPoint=\"{ToPoint(linearGradientShader.End)}\" SpreadMethod=\"{ToGradientSpreadMethod(linearGradientShader.Mode)}\">\r\n";
+                brush += $"{indent}<LinearGradientBrush StartPoint=\"{ToPoint(start)}\" EndPoint=\"{ToPoint(end)}\" SpreadMethod=\"{ToGradientSpreadMethod(linearGradientShader.Mode)}\">\r\n";
                 brush += $"{indent}  <LinearGradientBrush.GradientStops>\r\n";
 
                 if (linearGradientShader.Colors is { } && linearGradientShader.ColorPos is { })
