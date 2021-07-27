@@ -213,7 +213,11 @@ namespace SvgToXaml
         {
             var sb = new StringBuilder();
 
-            sb.Append($"<DrawingGroup>\r\n");
+            sb.Append($"<Image>\r\n");
+            sb.Append($"  <DrawingImage>\r\n");
+            sb.Append($"    <DrawingGroup>\r\n");
+
+            var indent = "      ";
 
             if (skPicture?.Commands is { })
             {
@@ -258,8 +262,6 @@ namespace SvgToXaml
                         }
                         case DrawPathCanvasCommand(var skPath, var skPaint):
                         {
-                            var indent = "  ";
-
                             var brush = default(string);
                             var pen = default(string);
 
@@ -351,7 +353,9 @@ namespace SvgToXaml
                 }
             }
 
-            sb.Append($"</DrawingGroup>");
+            sb.Append($"    </DrawingGroup>\r\n");
+            sb.Append($"  </DrawingImage>\r\n");
+            sb.Append($"</Image>");
 
             return sb.ToString();
         }
