@@ -6,16 +6,18 @@ namespace SvgToXaml
 {
     public static class SvgConverter
     { 
-        public static void ToPathData(SKPath path, StringBuilder sb)
+        public static string ToPathData(SKPath path)
         {
-            if (path.FillType != SKPathFillType.Winding)
-            {
-                sb.Append($"F1 ");
-            }
+            var sb = new StringBuilder();
 
             if (path.Commands is null)
             {
-                return;
+                return "";
+            }
+
+            if (path.FillType != SKPathFillType.Winding)
+            {
+                sb.Append($"F1 ");
             }
 
             for (var index = 0; index < path.Commands.Count; index++)
@@ -99,6 +101,8 @@ namespace SvgToXaml
                     }
                 }
             }
+
+            return sb.ToString();
         }
 
         public static string ToHexColor(SKColor skColor, string indent = "")
@@ -149,7 +153,7 @@ namespace SvgToXaml
 
                 if (linearGradientShader.Colors is { } && linearGradientShader.ColorPos is { })
                 {
-                    for (int i = 0; i < linearGradientShader.Colors.Length; i++)
+                    for (var i = 0; i < linearGradientShader.Colors.Length; i++)
                     {
                         var color = ToHexColor(linearGradientShader.Colors[i]);
                         var offset = linearGradientShader.ColorPos[i].ToString(CultureInfo.InvariantCulture);
@@ -175,7 +179,7 @@ namespace SvgToXaml
 
             return "";
         }
-        
+
         public static string ToXaml(SKPicture? skPicture)
         {
             var sb = new StringBuilder();
@@ -225,10 +229,7 @@ namespace SvgToXaml
                         }
                         case DrawPathCanvasCommand(var skPath, var skPaint):
                         {
-                            var sbPath = new StringBuilder();
-
-                            ToPathData(skPath, sbPath);
-                            var data = sbPath.ToString();
+                            var data = ToPathData(skPath);
                             //var data = Svg.Skia.SkiaModelExtensions.ToSKPath(skPath).ToSvgPathData();
 
                             var brush = default(string);
