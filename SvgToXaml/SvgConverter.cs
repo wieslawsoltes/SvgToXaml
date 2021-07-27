@@ -140,11 +140,40 @@ namespace SvgToXaml
                 var pen = "";
 
                 pen += $"{indent}<Pen";
-                pen += $" Thickness=\"{skPaint.StrokeWidth.ToString(CultureInfo.InvariantCulture)}\"";
-                pen += $" LineCap=\"{ToPenLineCap(skPaint.StrokeCap)}\"";
-                pen += $" LineJoin=\"{ToPenLineJoin(skPaint.StrokeJoin)}\"";
-                pen += $" MiterLimit=\"{skPaint.StrokeMiter.ToString(CultureInfo.InvariantCulture)}\"";
-                pen += $">\r\n";
+
+                if (skPaint.Shader is ColorShader colorShader)
+                {
+                    pen += $" Brush=\"{ToHexColor(colorShader.Color)}\"";
+                }
+
+                if (skPaint.StrokeWidth != 1.0)
+                {
+                    pen += $" Thickness=\"{skPaint.StrokeWidth.ToString(CultureInfo.InvariantCulture)}\"";
+                }
+
+                if (skPaint.StrokeCap != SKStrokeCap.Butt)
+                {
+                    pen += $" LineCap=\"{ToPenLineCap(skPaint.StrokeCap)}\"";
+                }
+
+                if (skPaint.StrokeJoin != SKStrokeJoin.Bevel)
+                {
+                    pen += $" LineJoin=\"{ToPenLineJoin(skPaint.StrokeJoin)}\"";
+                }
+
+                if (skPaint.StrokeMiter != 10.0)
+                {
+                    pen += $" MiterLimit=\"{skPaint.StrokeMiter.ToString(CultureInfo.InvariantCulture)}\"";
+                }
+
+                if (skPaint.Shader is not ColorShader || (skPaint.PathEffect is DashPathEffect { Intervals: { } }))
+                {
+                    pen += $">\r\n";
+                }
+                else
+                {
+                    pen += $"/>\r\n";
+                }
 
                 if (skPaint.PathEffect is DashPathEffect dashPathEffect && dashPathEffect.Intervals is { })
                 {
@@ -162,10 +191,17 @@ namespace SvgToXaml
                     pen += $"{indent}  </Pen.DashStyle>\r\n";
                 }
 
-                pen += $"{indent}  <Pen.Brush>\r\n";
-                pen += ToBrush(skPaint.Shader, indent + "    ");
-                pen += $"{indent}  </Pen.Brush>\r\n";
-                pen += $"{indent}</Pen>\r\n";
+                if (skPaint.Shader is not ColorShader)
+                {
+                    pen += $"{indent}  <Pen.Brush>\r\n";
+                    pen += ToBrush(skPaint.Shader, indent + "    ");
+                    pen += $"{indent}  </Pen.Brush>\r\n";
+                }
+
+                if (skPaint.Shader is not ColorShader || (skPaint.PathEffect is DashPathEffect { Intervals: { } }))
+                {
+                    pen += $"{indent}</Pen>\r\n";
+                }
 
                 return pen;
             }
@@ -222,6 +258,34 @@ namespace SvgToXaml
                         }
                         case DrawPathCanvasCommand(var skPath, var skPaint):
                         {
+                            var indent = "  ";
+
+                            var brush = default(string);
+                            var pen = default(string);
+
+                            if ((skPaint.Style == SKPaintStyle.Fill || skPaint.Style == SKPaintStyle.StrokeAndFill) && skPaint.Shader is not ColorShader)
+                            {
+                                if (skPaint.Shader is { })
+                                {
+                                    brush = ToBrush(skPaint.Shader, $"{indent}    ");
+                                }
+                            }
+
+                            if (skPaint.Style == SKPaintStyle.Stroke || skPaint.Style == SKPaintStyle.StrokeAndFill)
+                            {
+                                if (skPaint.Shader is { })
+                                {
+                                    pen = ToPen(skPaint, $"{indent}    ");
+                                }
+                            }
+
+                            sb.Append($"{indent}<GeometryDrawing");
+
+                            if ((skPaint.Style == SKPaintStyle.Fill || skPaint.Style == SKPaintStyle.StrokeAndFill) && skPaint.Shader is ColorShader colorShader)
+                            {
+                                sb.Append($" Brush=\"{ToHexColor(colorShader.Color)}\"");
+                            }
+
                             var path = Svg.Skia.SkiaModelExtensions.ToSKPath(skPath);
                             var data = path.ToSvgPathData();
 
@@ -236,42 +300,35 @@ namespace SvgToXaml
                                 data = $"F1 {data}";
                             }
 
-                            var brush = default(string);
-                            var pen = default(string);
+                            sb.Append($" Geometry=\"{data}\"");
 
-                            if (skPaint.Style == SKPaintStyle.Fill || skPaint.Style == SKPaintStyle.StrokeAndFill)
+                            if (brush is not null || pen is not null)
                             {
-                                if (skPaint.Shader is { })
-                                {
-                                    brush = ToBrush(skPaint.Shader, "      ");
-                                }
+                                sb.Append($">\r\n");
                             }
-
-                            if (skPaint.Style == SKPaintStyle.Stroke || skPaint.Style == SKPaintStyle.StrokeAndFill)
+                            else
                             {
-                                if (skPaint.Shader is { })
-                                {
-                                    pen = ToPen(skPaint, "      ");
-                                }
+                                sb.Append($"/>\r\n");
                             }
-
-                            sb.Append($"  <GeometryDrawing Geometry=\"{data}\">\r\n");
 
                             if (brush is { })
                             {
-                                sb.Append($"    <GeometryDrawing.Brush>\r\n");
+                                sb.Append($"{indent}  <GeometryDrawing.Brush>\r\n");
                                 sb.Append($"{brush}");
-                                sb.Append($"    </GeometryDrawing.Brush>\r\n");
-                            }
-                            
-                            if (pen is { })
-                            {
-                                sb.Append($"    <GeometryDrawing.Pen>\r\n");
-                                sb.Append($"{pen}");
-                                sb.Append($"    </GeometryDrawing.Pen>\r\n");
+                                sb.Append($"{indent}    </GeometryDrawing.Brush>\r\n");
                             }
 
-                            sb.Append($"  </GeometryDrawing>\r\n");
+                            if (pen is { })
+                            {
+                                sb.Append($"{indent}  <GeometryDrawing.Pen>\r\n");
+                                sb.Append($"{pen}");
+                                sb.Append($"{indent}  </GeometryDrawing.Pen>\r\n");
+                            }
+
+                            if (brush is not null || pen is not null)
+                            {
+                                sb.Append($"{indent}</GeometryDrawing>\r\n");
+                            }
 
                             break;
                         }
