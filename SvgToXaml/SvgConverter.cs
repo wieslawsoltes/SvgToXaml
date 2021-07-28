@@ -8,6 +8,11 @@ namespace SvgToXaml
 {
     public static class SvgConverter
     {
+        public static string ToString(double value)
+        {
+            return value.ToString(CultureInfo.InvariantCulture);
+        }
+
         public static string ToHexColor(SKColor skColor, string indent = "")
         {
             return $"{indent}#{skColor.Alpha:X2}{skColor.Red:X2}{skColor.Green:X2}{skColor.Blue:X2}";
@@ -15,12 +20,12 @@ namespace SvgToXaml
 
         public static string ToPoint(SKPoint skPoint)
         {
-            return $"{skPoint.X.ToString(CultureInfo.InvariantCulture)},{skPoint.Y.ToString(CultureInfo.InvariantCulture)}";
+            return $"{ToString(skPoint.X)},{ToString(skPoint.Y)}";
         }
 
         public static string ToPoint(SkiaSharp.SKPoint skPoint)
         {
-            return $"{skPoint.X.ToString(CultureInfo.InvariantCulture)},{skPoint.Y.ToString(CultureInfo.InvariantCulture)}";
+            return $"{ToString(skPoint.X)},{ToString(skPoint.Y)}";
         }
 
         public static string ToGradientSpreadMethod(SKShaderTileMode shaderTileMode)
@@ -77,7 +82,7 @@ namespace SvgToXaml
                     for (var i = 0; i < linearGradientShader.Colors.Length; i++)
                     {
                         var color = ToHexColor(linearGradientShader.Colors[i]);
-                        var offset = linearGradientShader.ColorPos[i].ToString(CultureInfo.InvariantCulture);
+                        var offset = ToString(linearGradientShader.ColorPos[i]);
                         brush += $"{indent}    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>\r\n";
                     }
                 }
@@ -117,7 +122,7 @@ namespace SvgToXaml
                 brush += $"{indent}<RadialGradientBrush";
                 brush += $" Center=\"{ToPoint(center)}\"";
                 brush += $" GradientOrigin=\"{ToPoint(gradientOrigin)}\"";
-                brush += $" Radius=\"{endRadius.ToString(CultureInfo.InvariantCulture)}\"";
+                brush += $" Radius=\"{ToString(endRadius)}\"";
                 brush += $" SpreadMethod=\"{ToGradientSpreadMethod(twoPointConicalGradientShader.Mode)}\">\r\n";
                 brush += $"{indent}  <RadialGradientBrush.GradientStops>\r\n";
 
@@ -126,7 +131,7 @@ namespace SvgToXaml
                     for (var i = 0; i < twoPointConicalGradientShader.Colors.Length; i++)
                     {
                         var color = ToHexColor(twoPointConicalGradientShader.Colors[i]);
-                        var offset = twoPointConicalGradientShader.ColorPos[i].ToString(CultureInfo.InvariantCulture);
+                        var offset = ToString(twoPointConicalGradientShader.ColorPos[i]);
                         brush += $"{indent}    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>\r\n";
                     }
                 }
@@ -192,7 +197,7 @@ namespace SvgToXaml
 
                 if (skPaint.StrokeWidth != 1.0)
                 {
-                    pen += $" Thickness=\"{skPaint.StrokeWidth.ToString(CultureInfo.InvariantCulture)}\"";
+                    pen += $" Thickness=\"{ToString(skPaint.StrokeWidth)}\"";
                 }
 
                 if (skPaint.StrokeCap != SKStrokeCap.Butt)
@@ -207,7 +212,7 @@ namespace SvgToXaml
 
                 if (skPaint.StrokeMiter != 10.0)
                 {
-                    pen += $" MiterLimit=\"{skPaint.StrokeMiter.ToString(CultureInfo.InvariantCulture)}\"";
+                    pen += $" MiterLimit=\"{ToString(skPaint.StrokeMiter)}\"";
                 }
 
                 if (skPaint.Shader is not ColorShader || (skPaint.PathEffect is DashPathEffect { Intervals: { } }))
@@ -231,7 +236,7 @@ namespace SvgToXaml
                     var offset = dashPathEffect.Phase / skPaint.StrokeWidth;
 
                     pen += $"{indent}  <Pen.DashStyle>\r\n";
-                    pen += $"{indent}    <DashStyle Dashes=\"{string.Join(",", dashes.Select(x => x.ToString(CultureInfo.InvariantCulture)))}\" Offset=\"{offset.ToString(CultureInfo.InvariantCulture)}\"/>\r\n";
+                    pen += $"{indent}    <DashStyle Dashes=\"{string.Join(",", dashes.Select(ToString))}\" Offset=\"{ToString(offset)}\"/>\r\n";
                     pen += $"{indent}  </Pen.DashStyle>\r\n";
                 }
 
@@ -294,12 +299,12 @@ namespace SvgToXaml
                 {
                     sb.Append($"{indent}  <DrawingGroup.Transform>\r\n");
                     sb.Append($"{indent}    <MatrixTransform Matrix=\"" +
-                              $"{totalMatrix.ScaleX.ToString(CultureInfo.InvariantCulture)}," +
-                              $"{totalMatrix.SkewY.ToString(CultureInfo.InvariantCulture)}," +
-                              $"{totalMatrix.SkewX.ToString(CultureInfo.InvariantCulture)}," +
-                              $"{totalMatrix.ScaleY.ToString(CultureInfo.InvariantCulture)}," +
-                              $"{totalMatrix.TransX.ToString(CultureInfo.InvariantCulture)}," +
-                              $"{totalMatrix.TransY.ToString(CultureInfo.InvariantCulture)}" +
+                              $"{ToString(totalMatrix.ScaleX)}," +
+                              $"{ToString(totalMatrix.SkewY)}," +
+                              $"{ToString(totalMatrix.SkewX)}," +
+                              $"{ToString(totalMatrix.ScaleY)}," +
+                              $"{ToString(totalMatrix.TransX)}," +
+                              $"{ToString(totalMatrix.TransY)}" +
                               $"\" />\r\n");
                     sb.Append($"{indent}  </DrawingGroup.Transform>\r\n");
                 }
