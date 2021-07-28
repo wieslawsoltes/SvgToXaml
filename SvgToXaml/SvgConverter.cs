@@ -293,7 +293,7 @@ namespace SvgToXaml
                             path.Transform(totalMatrix);
 
                             // TODO:
-                            // totalClipPaths.Add((path, operation, antialias));
+                            totalClipPaths.Add((path, operation, antialias));
 
                             break;
                         }
