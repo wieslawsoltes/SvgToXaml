@@ -221,6 +221,9 @@ namespace SvgToXaml
 
             if (skPicture?.Commands is { })
             {
+                var matrixStack = new Stack<SKMatrix>();
+                var totalMatrix = SKMatrix.Identity;
+
                 foreach (var canvasCommand in skPicture.Commands)
                 {
                     switch (canvasCommand)
@@ -237,16 +240,19 @@ namespace SvgToXaml
                         }
                         case SaveCanvasCommand:
                         {
+                            matrixStack.Push(totalMatrix);
                             // TODO:
                             break;
                         }
                         case RestoreCanvasCommand:
                         {
+                            totalMatrix = matrixStack.Pop();
                             // TODO:
                             break;
                         }
                         case SetMatrixCanvasCommand(var skMatrix):
                         {
+                            totalMatrix = skMatrix;
                             // TODO:
                             break;
                         }
@@ -289,6 +295,9 @@ namespace SvgToXaml
                             }
 
                             var path = Svg.Skia.SkiaModelExtensions.ToSKPath(skPath);
+                            var matrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(totalMatrix);
+                            path.Transform(matrix);
+
                             var data = path.ToSvgPathData();
 
                             if (skPath.FillType == SKPathFillType.EvenOdd)
