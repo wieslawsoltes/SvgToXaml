@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using ShimSkiaSharp;
+using SKClipOperation = SkiaSharp.SKClipOperation;
+using SKPath = SkiaSharp.SKPath;
 
 namespace SvgToXaml
 {
@@ -209,6 +211,24 @@ namespace SvgToXaml
             return "";
         }
 
+        private static string ToSvgPathData(SkiaSharp.SKPath path)
+        {
+            var data = path.ToSvgPathData();
+
+            if (path.FillType == SkiaSharp.SKPathFillType.EvenOdd)
+            {
+                // EvenOdd
+                data = $"F0 {data}";
+            }
+            else
+            {
+                // Nonzero 
+                data = $"F1 {data}";
+            }
+
+            return data;
+        }
+
         public static string ToXaml(SKPicture? skPicture)
         {
             var sb = new StringBuilder();
@@ -221,8 +241,11 @@ namespace SvgToXaml
 
             if (skPicture?.Commands is { })
             {
-                var matrixStack = new Stack<SKMatrix>();
-                var totalMatrix = SKMatrix.Identity;
+                var totalMatrix = SkiaSharp.SKMatrix.Identity;
+                var totalMatrixSave = SkiaSharp.SKMatrix.Identity;
+
+                var totalClipPaths = new List<(SkiaSharp.SKPath Path, SkiaSharp.SKClipOperation Operation, bool Antialias)>();
+                var totalClipPathsSave = new Stack<List<(SkiaSharp.SKPath Path, SkiaSharp.SKClipOperation Operation, bool Antialias)>>();
 
 #if false
                 if (!totalMatrix.IsIdentity)
@@ -249,22 +272,37 @@ namespace SvgToXaml
                             var path = Svg.Skia.SkiaModelExtensions.ToSKPath(clipPath);
                             var operation = Svg.Skia.SkiaModelExtensions.ToSKClipOperation(skClipOperation);
 
-                            // TODO:
+                            if (path is { })
+                            {
+                                // TODO:
+                                path.Transform(totalMatrix);
+
+                                totalClipPaths.Add((path, operation, antialias));
+
+                                // TODO:
+                            }
 
                             break;
                         }
                         case ClipRectCanvasCommand(var skRect, var skClipOperation, var antialias):
                         {
-                            var path = Svg.Skia.SkiaModelExtensions.ToSKRect(skRect);
+                            var rect = Svg.Skia.SkiaModelExtensions.ToSKRect(skRect);
                             var operation = Svg.Skia.SkiaModelExtensions.ToSKClipOperation(skClipOperation);
 
+                            var path = new SkiaSharp.SKPath();
+                            path.AddRect(rect);
                             // TODO:
+                            path.Transform(totalMatrix);
+
+                            // TODO:
+                            // totalClipPaths.Add((path, operation, antialias));
 
                             break;
                         }
                         case SaveCanvasCommand:
                         {
-                            matrixStack.Push(totalMatrix);
+                            totalMatrixSave = totalMatrix;
+                            totalClipPathsSave.Push(totalClipPaths.ToList());
 
                             // TODO:
 
@@ -272,7 +310,11 @@ namespace SvgToXaml
                         }
                         case RestoreCanvasCommand:
                         {
-                            totalMatrix = matrixStack.Pop();
+                            totalMatrix = totalMatrixSave;
+                            if (totalClipPathsSave.Count > 0)
+                            {
+                                totalClipPaths = totalClipPathsSave.Pop();
+                            }
 
                             // TODO:
 
@@ -280,7 +322,7 @@ namespace SvgToXaml
                         }
                         case SetMatrixCanvasCommand(var skMatrix):
                         {
-                            totalMatrix = skMatrix;
+                            totalMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(skMatrix);
 
                             // TODO:
 
@@ -308,21 +350,33 @@ namespace SvgToXaml
                             }
 
                             var path = Svg.Skia.SkiaModelExtensions.ToSKPath(skPath);
-                            var matrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(totalMatrix);
-                            path.Transform(matrix);
 
-                            var data = path.ToSvgPathData();
+                            var clipPath = default(SkiaSharp.SKPath);
 
-                            if (skPath.FillType == SKPathFillType.EvenOdd)
+                            if (totalClipPaths.Count > 0)
                             {
-                                // EvenOdd
-                                data = $"F0 {data}";
+                                for (var index = 0; index < totalClipPaths.Count; index++)
+                                {
+                                    if (clipPath is null)
+                                    {
+                                        clipPath = totalClipPaths[index].Path;
+                                    }
+                                    else
+                                    {
+                                        clipPath = clipPath.Op(totalClipPaths[index].Path, SkiaSharp.SKPathOp.Intersect);
+                                    }
+                                }
                             }
-                            else
+
+                            path.Transform(totalMatrix);
+
+                            if (clipPath is { })
                             {
-                                // Nonzero 
-                                data = $"F1 {data}";
+                                // TODO:
+                                // path = clipPath.Op(path, SkiaSharp.SKPathOp.Intersect);
                             }
+
+                            var data = ToSvgPathData(path);
 
                             sb.Append($" Geometry=\"{data}\"");
 
