@@ -316,11 +316,7 @@ namespace SvgToXaml
                             if (path is { })
                             {
                                 // TODO:
-                                path.Transform(totalMatrix);
-
                                 totalClipPaths.Add((path, operation, antialias));
-
-                                // TODO:
                             }
 
                             break;
@@ -332,8 +328,6 @@ namespace SvgToXaml
 
                             var path = new SkiaSharp.SKPath();
                             path.AddRect(rect);
-                            // TODO:
-                            path.Transform(totalMatrix);
 
                             // TODO:
                             totalClipPaths.Add((path, operation, antialias));
