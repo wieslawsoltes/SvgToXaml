@@ -276,6 +276,16 @@ namespace SvgToXaml
             return data;
         }
 
+        public static string ToMatrix(SkiaSharp.SKMatrix skMatrix)
+        {
+            return $"{ToString(skMatrix.ScaleX)}," +
+                   $"{ToString(skMatrix.SkewY)}," +
+                   $"{ToString(skMatrix.SkewX)}," +
+                   $"{ToString(skMatrix.ScaleY)}," +
+                   $"{ToString(skMatrix.TransX)}," +
+                   $"{ToString(skMatrix.TransY)}";
+        }
+
         public static string ToXaml(SKPicture? skPicture)
         {
             var sb = new StringBuilder();
@@ -298,14 +308,7 @@ namespace SvgToXaml
                 if (!totalMatrix.IsIdentity)
                 {
                     sb.Append($"{indent}  <DrawingGroup.Transform>\r\n");
-                    sb.Append($"{indent}    <MatrixTransform Matrix=\"" +
-                              $"{ToString(totalMatrix.ScaleX)}," +
-                              $"{ToString(totalMatrix.SkewY)}," +
-                              $"{ToString(totalMatrix.SkewX)}," +
-                              $"{ToString(totalMatrix.ScaleY)}," +
-                              $"{ToString(totalMatrix.TransX)}," +
-                              $"{ToString(totalMatrix.TransY)}" +
-                              $"\" />\r\n");
+                    sb.Append($"{indent}    <MatrixTransform Matrix=\"{ToMatrix(totalMatrix)}\"/>\r\n");
                     sb.Append($"{indent}  </DrawingGroup.Transform>\r\n");
                 }
 #endif
