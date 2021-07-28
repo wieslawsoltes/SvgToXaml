@@ -39,7 +39,7 @@ namespace SvgToXaml
             }
         }
 
-        public static string ToBrush(SKShader skShader, string indent = "")
+        public static string ToBrush(SKShader skShader, SkiaSharp.SKRect skBounds, string indent = "")
         {
             if (skShader is ColorShader colorShader)
             {
@@ -90,7 +90,51 @@ namespace SvgToXaml
 
             if (skShader is TwoPointConicalGradientShader twoPointConicalGradientShader)
             {
-                // TODO:
+                var brush = "";
+
+                // NOTE: twoPointConicalGradientShader.StartRadius is always 0.0
+                var startRadius = twoPointConicalGradientShader.StartRadius;
+
+                // TODO: Avalonia is passing 'radius' to 'SKShader.CreateTwoPointConicalGradient' as 'startRadius'
+                // TODO: but we need to pass it as 'endRadius' to 'SKShader.CreateTwoPointConicalGradient'
+                var endRadius = twoPointConicalGradientShader.EndRadius;
+
+                var center = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.Start);
+                var gradientOrigin = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.End);
+
+                if (twoPointConicalGradientShader.LocalMatrix is { })
+                {
+                    var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(twoPointConicalGradientShader.LocalMatrix.Value);
+                    center = localMatrix.MapPoint(center);
+                    gradientOrigin = localMatrix.MapPoint(gradientOrigin);
+
+                    var radius = localMatrix.MapVector(new SkiaSharp.SKPoint(endRadius, 0));
+                    endRadius = radius.X;
+                }
+
+                endRadius = endRadius / skBounds.Width;
+
+                brush += $"{indent}<RadialGradientBrush";
+                brush += $" Center=\"{ToPoint(center)}\"";
+                brush += $" GradientOrigin=\"{ToPoint(gradientOrigin)}\"";
+                brush += $" Radius=\"{endRadius.ToString(CultureInfo.InvariantCulture)}\"";
+                brush += $" SpreadMethod=\"{ToGradientSpreadMethod(twoPointConicalGradientShader.Mode)}\">\r\n";
+                brush += $"{indent}  <RadialGradientBrush.GradientStops>\r\n";
+
+                if (twoPointConicalGradientShader.Colors is { } && twoPointConicalGradientShader.ColorPos is { })
+                {
+                    for (var i = 0; i < twoPointConicalGradientShader.Colors.Length; i++)
+                    {
+                        var color = ToHexColor(twoPointConicalGradientShader.Colors[i]);
+                        var offset = twoPointConicalGradientShader.ColorPos[i].ToString(CultureInfo.InvariantCulture);
+                        brush += $"{indent}    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>\r\n";
+                    }
+                }
+
+                brush += $"{indent}  </RadialGradientBrush.GradientStops>\r\n";
+                brush += $"{indent}</RadialGradientBrush>\r\n";
+
+                return brush;
             }
 
             if (skShader is PictureShader pictureShader)
@@ -133,7 +177,7 @@ namespace SvgToXaml
             }
         }
 
-        private static string ToPen(SKPaint skPaint, string indent = "")
+        private static string ToPen(SKPaint skPaint, SkiaSharp.SKRect skBounds, string indent = "")
         {
             if (skPaint.Shader is { })
             {
@@ -194,7 +238,7 @@ namespace SvgToXaml
                 if (skPaint.Shader is not ColorShader)
                 {
                     pen += $"{indent}  <Pen.Brush>\r\n";
-                    pen += ToBrush(skPaint.Shader, indent + "    ");
+                    pen += ToBrush(skPaint.Shader, skBounds, indent + "    ");
                     pen += $"{indent}  </Pen.Brush>\r\n";
                 }
 
@@ -392,7 +436,7 @@ namespace SvgToXaml
                             {
                                 if (skPaint.Shader is { })
                                 {
-                                    brush = ToBrush(skPaint.Shader, $"{indent}    ");
+                                    brush = ToBrush(skPaint.Shader, path.Bounds, $"{indent}    ");
                                 }
                             }
 
@@ -400,7 +444,7 @@ namespace SvgToXaml
                             {
                                 if (skPaint.Shader is { })
                                 {
-                                    pen = ToPen(skPaint, $"{indent}    ");
+                                    pen = ToPen(skPaint, path.Bounds, $"{indent}    ");
                                 }
                             }
 
