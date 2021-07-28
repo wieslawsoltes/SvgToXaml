@@ -423,7 +423,7 @@ namespace SvgToXaml
                                 sb.Append($"{indent}  </DrawingGroup.ClipGeometry>\r\n");
                             }
 
-                            var drawingIndent = $"{indent}  ";
+                            var drawingIndent = isDrawingGroup ? $"{indent}  " : indent;
 
                             sb.Append($"{drawingIndent}<GeometryDrawing");
 
