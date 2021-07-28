@@ -326,7 +326,7 @@ namespace SvgToXaml
                             {
                                 sb.Append($"{indent}  <GeometryDrawing.Brush>\r\n");
                                 sb.Append($"{brush}");
-                                sb.Append($"{indent}    </GeometryDrawing.Brush>\r\n");
+                                sb.Append($"{indent}  </GeometryDrawing.Brush>\r\n");
                             }
 
                             if (pen is { })
