@@ -224,6 +224,22 @@ namespace SvgToXaml
                 var matrixStack = new Stack<SKMatrix>();
                 var totalMatrix = SKMatrix.Identity;
 
+#if false
+                if (!totalMatrix.IsIdentity)
+                {
+                    sb.Append($"{indent}  <DrawingGroup.Transform>\r\n");
+                    sb.Append($"{indent}    <MatrixTransform Matrix=\"" +
+                              $"{totalMatrix.ScaleX.ToString(CultureInfo.InvariantCulture)}," +
+                              $"{totalMatrix.SkewY.ToString(CultureInfo.InvariantCulture)}," +
+                              $"{totalMatrix.SkewX.ToString(CultureInfo.InvariantCulture)}," +
+                              $"{totalMatrix.ScaleY.ToString(CultureInfo.InvariantCulture)}," +
+                              $"{totalMatrix.TransX.ToString(CultureInfo.InvariantCulture)}," +
+                              $"{totalMatrix.TransY.ToString(CultureInfo.InvariantCulture)}" +
+                              $"\" />\r\n");
+                    sb.Append($"{indent}  </DrawingGroup.Transform>\r\n");
+                }
+#endif
+
                 foreach (var canvasCommand in skPicture.Commands)
                 {
                     switch (canvasCommand)
