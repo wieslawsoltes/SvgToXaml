@@ -239,11 +239,11 @@ namespace SvgToXaml
 
             if (skPicture?.Commands is { })
             {
+                var matrixStack = new Stack<SkiaSharp.SKMatrix>();
                 var totalMatrix = SkiaSharp.SKMatrix.Identity;
-                var totalMatrixSave = SkiaSharp.SKMatrix.Identity;
 
                 var totalClipPaths = new List<(SkiaSharp.SKPath Path, SkiaSharp.SKClipOperation Operation, bool Antialias)>();
-                var totalClipPathsSave = new Stack<List<(SkiaSharp.SKPath Path, SkiaSharp.SKClipOperation Operation, bool Antialias)>>();
+                var totalClipPathsStack = new Stack<List<(SkiaSharp.SKPath Path, SkiaSharp.SKClipOperation Operation, bool Antialias)>>();
 
 #if false
                 if (!totalMatrix.IsIdentity)
@@ -299,8 +299,9 @@ namespace SvgToXaml
                         }
                         case SaveCanvasCommand:
                         {
-                            totalMatrixSave = totalMatrix;
-                            totalClipPathsSave.Push(totalClipPaths.ToList());
+                            matrixStack.Push(totalMatrix);
+
+                            totalClipPathsStack.Push(totalClipPaths.ToList());
 
                             // TODO:
 
@@ -308,10 +309,11 @@ namespace SvgToXaml
                         }
                         case RestoreCanvasCommand:
                         {
-                            totalMatrix = totalMatrixSave;
-                            if (totalClipPathsSave.Count > 0)
+                            totalMatrix = matrixStack.Pop();
+
+                            if (totalClipPathsStack.Count > 0)
                             {
-                                totalClipPaths = totalClipPathsSave.Pop();
+                                totalClipPaths = totalClipPathsStack.Pop();
                             }
 
                             // TODO:
