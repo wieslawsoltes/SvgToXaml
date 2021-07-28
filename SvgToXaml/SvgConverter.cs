@@ -231,39 +231,49 @@ namespace SvgToXaml
                         case ClipPathCanvasCommand(var clipPath, var skClipOperation, var antialias):
                         {
                             // TODO:
+
                             break;
                         }
                         case ClipRectCanvasCommand(var skRect, var skClipOperation, var antialias):
                         {
                             // TODO:
+
                             break;
                         }
                         case SaveCanvasCommand:
                         {
                             matrixStack.Push(totalMatrix);
+
                             // TODO:
+
                             break;
                         }
                         case RestoreCanvasCommand:
                         {
                             totalMatrix = matrixStack.Pop();
+
                             // TODO:
+
                             break;
                         }
                         case SetMatrixCanvasCommand(var skMatrix):
                         {
                             totalMatrix = skMatrix;
+
                             // TODO:
+
                             break;
                         }
                         case SaveLayerCanvasCommand(var count, var skPaint):
                         {
                             // TODO:
+
                             break;
                         }
                         case DrawImageCanvasCommand(var skImage, var skRect, var dest, var skPaint):
                         {
                             // TODO:
+
                             break;
                         }
                         case DrawPathCanvasCommand(var skPath, var skPaint):
@@ -346,16 +356,19 @@ namespace SvgToXaml
                         case DrawTextBlobCanvasCommand(var skTextBlob, var f, var y, var skPaint):
                         {
                             // TODO:
+
                             break;
                         }
                         case DrawTextCanvasCommand(var text, var f, var y, var skPaint):
                         {
                             // TODO:
+
                             break;
                         }
                         case DrawTextOnPathCanvasCommand(var text, var skPath, var hOffset, var vOffset, var skPaint):
                         {
                             // TODO:
+
                             break;
                         }
                     }
