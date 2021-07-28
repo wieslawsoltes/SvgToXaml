@@ -246,12 +246,18 @@ namespace SvgToXaml
                     {
                         case ClipPathCanvasCommand(var clipPath, var skClipOperation, var antialias):
                         {
+                            var path = Svg.Skia.SkiaModelExtensions.ToSKPath(clipPath);
+                            var operation = Svg.Skia.SkiaModelExtensions.ToSKClipOperation(skClipOperation);
+
                             // TODO:
 
                             break;
                         }
                         case ClipRectCanvasCommand(var skRect, var skClipOperation, var antialias):
                         {
+                            var path = Svg.Skia.SkiaModelExtensions.ToSKRect(skRect);
+                            var operation = Svg.Skia.SkiaModelExtensions.ToSKClipOperation(skClipOperation);
+
                             // TODO:
 
                             break;
