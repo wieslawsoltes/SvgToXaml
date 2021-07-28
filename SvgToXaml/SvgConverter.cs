@@ -3,8 +3,6 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using ShimSkiaSharp;
-using SKClipOperation = SkiaSharp.SKClipOperation;
-using SKPath = SkiaSharp.SKPath;
 
 namespace SvgToXaml
 {
