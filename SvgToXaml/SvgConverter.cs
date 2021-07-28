@@ -304,15 +304,6 @@ namespace SvgToXaml
                 var totalClipPaths = new List<(SkiaSharp.SKPath Path, SkiaSharp.SKClipOperation Operation, bool Antialias)>();
                 var totalClipPathsStack = new Stack<List<(SkiaSharp.SKPath Path, SkiaSharp.SKClipOperation Operation, bool Antialias)>>();
 
-#if false
-                if (!totalMatrix.IsIdentity)
-                {
-                    sb.Append($"{indent}  <DrawingGroup.Transform>\r\n");
-                    sb.Append($"{indent}    <MatrixTransform Matrix=\"{ToMatrix(totalMatrix)}\"/>\r\n");
-                    sb.Append($"{indent}  </DrawingGroup.Transform>\r\n");
-                }
-#endif
-
                 foreach (var canvasCommand in skPicture.Commands)
                 {
                     switch (canvasCommand)
@@ -399,15 +390,6 @@ namespace SvgToXaml
                         }
                         case DrawPathCanvasCommand(var skPath, var skPaint):
                         {
-                            sb.Append($"{indent}<GeometryDrawing");
-
-                            if ((skPaint.Style == SKPaintStyle.Fill || skPaint.Style == SKPaintStyle.StrokeAndFill) && skPaint.Shader is ColorShader colorShader)
-                            {
-                                sb.Append($" Brush=\"{ToHexColor(colorShader.Color)}\"");
-                            }
-
-                            var path = Svg.Skia.SkiaModelExtensions.ToSKPath(skPath);
-
                             var clipPath = default(SkiaSharp.SKPath);
 
                             if (totalClipPaths.Count > 0)
@@ -425,17 +407,41 @@ namespace SvgToXaml
                                 }
                             }
 
-                            path.Transform(totalMatrix);
+                            bool isDrawingGroup = !totalMatrix.IsIdentity || clipPath is not null;
 
-                            if (clipPath is { })
+                            if (isDrawingGroup)
                             {
-                                // TODO:
-                                // path = clipPath.Op(path, SkiaSharp.SKPathOp.Intersect);
+                                sb.Append($"{indent}<DrawingGroup>\r\n");
                             }
 
-                            var data = ToSvgPathData(path);
+                            if (isDrawingGroup && !totalMatrix.IsIdentity)
+                            {
+                                sb.Append($"{indent}  <DrawingGroup.Transform>\r\n");
+                                sb.Append($"{indent}    <MatrixTransform Matrix=\"{ToMatrix(totalMatrix)}\"/>\r\n");
+                                sb.Append($"{indent}  </DrawingGroup.Transform>\r\n");
+                            }
 
-                            sb.Append($" Geometry=\"{data}\"");
+                            if (isDrawingGroup && clipPath is not null)
+                            {
+                                var clipGeometry = ToSvgPathData(clipPath);
+                                sb.Append($"{indent}  <DrawingGroup.ClipGeometry>\r\n");
+                                sb.Append($"{indent}    <StreamGeometry>{clipGeometry}</StreamGeometry>\r\n");
+                                sb.Append($"{indent}  </DrawingGroup.ClipGeometry>\r\n");
+                            }
+
+                            var drawingIndent = $"{indent}  ";
+
+                            sb.Append($"{drawingIndent}<GeometryDrawing");
+
+                            if ((skPaint.Style == SKPaintStyle.Fill || skPaint.Style == SKPaintStyle.StrokeAndFill) && skPaint.Shader is ColorShader colorShader)
+                            {
+                                sb.Append($" Brush=\"{ToHexColor(colorShader.Color)}\"");
+                            }
+
+                            var path = Svg.Skia.SkiaModelExtensions.ToSKPath(skPath);
+                            var geometry = ToSvgPathData(path);
+
+                            sb.Append($" Geometry=\"{geometry}\"");
 
                             var brush = default(string);
                             var pen = default(string);
@@ -444,7 +450,7 @@ namespace SvgToXaml
                             {
                                 if (skPaint.Shader is { })
                                 {
-                                    brush = ToBrush(skPaint.Shader, path.Bounds, $"{indent}    ");
+                                    brush = ToBrush(skPaint.Shader, path.Bounds, $"{drawingIndent}    ");
                                 }
                             }
 
@@ -452,7 +458,7 @@ namespace SvgToXaml
                             {
                                 if (skPaint.Shader is { })
                                 {
-                                    pen = ToPen(skPaint, path.Bounds, $"{indent}    ");
+                                    pen = ToPen(skPaint, path.Bounds, $"{drawingIndent}    ");
                                 }
                             }
 
@@ -467,21 +473,26 @@ namespace SvgToXaml
 
                             if (brush is { })
                             {
-                                sb.Append($"{indent}  <GeometryDrawing.Brush>\r\n");
+                                sb.Append($"{drawingIndent}  <GeometryDrawing.Brush>\r\n");
                                 sb.Append($"{brush}");
-                                sb.Append($"{indent}  </GeometryDrawing.Brush>\r\n");
+                                sb.Append($"{drawingIndent}  </GeometryDrawing.Brush>\r\n");
                             }
 
                             if (pen is { })
                             {
-                                sb.Append($"{indent}  <GeometryDrawing.Pen>\r\n");
+                                sb.Append($"{drawingIndent}  <GeometryDrawing.Pen>\r\n");
                                 sb.Append($"{pen}");
-                                sb.Append($"{indent}  </GeometryDrawing.Pen>\r\n");
+                                sb.Append($"{drawingIndent}  </GeometryDrawing.Pen>\r\n");
                             }
 
                             if (brush is not null || pen is not null)
                             {
-                                sb.Append($"{indent}</GeometryDrawing>\r\n");
+                                sb.Append($"{drawingIndent}</GeometryDrawing>\r\n");
+                            }
+
+                            if (isDrawingGroup)
+                            {
+                                sb.Append($"{indent}</DrawingGroup>\r\n");
                             }
 
                             break;
