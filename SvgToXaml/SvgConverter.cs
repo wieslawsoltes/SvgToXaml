@@ -268,25 +268,6 @@ namespace SvgToXaml
                         }
                         case DrawPathCanvasCommand(var skPath, var skPaint):
                         {
-                            var brush = default(string);
-                            var pen = default(string);
-
-                            if ((skPaint.Style == SKPaintStyle.Fill || skPaint.Style == SKPaintStyle.StrokeAndFill) && skPaint.Shader is not ColorShader)
-                            {
-                                if (skPaint.Shader is { })
-                                {
-                                    brush = ToBrush(skPaint.Shader, $"{indent}    ");
-                                }
-                            }
-
-                            if (skPaint.Style == SKPaintStyle.Stroke || skPaint.Style == SKPaintStyle.StrokeAndFill)
-                            {
-                                if (skPaint.Shader is { })
-                                {
-                                    pen = ToPen(skPaint, $"{indent}    ");
-                                }
-                            }
-
                             sb.Append($"{indent}<GeometryDrawing");
 
                             if ((skPaint.Style == SKPaintStyle.Fill || skPaint.Style == SKPaintStyle.StrokeAndFill) && skPaint.Shader is ColorShader colorShader)
@@ -312,6 +293,25 @@ namespace SvgToXaml
                             }
 
                             sb.Append($" Geometry=\"{data}\"");
+
+                            var brush = default(string);
+                            var pen = default(string);
+
+                            if ((skPaint.Style == SKPaintStyle.Fill || skPaint.Style == SKPaintStyle.StrokeAndFill) && skPaint.Shader is not ColorShader)
+                            {
+                                if (skPaint.Shader is { })
+                                {
+                                    brush = ToBrush(skPaint.Shader, $"{indent}    ");
+                                }
+                            }
+
+                            if (skPaint.Style == SKPaintStyle.Stroke || skPaint.Style == SKPaintStyle.StrokeAndFill)
+                            {
+                                if (skPaint.Shader is { })
+                                {
+                                    pen = ToPen(skPaint, $"{indent}    ");
+                                }
+                            }
 
                             if (brush is not null || pen is not null)
                             {
