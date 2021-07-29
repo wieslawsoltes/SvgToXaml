@@ -29,6 +29,13 @@ namespace SvgToXamlConverter
             }
         }
 
+        static string CreateKey(string path)
+        {
+            string name = Path.GetFileNameWithoutExtension(path);
+            string key = name.Replace("-", "_");
+            return $"_{key}";
+        }
+
         static void Main(string[] args)
         {
             if (args.Length != 1 && args.Length != 2)
@@ -46,6 +53,8 @@ namespace SvgToXamlConverter
                     var paths = new List<string>();
 
                     GetFiles(inputPath, paths);
+
+                    paths.Sort();
 
                     if (paths.Count == 0)
                     {
@@ -70,8 +79,8 @@ namespace SvgToXamlConverter
                         var path = paths[i];
                         var svg = new SKSvg();
                         var picture = svg.Load(path);
-                        xaml += $"{indent}<!-- {path} -->{SvgConverter.NewLine}";
-                        xaml += SvgConverter.ToXaml(svg.Model, generateImage: generateImage, indent: indent, key: generateStyles ? $"_{i.ToString()}" : null);
+                        xaml += $"{indent}<!-- {Path.GetFileName(path)} -->{SvgConverter.NewLine}";
+                        xaml += SvgConverter.ToXaml(svg.Model, generateImage: generateImage, indent: indent, key: generateStyles ? $"_{CreateKey(path)}" : null);
                         xaml += SvgConverter.NewLine;
                     }
 
