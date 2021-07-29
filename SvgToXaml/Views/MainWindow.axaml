@@ -3,7 +3,8 @@
         xmlns:vm="using:SvgToXaml.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="950" d:DesignHeight="480"
+        MinWidth="950" MinHeight="480"
         x:Class="SvgToXaml.Views.MainWindow"
         Icon="/Assets/Icon.ico"
         Title="SvgToXaml"
@@ -80,30 +81,44 @@
                HorizontalAlignment="Stretch">
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DockPanel.Dock="Top" Margin="0,0,0,6">
         <CheckBox IsChecked="{Binding EnableGenerateImage}"
-                  Content="Generate Image"
+                  Content="Image"
                   Margin="0,0,6,0"/>
-        <Button Content="Copy Xaml"
-                Command="{Binding CopyCommand}"
+        <Button Content="Copy Selected"
+                Command="{Binding CopySelectedCommand}"
                 CommandParameter="XAML"
                 Margin="0,0,6,0" />
-        <Button Content="Export Xaml"
-                Command="{Binding ExportCommand}"
+        <Button Content="Copy All"
+                Command="{Binding CopyAllCommand}"
                 CommandParameter="XAML"
-                Margin="0,0,0,0" />
+                Margin="0,0,6,0" />
+        <Button Content="Export Selected"
+                Command="{Binding ExportSelectedCommand}"
+                CommandParameter="XAML"
+                Margin="0,0,6,0" />
+        <Button Content="Export All"
+                Command="{Binding ExportAllCommand}"
+                CommandParameter="XAML"
+                Margin="0,0,6,0" />
         <Button Content="Clipboard to Xaml"
                 Command="{Binding ClipboardCommand}"
                 CommandParameter="XAML"
-                Margin="6,0,0,0" />
+                Margin="0,0,0,0" />
       </StackPanel>
 
       <Panel Background="Transparent">
         <Panel.ContextFlyout>
           <MenuFlyout Placement="Bottom">
-            <MenuItem Header="Copy Xaml"
-                      Command="{Binding CopyCommand}"
+            <MenuItem Header="Copy Selected"
+                      Command="{Binding CopySelectedCommand}"
                       CommandParameter="XAML" />
-            <MenuItem Header="Export Xaml"
-                      Command="{Binding ExportCommand}"
+            <MenuItem Header="Copy All"
+                      Command="{Binding CopyAllCommand}"
+                      CommandParameter="XAML" />
+            <MenuItem Header="Export Selected"
+                      Command="{Binding ExportSelectedCommand}"
+                      CommandParameter="XAML" />
+            <MenuItem Header="Export All"
+                      Command="{Binding ExportAllCommand}"
                       CommandParameter="XAML" />
           </MenuFlyout>
         </Panel.ContextFlyout>

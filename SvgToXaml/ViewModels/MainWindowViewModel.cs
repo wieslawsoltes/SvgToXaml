@@ -44,9 +44,13 @@ namespace SvgToXaml.ViewModels
         
         public ICommand AddCommand { get; }
 
-        public ICommand CopyCommand { get; }
+        public ICommand CopySelectedCommand { get; }
 
-        public ICommand ExportCommand { get; }
+        public ICommand CopyAllCommand { get; }
+
+        public ICommand ExportSelectedCommand { get; }
+
+        public ICommand ExportAllCommand { get; }
 
         public ICommand ClipboardCommand { get; }
 
@@ -80,7 +84,7 @@ namespace SvgToXaml.ViewModels
                 }
             });
 
-            CopyCommand = ReactiveCommand.CreateFromTask<string>(async format =>
+            CopySelectedCommand = ReactiveCommand.CreateFromTask<string>(async format =>
             {
                 if (_selectedItem is null || string.IsNullOrWhiteSpace(format))
                 {
@@ -100,6 +104,78 @@ namespace SvgToXaml.ViewModels
                         // ignored
                     }
                 });
+            });
+
+            CopyAllCommand = ReactiveCommand.CreateFromTask<string>(async format =>
+            {
+                if (string.IsNullOrWhiteSpace(format))
+                {
+                    return;
+                }
+
+                var paths = Items?.Select(x => x.Path).ToList();
+                if (paths is { })
+                {
+                    var xaml = SvgConverter.ToXaml(paths, generateImage: _enableGenerateImage, generateStyles: true, indent: "");
+
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        try
+                        {
+                            Application.Current.Clipboard.SetTextAsync(xaml);
+                        }
+                        catch
+                        {
+                        // ignored
+                    }
+                    });
+                }
+            });
+
+            ExportSelectedCommand = ReactiveCommand.CreateFromTask<string>(async format =>
+            {
+                if (_selectedItem is null || string.IsNullOrWhiteSpace(format))
+                {
+                    return;
+                }
+
+                var dlg = new SaveFileDialog();
+                dlg.Filters.Add(new FileDialogFilter() { Name = "AXAML Files (*.axaml)", Extensions = new List<string> { "axaml" } });
+                dlg.Filters.Add(new FileDialogFilter() { Name = "XAML Files (*.xaml)", Extensions = new List<string> { "xaml" } });
+                dlg.Filters.Add(new FileDialogFilter() { Name = "All Files (*.*)", Extensions = new List<string> { "*" } });
+                dlg.InitialFileName = Path.GetFileNameWithoutExtension(_selectedItem.Path);
+                var result = await dlg.ShowAsync((Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow);
+                if (result is { })
+                {
+                    var xaml = await ToXaml(_selectedItem, _enableGenerateImage);
+
+                    await File.WriteAllTextAsync(result, xaml);
+                }
+            });
+
+            ExportAllCommand = ReactiveCommand.CreateFromTask<string>(async format =>
+            {
+                if (string.IsNullOrWhiteSpace(format))
+                {
+                    return;
+                }
+
+                var dlg = new SaveFileDialog();
+                dlg.Filters.Add(new FileDialogFilter() { Name = "AXAML Files (*.axaml)", Extensions = new List<string> { "axaml" } });
+                dlg.Filters.Add(new FileDialogFilter() { Name = "XAML Files (*.xaml)", Extensions = new List<string> { "xaml" } });
+                dlg.Filters.Add(new FileDialogFilter() { Name = "All Files (*.*)", Extensions = new List<string> { "*" } });
+                dlg.InitialFileName = Path.GetFileNameWithoutExtension("Svg");
+                var result = await dlg.ShowAsync((Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow);
+                if (result is { })
+                {
+                    var paths = Items?.Select(x => x.Path).ToList();
+                    if (paths is { })
+                    {
+                        var xaml = SvgConverter.ToXaml(paths, generateImage: _enableGenerateImage, generateStyles: true, indent: "");
+
+                        await File.WriteAllTextAsync(result, xaml);
+                    }
+                }
             });
 
             ClipboardCommand = ReactiveCommand.CreateFromTask<string>(async format =>
@@ -148,27 +224,6 @@ namespace SvgToXaml.ViewModels
                         // ignored
                     }
                 });
-            });
-
-            ExportCommand = ReactiveCommand.CreateFromTask<string>(async format =>
-            {
-                if (_selectedItem is null || string.IsNullOrWhiteSpace(format))
-                {
-                    return;
-                }
-
-                var dlg = new SaveFileDialog();
-                dlg.Filters.Add(new FileDialogFilter() { Name = "AXAML Files (*.axaml)", Extensions = new List<string> { "axaml" } });
-                dlg.Filters.Add(new FileDialogFilter() { Name = "XAML Files (*.xaml)", Extensions = new List<string> { "xaml" } });
-                dlg.Filters.Add(new FileDialogFilter() { Name = "All Files (*.*)", Extensions = new List<string> { "*" } });
-                dlg.InitialFileName = Path.GetFileNameWithoutExtension(_selectedItem.Path);
-                var result = await dlg.ShowAsync((Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow);
-                if (result is { })
-                {
-                    var xaml = await ToXaml(_selectedItem, _enableGenerateImage);
-
-                    await File.WriteAllTextAsync(result, xaml);
-                }
             });
 
             this.WhenAnyValue(x => x.SelectedItem).Subscribe(async x =>
