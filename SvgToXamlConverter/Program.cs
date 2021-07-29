@@ -1,11 +1,34 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Svg.Skia;
 
 namespace SvgToXamlConverter
 {
     class Program
     {
+        static void GetFiles(string path, List<string> paths)
+        {
+            if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
+            {
+                var svgPaths = Directory.EnumerateFiles(path, "*.svg", new EnumerationOptions {RecurseSubdirectories = true});
+                var svgzPaths = Directory.EnumerateFiles(path, "*.svgz", new EnumerationOptions {RecurseSubdirectories = true});
+                svgPaths.ToList().ForEach(x => GetFiles(x, paths));
+                svgzPaths.ToList().ForEach(x => GetFiles(x, paths));
+                return;
+            }
+
+            var extension = Path.GetExtension(path);
+            switch (extension.ToLower())
+            {
+                case ".svg":
+                case ".svgz":
+                    paths.Add(path);
+                    break;
+            }
+        }
+
         static void Main(string[] args)
         {
             if (args.Length != 1 && args.Length != 2)
@@ -17,21 +40,60 @@ namespace SvgToXamlConverter
             try
             {
                 var inputPath = args[0];
-                var svg = new SKSvg();
-                var picture = svg.Load(inputPath);
-                var xaml = SvgConverter.ToXaml(svg.Model);
 
-                if (args.Length == 1)
+                if (File.GetAttributes(inputPath).HasFlag(FileAttributes.Directory))
                 {
-                    Console.WriteLine(xaml);
+                    var paths = new List<string>();
+
+                    GetFiles(inputPath, paths);
+
+                    if (paths.Count == 0)
+                    {
+                        return;
+                    }
+
+                    var xaml = default(string);
+
+                    foreach (var path in paths)
+                    {
+                        var svg = new SKSvg();
+                        var picture = svg.Load(path);
+                        xaml += SvgConverter.ToXaml(svg.Model);
+                        xaml += SvgConverter.NewLine;
+                    }
+
+                    if (args.Length == 1)
+                    {
+                        Console.WriteLine(xaml);
+                        return;
+                    }
+
+                    if (args.Length == 2)
+                    {
+                        var outputPath = args[1];
+                        File.WriteAllText(outputPath, xaml);
+                    }
+
                     return;
                 }
-
-                if (args.Length == 2)
+                else
                 {
-                    var outputPath = args[1];
-                    File.WriteAllText(outputPath, xaml);
-                    return;
+                    var svg = new SKSvg();
+                    var picture = svg.Load(inputPath);
+                    var xaml = SvgConverter.ToXaml(svg.Model);
+
+                    if (args.Length == 1)
+                    {
+                        Console.WriteLine(xaml);
+                        return;
+                    }
+
+                    if (args.Length == 2)
+                    {
+                        var outputPath = args[1];
+                        File.WriteAllText(outputPath, xaml);
+                        return;
+                    }
                 }
             }
             catch (Exception ex)
