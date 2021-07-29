@@ -95,9 +95,9 @@
                 CommandParameter="XAML"
                 Margin="6,0,0,0" />
       </StackPanel>
-      <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                    VerticalScrollBarVisibility="Auto">
-        <ScrollViewer.ContextFlyout>
+
+      <Viewbox>
+        <Viewbox.ContextFlyout>
           <MenuFlyout Placement="Bottom">
             <MenuItem Header="Copy Xaml"
                       Command="{Binding CopyCommand}"
@@ -106,9 +106,10 @@
                       Command="{Binding ExportCommand}"
                       CommandParameter="XAML" />
           </MenuFlyout>
-        </ScrollViewer.ContextFlyout>
+        </Viewbox.ContextFlyout>
         <SKPictureControl Picture="{Binding SelectedItem.Picture, FallbackValue={x:Null}}" />
-      </ScrollViewer>
+      </Viewbox>
+
     </DockPanel>
 
   </Grid>
