@@ -288,13 +288,20 @@ namespace SvgToXamlConverter
                    $"{ToString(skMatrix.TransY)}";
         }
 
-        public static string ToXaml(SKPicture? skPicture)
+        public static string ToXaml(SKPicture? skPicture, bool generateImage = true, string indent = "")
         {
             var sb = new StringBuilder();
 
-            sb.Append($"<Image>{NewLine}");
-            sb.Append($"  <DrawingImage>{NewLine}");
-            sb.Append($"    <DrawingGroup>{NewLine}");
+            if (generateImage)
+            {
+                sb.Append($"{indent}<Image>{NewLine}");
+                sb.Append($"{indent}  <DrawingImage>{NewLine}");
+                sb.Append($"{indent}    <DrawingGroup>{NewLine}");
+            }
+            else
+            {
+                sb.Append($"{indent}<DrawingGroup>{NewLine}");
+            }
 
             if (skPicture?.Commands is { })
             {
@@ -402,31 +409,31 @@ namespace SvgToXamlConverter
                             }
 
                             var isDrawingGroup = !totalMatrix.IsIdentity || clipPath is not null;
-                            var indent = "      ";
+                            var groupIndent = $"{indent}      ";
 
                             if (isDrawingGroup)
                             {
-                                sb.Append($"{indent}<DrawingGroup>{NewLine}");
+                                sb.Append($"{groupIndent}<DrawingGroup>{NewLine}");
                             }
 
                             if (isDrawingGroup && !totalMatrix.IsIdentity)
                             {
-                                sb.Append($"{indent}  <DrawingGroup.Transform>{NewLine}");
-                                sb.Append($"{indent}    <MatrixTransform Matrix=\"{ToMatrix(totalMatrix)}\"/>{NewLine}");
-                                sb.Append($"{indent}  </DrawingGroup.Transform>{NewLine}");
+                                sb.Append($"{groupIndent}  <DrawingGroup.Transform>{NewLine}");
+                                sb.Append($"{groupIndent}    <MatrixTransform Matrix=\"{ToMatrix(totalMatrix)}\"/>{NewLine}");
+                                sb.Append($"{groupIndent}  </DrawingGroup.Transform>{NewLine}");
                             }
 
                             if (isDrawingGroup && clipPath is not null)
                             {
                                 var clipGeometry = ToSvgPathData(clipPath);
-                                sb.Append($"{indent}  <DrawingGroup.ClipGeometry>{NewLine}");
-                                sb.Append($"{indent}    <StreamGeometry>{clipGeometry}</StreamGeometry>{NewLine}");
-                                sb.Append($"{indent}  </DrawingGroup.ClipGeometry>{NewLine}");
+                                sb.Append($"{groupIndent}  <DrawingGroup.ClipGeometry>{NewLine}");
+                                sb.Append($"{groupIndent}    <StreamGeometry>{clipGeometry}</StreamGeometry>{NewLine}");
+                                sb.Append($"{groupIndent}  </DrawingGroup.ClipGeometry>{NewLine}");
                             }
 
-                            var drawingIndent = isDrawingGroup ? $"{indent}  " : indent;
+                            var geometryIndent = isDrawingGroup ? $"{groupIndent}  " : groupIndent;
 
-                            sb.Append($"{drawingIndent}<GeometryDrawing");
+                            sb.Append($"{geometryIndent}<GeometryDrawing");
 
                             if ((skPaint.Style == SKPaintStyle.Fill || skPaint.Style == SKPaintStyle.StrokeAndFill) && skPaint.Shader is ColorShader colorShader)
                             {
@@ -445,7 +452,7 @@ namespace SvgToXamlConverter
                             {
                                 if (skPaint.Shader is { })
                                 {
-                                    brush = ToBrush(skPaint.Shader, path.Bounds, $"{drawingIndent}    ");
+                                    brush = ToBrush(skPaint.Shader, path.Bounds, $"{geometryIndent}    ");
                                 }
                             }
 
@@ -453,7 +460,7 @@ namespace SvgToXamlConverter
                             {
                                 if (skPaint.Shader is { })
                                 {
-                                    pen = ToPen(skPaint, path.Bounds, $"{drawingIndent}    ");
+                                    pen = ToPen(skPaint, path.Bounds, $"{geometryIndent}    ");
                                 }
                             }
 
@@ -468,26 +475,26 @@ namespace SvgToXamlConverter
 
                             if (brush is { })
                             {
-                                sb.Append($"{drawingIndent}  <GeometryDrawing.Brush>{NewLine}");
+                                sb.Append($"{geometryIndent}  <GeometryDrawing.Brush>{NewLine}");
                                 sb.Append($"{brush}");
-                                sb.Append($"{drawingIndent}  </GeometryDrawing.Brush>{NewLine}");
+                                sb.Append($"{geometryIndent}  </GeometryDrawing.Brush>{NewLine}");
                             }
 
                             if (pen is { })
                             {
-                                sb.Append($"{drawingIndent}  <GeometryDrawing.Pen>{NewLine}");
+                                sb.Append($"{geometryIndent}  <GeometryDrawing.Pen>{NewLine}");
                                 sb.Append($"{pen}");
-                                sb.Append($"{drawingIndent}  </GeometryDrawing.Pen>{NewLine}");
+                                sb.Append($"{geometryIndent}  </GeometryDrawing.Pen>{NewLine}");
                             }
 
                             if (brush is not null || pen is not null)
                             {
-                                sb.Append($"{drawingIndent}</GeometryDrawing>{NewLine}");
+                                sb.Append($"{geometryIndent}</GeometryDrawing>{NewLine}");
                             }
 
                             if (isDrawingGroup)
                             {
-                                sb.Append($"{indent}</DrawingGroup>{NewLine}");
+                                sb.Append($"{groupIndent}</DrawingGroup>{NewLine}");
                             }
 
                             break;
@@ -514,9 +521,16 @@ namespace SvgToXamlConverter
                 }
             }
 
-            sb.Append($"    </DrawingGroup>{NewLine}");
-            sb.Append($"  </DrawingImage>{NewLine}");
-            sb.Append($"</Image>");
+            if (generateImage)
+            {
+                sb.Append($"{indent}    </DrawingGroup>{NewLine}");
+                sb.Append($"{indent}  </DrawingImage>{NewLine}");
+                sb.Append($"{indent}</Image>");
+            }
+            else
+            {
+                sb.Append($"{indent}</DrawingGroup>{NewLine}");
+            }
 
             return sb.ToString();
         }

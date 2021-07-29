@@ -52,15 +52,33 @@ namespace SvgToXamlConverter
                         return;
                     }
 
+                    var generateImage = false;
+                    var generateStyles = true;
+                    var indent = generateStyles ? "      " : "";
                     var xaml = default(string);
+
+                    if (generateStyles)
+                    {
+                        xaml += "<Styles xmlns=\"https://github.com/avaloniaui\"";
+                        xaml += "        xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">";
+                        xaml += "  <Style>";
+                        xaml += "    <Style.Resources>";
+                    }
 
                     foreach (var path in paths)
                     {
                         var svg = new SKSvg();
                         var picture = svg.Load(path);
                         xaml += $"<!-- {path} -->";
-                        xaml += SvgConverter.ToXaml(svg.Model);
+                        xaml += SvgConverter.ToXaml(svg.Model, generateImage: generateImage, indent: indent);
                         xaml += SvgConverter.NewLine;
+                    }
+
+                    if (generateStyles)
+                    {
+                        xaml += "    </Style.Resources>";
+                        xaml += "  </Style>";
+                        xaml += "</Styles xmlns=\"https://github.com/avaloniaui\"";
                     }
 
                     if (args.Length == 1)
