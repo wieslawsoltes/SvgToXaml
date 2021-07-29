@@ -58,6 +58,7 @@ namespace SvgToXamlConverter
                     {
                         var svg = new SKSvg();
                         var picture = svg.Load(path);
+                        xaml += $"<!-- {path} -->";
                         xaml += SvgConverter.ToXaml(svg.Model);
                         xaml += SvgConverter.NewLine;
                     }
