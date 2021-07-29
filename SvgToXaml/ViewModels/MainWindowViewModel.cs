@@ -18,6 +18,7 @@ namespace SvgToXaml.ViewModels
     {
         private ObservableCollection<FileItemViewModel>? _items;
         private FileItemViewModel? _selectedItem;
+        private bool _enableGenerateImage;
 
         public FileItemViewModel? SelectedItem
         {
@@ -29,6 +30,12 @@ namespace SvgToXaml.ViewModels
         {
             get => _items;
             set => this.RaiseAndSetIfChanged(ref _items, value);
+        }
+
+        public bool EnableGenerateImage
+        {
+            get => _enableGenerateImage;
+            set => this.RaiseAndSetIfChanged(ref _enableGenerateImage, value);
         }
 
         public ICommand ClearCommand { get; }
@@ -44,6 +51,8 @@ namespace SvgToXaml.ViewModels
         public MainWindowViewModel()
         {
             _items = new ObservableCollection<FileItemViewModel>();
+
+            _enableGenerateImage = true;
 
             ClearCommand = ReactiveCommand.Create(() =>
             {
@@ -76,7 +85,7 @@ namespace SvgToXaml.ViewModels
                     return;
                 }
 
-                var xaml = await ToXaml(_selectedItem);
+                var xaml = await ToXaml(_selectedItem, _enableGenerateImage);
 
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
@@ -124,7 +133,7 @@ namespace SvgToXaml.ViewModels
                     // ignored
                 }
 
-                var xaml = await Task.Run(() => SvgConverter.ToXaml(svg.Model));
+                var xaml = await Task.Run(() => SvgConverter.ToXaml(svg.Model, generateImage: _enableGenerateImage, indent: "", key: null));
 
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
@@ -154,16 +163,16 @@ namespace SvgToXaml.ViewModels
                 var result = await dlg.ShowAsync((Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow);
                 if (result is { })
                 {
-                    var xaml = await ToXaml(_selectedItem);
+                    var xaml = await ToXaml(_selectedItem, _enableGenerateImage);
 
                     await File.WriteAllTextAsync(result, xaml);
                 }
             });
         }
 
-        private static async Task<string> ToXaml(FileItemViewModel fileItemViewModel)
+        private static async Task<string> ToXaml(FileItemViewModel fileItemViewModel, bool enableGenerateImage)
         {
-            return await Task.Run(() => SvgConverter.ToXaml(fileItemViewModel.Svg?.Model));
+            return await Task.Run(() => SvgConverter.ToXaml(fileItemViewModel.Svg?.Model, generateImage: enableGenerateImage, indent: "", key: null));
         }
 
         public async void Drop(IEnumerable<string> paths)
