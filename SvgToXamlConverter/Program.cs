@@ -79,7 +79,7 @@ namespace SvgToXamlConverter
                     {
                         xaml += $"    </Style.Resources>{SvgConverter.NewLine}";
                         xaml += $"  </Style>{SvgConverter.NewLine}";
-                        xaml += $"</Styles>{SvgConverter.NewLine}";
+                        xaml += $"</Styles>";
                     }
 
                     if (args.Length == 1)
