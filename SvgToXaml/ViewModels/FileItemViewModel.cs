@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using ReactiveUI;
 using Svg.Skia;
@@ -7,6 +8,7 @@ namespace SvgToXaml.ViewModels
 {
     public class FileItemViewModel : ViewModelBase
     {
+        private bool _isLoading;
         private string _name;
         private string _path;
         private SKSvg? _svg;
@@ -42,10 +44,29 @@ namespace SvgToXaml.ViewModels
         {
             _name = name;
             _path = path;
-            _svg = new SKSvg();
-            _picture = _svg.Load(_path);
 
             RemoveCommand = ReactiveCommand.Create(() => remove(this));
+        }
+
+        public async Task Load()
+        {
+            if (_isLoading)
+            {
+                return;
+            }
+
+            _isLoading = true;
+
+            if (Picture is null)
+            {
+                await Task.Run(() =>
+                {
+                    Svg = new SKSvg();
+                    Picture = Svg.Load(Path);
+                });
+            }
+
+            _isLoading = false;
         }
     }
 }

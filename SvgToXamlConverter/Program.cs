@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Svg.Skia;
 
 namespace SvgToXamlConverter
@@ -29,13 +30,6 @@ namespace SvgToXamlConverter
             }
         }
 
-        static string CreateKey(string path)
-        {
-            string name = Path.GetFileNameWithoutExtension(path);
-            string key = name.Replace("-", "_");
-            return $"_{key}";
-        }
-
         static void Main(string[] args)
         {
             if (args.Length != 1 && args.Length != 2)
@@ -61,35 +55,7 @@ namespace SvgToXamlConverter
                         return;
                     }
 
-                    var generateImage = false;
-                    var generateStyles = true;
-                    var indent = generateStyles ? "      " : "";
-                    var xaml = default(string);
-
-                    if (generateStyles)
-                    {
-                        xaml += $"<Styles xmlns=\"https://github.com/avaloniaui\"{SvgConverter.NewLine}";
-                        xaml += $"        xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">{SvgConverter.NewLine}";
-                        xaml += $"  <Style>{SvgConverter.NewLine}";
-                        xaml += $"    <Style.Resources>{SvgConverter.NewLine}";
-                    }
-
-                    for (var i = 0; i < paths.Count; i++)
-                    {
-                        var path = paths[i];
-                        var svg = new SKSvg();
-                        var picture = svg.Load(path);
-                        xaml += $"{indent}<!-- {Path.GetFileName(path)} -->{SvgConverter.NewLine}";
-                        xaml += SvgConverter.ToXaml(svg.Model, generateImage: generateImage, indent: indent, key: generateStyles ? $"_{CreateKey(path)}" : null);
-                        xaml += SvgConverter.NewLine;
-                    }
-
-                    if (generateStyles)
-                    {
-                        xaml += $"    </Style.Resources>{SvgConverter.NewLine}";
-                        xaml += $"  </Style>{SvgConverter.NewLine}";
-                        xaml += $"</Styles>";
-                    }
+                    var xaml = SvgConverter.ToXaml(paths, generateImage: false, generateStyles: true, indent: "");
 
                     if (args.Length == 1)
                     {

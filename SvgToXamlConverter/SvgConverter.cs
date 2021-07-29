@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using ShimSkiaSharp;
+using Svg.Skia;
 
 namespace SvgToXamlConverter
 {
@@ -533,6 +535,52 @@ namespace SvgToXamlConverter
             }
 
             return sb.ToString();
+        }
+
+        public static string ToXaml(List<string> paths, bool generateImage = false, bool generateStyles = true, string indent = "")
+        {
+            var indentXaml = $"{indent}{(generateStyles ? "      " : "")}";
+            var sb = new StringBuilder();
+
+            if (generateStyles)
+            {
+                sb.Append($"{indent}<Styles xmlns=\"https://github.com/avaloniaui\"{NewLine}");
+                sb.Append($"{indent}        xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">{NewLine}");
+                sb.Append($"{indent}  <Style>{NewLine}");
+                sb.Append($"{indent}<Style.Resources>{NewLine}");
+            }
+
+            for (var i = 0; i < paths.Count; i++)
+            {
+                var path = paths[i];
+                var svg = new SKSvg();
+                svg.Load(path);
+                if (svg.Model is null)
+                {
+                    continue;
+                }
+
+                var xaml = ToXaml(svg.Model, generateImage: generateImage, indent: indentXaml, key: generateStyles ? $"_{CreateKey(path)}" : null);
+                sb.Append($"{indentXaml}<!-- {Path.GetFileName(path)} -->{NewLine}");
+                sb.Append(xaml);
+                sb.Append(NewLine);
+            }
+
+            if (generateStyles)
+            {
+                sb.Append($"{indent}    </Style.Resources>{NewLine}");
+                sb.Append($"{indent}  </Style>{NewLine}");
+                sb.Append($"{indent}</Styles>");
+            }
+
+            return sb.ToString();
+        }
+
+        public static string CreateKey(string path)
+        {
+            string name = Path.GetFileNameWithoutExtension(path);
+            string key = name.Replace("-", "_");
+            return $"_{key}";
         }
     }
 }
