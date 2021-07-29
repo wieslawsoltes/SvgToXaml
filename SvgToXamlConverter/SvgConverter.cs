@@ -288,19 +288,19 @@ namespace SvgToXamlConverter
                    $"{ToString(skMatrix.TransY)}";
         }
 
-        public static string ToXaml(SKPicture? skPicture, bool generateImage = true, string indent = "")
+        public static string ToXaml(SKPicture? skPicture, bool generateImage = true, string indent = "", string? key = null)
         {
             var sb = new StringBuilder();
 
             if (generateImage)
             {
-                sb.Append($"{indent}<Image>{NewLine}");
+                sb.Append($"{indent}<Image{(key is null ? "" : ($" x:Key=\"{key}\""))}>{NewLine}");
                 sb.Append($"{indent}  <DrawingImage>{NewLine}");
                 sb.Append($"{indent}    <DrawingGroup>{NewLine}");
             }
             else
             {
-                sb.Append($"{indent}<DrawingGroup>{NewLine}");
+                sb.Append($"{indent}<DrawingGroup{(key is null ? "" : ($" x:Key=\"{key}\""))}>{NewLine}");
             }
 
             if (skPicture?.Commands is { })

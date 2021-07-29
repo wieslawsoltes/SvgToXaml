@@ -65,12 +65,13 @@ namespace SvgToXamlConverter
                         xaml += "    <Style.Resources>";
                     }
 
-                    foreach (var path in paths)
+                    for (var i = 0; i < paths.Count; i++)
                     {
+                        var path = paths[i];
                         var svg = new SKSvg();
                         var picture = svg.Load(path);
-                        xaml += $"<!-- {path} -->";
-                        xaml += SvgConverter.ToXaml(svg.Model, generateImage: generateImage, indent: indent);
+                        xaml += $"{indent}<!-- {path} -->";
+                        xaml += SvgConverter.ToXaml(svg.Model, generateImage: generateImage, indent: indent, key: generateStyles ? i.ToString() : null);
                         xaml += SvgConverter.NewLine;
                     }
 
