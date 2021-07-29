@@ -8,6 +8,8 @@ namespace SvgToXaml
 {
     public static class SvgConverter
     {
+        public static char[] NewLine = { '\r', '\n' };
+
         public static string ToString(double value)
         {
             return value.ToString(CultureInfo.InvariantCulture);
@@ -52,7 +54,7 @@ namespace SvgToXaml
 
                 brush += $"{indent}<SolidColorBrush";
                 brush += $" Color=\"{ToHexColor(colorShader.Color)}\"";
-                brush += $"/>\r\n";
+                brush += $"/>{NewLine}";
 
                 return brush;
             }
@@ -74,8 +76,8 @@ namespace SvgToXaml
                 brush += $"{indent}<LinearGradientBrush";
                 brush += $" StartPoint=\"{ToPoint(start)}\"";
                 brush += $" EndPoint=\"{ToPoint(end)}\"";
-                brush += $" SpreadMethod=\"{ToGradientSpreadMethod(linearGradientShader.Mode)}\">\r\n";
-                brush += $"{indent}  <LinearGradientBrush.GradientStops>\r\n";
+                brush += $" SpreadMethod=\"{ToGradientSpreadMethod(linearGradientShader.Mode)}\">{NewLine}";
+                brush += $"{indent}  <LinearGradientBrush.GradientStops>{NewLine}";
 
                 if (linearGradientShader.Colors is { } && linearGradientShader.ColorPos is { })
                 {
@@ -83,12 +85,12 @@ namespace SvgToXaml
                     {
                         var color = ToHexColor(linearGradientShader.Colors[i]);
                         var offset = ToString(linearGradientShader.ColorPos[i]);
-                        brush += $"{indent}    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>\r\n";
+                        brush += $"{indent}    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{NewLine}";
                     }
                 }
 
-                brush += $"{indent}  </LinearGradientBrush.GradientStops>\r\n";
-                brush += $"{indent}</LinearGradientBrush>\r\n";
+                brush += $"{indent}  </LinearGradientBrush.GradientStops>{NewLine}";
+                brush += $"{indent}</LinearGradientBrush>{NewLine}";
 
                 return brush;
             }
@@ -123,8 +125,8 @@ namespace SvgToXaml
                 brush += $" Center=\"{ToPoint(center)}\"";
                 brush += $" GradientOrigin=\"{ToPoint(gradientOrigin)}\"";
                 brush += $" Radius=\"{ToString(endRadius)}\"";
-                brush += $" SpreadMethod=\"{ToGradientSpreadMethod(twoPointConicalGradientShader.Mode)}\">\r\n";
-                brush += $"{indent}  <RadialGradientBrush.GradientStops>\r\n";
+                brush += $" SpreadMethod=\"{ToGradientSpreadMethod(twoPointConicalGradientShader.Mode)}\">{NewLine}";
+                brush += $"{indent}  <RadialGradientBrush.GradientStops>{NewLine}";
 
                 if (twoPointConicalGradientShader.Colors is { } && twoPointConicalGradientShader.ColorPos is { })
                 {
@@ -132,12 +134,12 @@ namespace SvgToXaml
                     {
                         var color = ToHexColor(twoPointConicalGradientShader.Colors[i]);
                         var offset = ToString(twoPointConicalGradientShader.ColorPos[i]);
-                        brush += $"{indent}    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>\r\n";
+                        brush += $"{indent}    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{NewLine}";
                     }
                 }
 
-                brush += $"{indent}  </RadialGradientBrush.GradientStops>\r\n";
-                brush += $"{indent}</RadialGradientBrush>\r\n";
+                brush += $"{indent}  </RadialGradientBrush.GradientStops>{NewLine}";
+                brush += $"{indent}</RadialGradientBrush>{NewLine}";
 
                 return brush;
             }
@@ -217,11 +219,11 @@ namespace SvgToXaml
 
                 if (skPaint.Shader is not ColorShader || (skPaint.PathEffect is DashPathEffect { Intervals: { } }))
                 {
-                    pen += $">\r\n";
+                    pen += $">{NewLine}";
                 }
                 else
                 {
-                    pen += $"/>\r\n";
+                    pen += $"/>{NewLine}";
                 }
 
                 if (skPaint.PathEffect is DashPathEffect dashPathEffect && dashPathEffect.Intervals is { })
@@ -235,21 +237,21 @@ namespace SvgToXaml
 
                     var offset = dashPathEffect.Phase / skPaint.StrokeWidth;
 
-                    pen += $"{indent}  <Pen.DashStyle>\r\n";
-                    pen += $"{indent}    <DashStyle Dashes=\"{string.Join(",", dashes.Select(ToString))}\" Offset=\"{ToString(offset)}\"/>\r\n";
-                    pen += $"{indent}  </Pen.DashStyle>\r\n";
+                    pen += $"{indent}  <Pen.DashStyle>{NewLine}";
+                    pen += $"{indent}    <DashStyle Dashes=\"{string.Join(",", dashes.Select(ToString))}\" Offset=\"{ToString(offset)}\"/>{NewLine}";
+                    pen += $"{indent}  </Pen.DashStyle>{NewLine}";
                 }
 
                 if (skPaint.Shader is not ColorShader)
                 {
-                    pen += $"{indent}  <Pen.Brush>\r\n";
+                    pen += $"{indent}  <Pen.Brush>{NewLine}";
                     pen += ToBrush(skPaint.Shader, skBounds, indent + "    ");
-                    pen += $"{indent}  </Pen.Brush>\r\n";
+                    pen += $"{indent}  </Pen.Brush>{NewLine}";
                 }
 
                 if (skPaint.Shader is not ColorShader || (skPaint.PathEffect is DashPathEffect { Intervals: { } }))
                 {
-                    pen += $"{indent}</Pen>\r\n";
+                    pen += $"{indent}</Pen>{NewLine}";
                 }
 
                 return pen;
@@ -290,11 +292,9 @@ namespace SvgToXaml
         {
             var sb = new StringBuilder();
 
-            sb.Append($"<Image>\r\n");
-            sb.Append($"  <DrawingImage>\r\n");
-            sb.Append($"    <DrawingGroup>\r\n");
-
-            var indent = "      ";
+            sb.Append($"<Image>{NewLine}");
+            sb.Append($"  <DrawingImage>{NewLine}");
+            sb.Append($"    <DrawingGroup>{NewLine}");
 
             if (skPicture?.Commands is { })
             {
@@ -401,26 +401,27 @@ namespace SvgToXaml
                                 }
                             }
 
-                            bool isDrawingGroup = !totalMatrix.IsIdentity || clipPath is not null;
+                            var isDrawingGroup = !totalMatrix.IsIdentity || clipPath is not null;
+                            var indent = "      ";
 
                             if (isDrawingGroup)
                             {
-                                sb.Append($"{indent}<DrawingGroup>\r\n");
+                                sb.Append($"{indent}<DrawingGroup>{NewLine}");
                             }
 
                             if (isDrawingGroup && !totalMatrix.IsIdentity)
                             {
-                                sb.Append($"{indent}  <DrawingGroup.Transform>\r\n");
-                                sb.Append($"{indent}    <MatrixTransform Matrix=\"{ToMatrix(totalMatrix)}\"/>\r\n");
-                                sb.Append($"{indent}  </DrawingGroup.Transform>\r\n");
+                                sb.Append($"{indent}  <DrawingGroup.Transform>{NewLine}");
+                                sb.Append($"{indent}    <MatrixTransform Matrix=\"{ToMatrix(totalMatrix)}\"/>{NewLine}");
+                                sb.Append($"{indent}  </DrawingGroup.Transform>{NewLine}");
                             }
 
                             if (isDrawingGroup && clipPath is not null)
                             {
                                 var clipGeometry = ToSvgPathData(clipPath);
-                                sb.Append($"{indent}  <DrawingGroup.ClipGeometry>\r\n");
-                                sb.Append($"{indent}    <StreamGeometry>{clipGeometry}</StreamGeometry>\r\n");
-                                sb.Append($"{indent}  </DrawingGroup.ClipGeometry>\r\n");
+                                sb.Append($"{indent}  <DrawingGroup.ClipGeometry>{NewLine}");
+                                sb.Append($"{indent}    <StreamGeometry>{clipGeometry}</StreamGeometry>{NewLine}");
+                                sb.Append($"{indent}  </DrawingGroup.ClipGeometry>{NewLine}");
                             }
 
                             var drawingIndent = isDrawingGroup ? $"{indent}  " : indent;
@@ -458,35 +459,35 @@ namespace SvgToXaml
 
                             if (brush is not null || pen is not null)
                             {
-                                sb.Append($">\r\n");
+                                sb.Append($">{NewLine}");
                             }
                             else
                             {
-                                sb.Append($"/>\r\n");
+                                sb.Append($"/>{NewLine}");
                             }
 
                             if (brush is { })
                             {
-                                sb.Append($"{drawingIndent}  <GeometryDrawing.Brush>\r\n");
+                                sb.Append($"{drawingIndent}  <GeometryDrawing.Brush>{NewLine}");
                                 sb.Append($"{brush}");
-                                sb.Append($"{drawingIndent}  </GeometryDrawing.Brush>\r\n");
+                                sb.Append($"{drawingIndent}  </GeometryDrawing.Brush>{NewLine}");
                             }
 
                             if (pen is { })
                             {
-                                sb.Append($"{drawingIndent}  <GeometryDrawing.Pen>\r\n");
+                                sb.Append($"{drawingIndent}  <GeometryDrawing.Pen>{NewLine}");
                                 sb.Append($"{pen}");
-                                sb.Append($"{drawingIndent}  </GeometryDrawing.Pen>\r\n");
+                                sb.Append($"{drawingIndent}  </GeometryDrawing.Pen>{NewLine}");
                             }
 
                             if (brush is not null || pen is not null)
                             {
-                                sb.Append($"{drawingIndent}</GeometryDrawing>\r\n");
+                                sb.Append($"{drawingIndent}</GeometryDrawing>{NewLine}");
                             }
 
                             if (isDrawingGroup)
                             {
-                                sb.Append($"{indent}</DrawingGroup>\r\n");
+                                sb.Append($"{indent}</DrawingGroup>{NewLine}");
                             }
 
                             break;
@@ -513,8 +514,8 @@ namespace SvgToXaml
                 }
             }
 
-            sb.Append($"    </DrawingGroup>\r\n");
-            sb.Append($"  </DrawingImage>\r\n");
+            sb.Append($"    </DrawingGroup>{NewLine}");
+            sb.Append($"  </DrawingImage>{NewLine}");
             sb.Append($"</Image>");
 
             return sb.ToString();
