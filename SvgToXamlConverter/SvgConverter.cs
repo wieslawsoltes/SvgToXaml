@@ -75,6 +75,9 @@ namespace SvgToXamlConverter
                     end = localMatrix.MapPoint(end);
                 }
 
+                start -= skBounds.Location;
+                end -= skBounds.Location;
+
                 brush += $"{indent}<LinearGradientBrush";
                 brush += $" StartPoint=\"{ToPoint(start)}\"";
                 brush += $" EndPoint=\"{ToPoint(end)}\"";
@@ -120,6 +123,9 @@ namespace SvgToXamlConverter
                     var radius = localMatrix.MapVector(new SkiaSharp.SKPoint(endRadius, 0));
                     endRadius = radius.X;
                 }
+
+                center -= skBounds.Location;
+                gradientOrigin -= skBounds.Location;
 
                 endRadius = endRadius / skBounds.Width;
 
