@@ -409,7 +409,7 @@ namespace SvgToXamlConverter
                             }
 
                             var isDrawingGroup = !totalMatrix.IsIdentity || clipPath is not null;
-                            var groupIndent = $"{indent}      ";
+                            var groupIndent = generateImage ? $"{indent}      " : $"{indent}  ";
 
                             if (isDrawingGroup)
                             {
@@ -529,7 +529,7 @@ namespace SvgToXamlConverter
             }
             else
             {
-                sb.Append($"{indent}</DrawingGroup>{NewLine}");
+                sb.Append($"{indent}</DrawingGroup>");
             }
 
             return sb.ToString();
