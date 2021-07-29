@@ -96,8 +96,8 @@
                 Margin="6,0,0,0" />
       </StackPanel>
 
-      <Viewbox>
-        <Viewbox.ContextFlyout>
+      <Panel Background="Transparent">
+        <Panel.ContextFlyout>
           <MenuFlyout Placement="Bottom">
             <MenuItem Header="Copy Xaml"
                       Command="{Binding CopyCommand}"
@@ -106,9 +106,11 @@
                       Command="{Binding ExportCommand}"
                       CommandParameter="XAML" />
           </MenuFlyout>
-        </Viewbox.ContextFlyout>
-        <SKPictureControl Picture="{Binding SelectedItem.Picture, FallbackValue={x:Null}}" />
-      </Viewbox>
+        </Panel.ContextFlyout>
+        <Viewbox>
+          <SKPictureControl Picture="{Binding SelectedItem.Picture, FallbackValue={x:Null}}" />
+        </Viewbox>
+      </Panel>
 
     </DockPanel>
 
