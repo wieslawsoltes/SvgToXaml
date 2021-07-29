@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows.Input;
 using ReactiveUI;
-using SkiaSharp;
 using Svg.Skia;
 
 namespace SvgToXaml.ViewModels
@@ -11,7 +10,7 @@ namespace SvgToXaml.ViewModels
         private string _name;
         private string _path;
         private SKSvg? _svg;
-        private SKPicture? _picture;
+        private SkiaSharp.SKPicture? _picture;
 
         public string Name
         {
@@ -31,7 +30,7 @@ namespace SvgToXaml.ViewModels
             private set => this.RaiseAndSetIfChanged(ref _svg, value);
         }
 
-        public SKPicture? Picture
+        public SkiaSharp.SKPicture? Picture
         {
             get => _picture;
             private set => this.RaiseAndSetIfChanged(ref _picture, value);

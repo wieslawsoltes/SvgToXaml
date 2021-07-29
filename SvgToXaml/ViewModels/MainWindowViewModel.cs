@@ -10,6 +10,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using ReactiveUI;
 using Svg.Skia;
+using SvgToXamlConverter;
 
 namespace SvgToXaml.ViewModels
 {

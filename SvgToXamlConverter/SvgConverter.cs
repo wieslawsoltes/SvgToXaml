@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using ShimSkiaSharp;
 
-namespace SvgToXaml
+namespace SvgToXamlConverter
 {
     public static class SvgConverter
     {
-        public static char[] NewLine = { '\r', '\n' };
+        public static string NewLine = "\r\n";
 
         public static string ToString(double value)
         {
