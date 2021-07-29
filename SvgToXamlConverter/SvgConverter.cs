@@ -547,7 +547,7 @@ namespace SvgToXamlConverter
                 sb.Append($"{indent}<Styles xmlns=\"https://github.com/avaloniaui\"{NewLine}");
                 sb.Append($"{indent}        xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">{NewLine}");
                 sb.Append($"{indent}  <Style>{NewLine}");
-                sb.Append($"{indent}<Style.Resources>{NewLine}");
+                sb.Append($"{indent}    <Style.Resources>{NewLine}");
             }
 
             for (var i = 0; i < paths.Count; i++)
