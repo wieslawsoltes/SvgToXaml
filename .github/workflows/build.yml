@@ -83,4 +83,4 @@ jobs:
       uses: actions/upload-artifact@master
       with:
         name: SvgToXaml-osx.10.12-x64
-        path: ./artifacts/ASvgToXaml-osx.10.12-x64
+        path: ./artifacts/SvgToXaml-osx.10.12-x64
