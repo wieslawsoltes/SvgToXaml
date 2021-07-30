@@ -75,7 +75,7 @@ namespace SvgToXamlConverter
             };
         }
 
-        private static string ToBrush(ColorShader colorShader, string indent)
+        private static string ToBrush(ColorShader colorShader, SkiaSharp.SKRect skBounds, string indent)
         {
             var brush = "";
 
@@ -116,7 +116,12 @@ namespace SvgToXamlConverter
             brush += $"{indent}<LinearGradientBrush";
             brush += $" StartPoint=\"{ToPoint(start)}\"";
             brush += $" EndPoint=\"{ToPoint(end)}\"";
-            brush += $" SpreadMethod=\"{ToGradientSpreadMethod(linearGradientShader.Mode)}\">{NewLine}";
+
+            if (linearGradientShader.Mode != SKShaderTileMode.Clamp)
+            {
+                brush += $" SpreadMethod=\"{ToGradientSpreadMethod(linearGradientShader.Mode)}\">{NewLine}";
+            }
+
             brush += $"{indent}  <LinearGradientBrush.GradientStops>{NewLine}";
 
             if (linearGradientShader.Colors is { } && linearGradientShader.ColorPos is { })
@@ -178,7 +183,12 @@ namespace SvgToXamlConverter
             brush += $" Center=\"{ToPoint(center)}\"";
             brush += $" GradientOrigin=\"{ToPoint(gradientOrigin)}\"";
             brush += $" Radius=\"{ToString(endRadius)}\"";
-            brush += $" SpreadMethod=\"{ToGradientSpreadMethod(twoPointConicalGradientShader.Mode)}\">{NewLine}";
+
+            if (twoPointConicalGradientShader.Mode != SKShaderTileMode.Clamp)
+            {
+                brush += $" SpreadMethod=\"{ToGradientSpreadMethod(twoPointConicalGradientShader.Mode)}\">{NewLine}";
+            }
+
             brush += $"{indent}  <RadialGradientBrush.GradientStops>{NewLine}";
 
             if (twoPointConicalGradientShader.Colors is { } && twoPointConicalGradientShader.ColorPos is { })
@@ -227,7 +237,12 @@ namespace SvgToXamlConverter
 
             // TODO: Use different than Image ?
             brush += $"{indent}<VisualBrush";
-            brush += $" TileMode=\"{ToTileMode(pictureShader.TmX)}\"";
+
+            if (pictureShader.TmX != SKShaderTileMode.Clamp)
+            {
+                brush += $" TileMode=\"{ToTileMode(pictureShader.TmX)}\"";
+            }
+
             brush += $" SourceRect=\"{ToRect(sourceRect)}\"";
             brush += $" DestinationRect=\"{ToRect(destinationRect)}\">{NewLine}";
             brush += $"{indent}  <VisualBrush.Visual>{NewLine}";
@@ -243,27 +258,14 @@ namespace SvgToXamlConverter
 
         public static string ToBrush(SKShader skShader, SkiaSharp.SKRect skBounds, string indent = "")
         {
-            if (skShader is ColorShader colorShader)
+            return skShader switch
             {
-                return ToBrush(colorShader, indent);
-            }
-
-            if (skShader is LinearGradientShader linearGradientShader)
-            {
-                return ToBrush(linearGradientShader, skBounds, indent);
-            }
-
-            if (skShader is TwoPointConicalGradientShader twoPointConicalGradientShader)
-            {
-                return ToBrush(twoPointConicalGradientShader, skBounds, indent);
-            }
-
-            if (skShader is PictureShader pictureShader && pictureShader.Src is { })
-            {
-                return ToBrush(pictureShader, skBounds, indent);
-            }
-
-            return "";
+                ColorShader colorShader => ToBrush(colorShader, skBounds, indent),
+                LinearGradientShader linearGradientShader => ToBrush(linearGradientShader, skBounds, indent),
+                TwoPointConicalGradientShader twoPointConicalGradientShader => ToBrush(twoPointConicalGradientShader, skBounds, indent),
+                PictureShader pictureShader => ToBrush(pictureShader, skBounds, indent),
+                _ => ""
+            };
         }
 
         public static string ToPenLineCap(SKStrokeCap strokeCap)
