@@ -27,3 +27,60 @@ jobs:
       run: dotnet build --configuration Release
     - name: Test Release
       run: dotnet test --configuration Release
+
+  publish-windows:
+    name: Publish windows-latest
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.100
+    - name: Publish
+      if: github.event_name != 'pull_request'
+      run: dotnet publish -c Release -f net5.0 -r win7-x64 -o ./artifacts/SvgToXaml-win7-x64 ./SvgToXaml/SvgToXaml/SvgToXaml.csproj
+    - name: Artifacts
+      if: github.event_name != 'pull_request'
+      uses: actions/upload-artifact@master
+      with:
+        name: SvgToXaml-win7-x64
+        path: ./artifacts/SvgToXaml-win7-x64
+
+  publish-ubuntu:
+    name: Publish ubuntu-latest
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.100
+    - name: Publish
+      if: github.event_name != 'pull_request'
+      run: dotnet publish -c Release -f net5.0 -r ubuntu.14.04-x64 -o ./artifacts/SvgToXaml-ubuntu.14.04-x64 ./SvgToXaml/SvgToXaml/SvgToXaml.csproj
+    - name: Artifacts
+      if: github.event_name != 'pull_request'
+      uses: actions/upload-artifact@master
+      with:
+        name: SvgToXaml-ubuntu.14.04-x64
+        path: ./artifacts/SvgToXaml-ubuntu.14.04-x64
+
+  publish-macOS:
+    name: Publish macOS-latest
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.100
+    - name: Publish
+      if: github.event_name != 'pull_request'
+      run: dotnet publish -c Release -f net5.0 -r osx.10.12-x64 -o ./artifacts/SvgToXaml-osx.10.12-x64 ./SvgToXaml/SvgToXaml/SvgToXaml.csproj
+    - name: Artifacts
+      if: github.event_name != 'pull_request'
+      uses: actions/upload-artifact@master
+      with:
+        name: SvgToXaml-osx.10.12-x64
+        path: ./artifacts/ASvgToXaml-osx.10.12-x64
