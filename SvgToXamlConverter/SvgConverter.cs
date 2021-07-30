@@ -205,10 +205,9 @@ namespace SvgToXamlConverter
 
                 if (pictureShader.LocalMatrix is { })
                 {
-                    // TODO:
-                    var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(pictureShader.LocalMatrix);
-
                     // TODO: Missing Transform property on VisualBrush
+
+                    var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(pictureShader.LocalMatrix);
 
                     if (!localMatrix.IsIdentity)
                     {
@@ -217,13 +216,13 @@ namespace SvgToXamlConverter
                 }
                 else
                 {
-                    // TODO:
+                    // TODO: Adjust using skBounds.Location
                 }
 
                 var sourceRect = pictureShader.Src.CullRect;
                 var destinationRect = pictureShader.Tile;
 
-                // TODO:
+                // TODO: Use different than Image ?
                 brush += $"{indent}<VisualBrush";
                 brush += $" TileMode=\"{ToTileMode(pictureShader.TmX)}\"";
                 brush += $" SourceRect=\"{ToRect(sourceRect)}\"";
