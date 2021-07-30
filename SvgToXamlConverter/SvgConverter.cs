@@ -75,7 +75,7 @@ namespace SvgToXamlConverter
             };
         }
 
-        private static string ToBrush(ColorShader colorShader, SkiaSharp.SKRect skBounds, string indent)
+        public static string ToBrush(ColorShader colorShader, SkiaSharp.SKRect skBounds, string indent)
         {
             var brush = "";
 
@@ -86,7 +86,7 @@ namespace SvgToXamlConverter
             return brush;
         }
 
-        private static string ToBrush(LinearGradientShader linearGradientShader, SkiaSharp.SKRect skBounds, string indent)
+        public static string ToBrush(LinearGradientShader linearGradientShader, SkiaSharp.SKRect skBounds, string indent)
         {
             var brush = "";
 
@@ -140,7 +140,7 @@ namespace SvgToXamlConverter
             return brush;
         }
 
-        private static string ToBrush(TwoPointConicalGradientShader twoPointConicalGradientShader, SkiaSharp.SKRect skBounds, string indent)
+        public static string ToBrush(TwoPointConicalGradientShader twoPointConicalGradientShader, SkiaSharp.SKRect skBounds, string indent)
         {
             var brush = "";
 
@@ -207,7 +207,7 @@ namespace SvgToXamlConverter
             return brush;
         }
 
-        private static string ToBrush(PictureShader pictureShader, SkiaSharp.SKRect skBounds, string indent)
+        public static string ToBrush(PictureShader pictureShader, SkiaSharp.SKRect skBounds, string indent)
         {
             var brush = "";
 
@@ -300,7 +300,7 @@ namespace SvgToXamlConverter
             }
         }
 
-        private static string ToPen(SKPaint skPaint, SkiaSharp.SKRect skBounds, string indent = "")
+        public static string ToPen(SKPaint skPaint, SkiaSharp.SKRect skBounds, string indent = "")
         {
             if (skPaint.Shader is { })
             {
@@ -376,7 +376,7 @@ namespace SvgToXamlConverter
             return "";
         }
 
-        private static string ToSvgPathData(SkiaSharp.SKPath path)
+        public static string ToSvgPathData(SkiaSharp.SKPath path)
         {
             var data = path.ToSvgPathData();
 
