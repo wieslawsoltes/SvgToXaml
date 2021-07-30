@@ -117,8 +117,10 @@ namespace SvgToXamlConverter
 
             if (linearGradientShader.Mode != ShimSkiaSharp.SKShaderTileMode.Clamp)
             {
-                brush += $" SpreadMethod=\"{ToGradientSpreadMethod(linearGradientShader.Mode)}\">{NewLine}";
+                brush += $" SpreadMethod=\"{ToGradientSpreadMethod(linearGradientShader.Mode)}\"";
             }
+
+            brush += $">{NewLine}";
 
             brush += $"{indent}  <LinearGradientBrush.GradientStops>{NewLine}";
 
@@ -184,8 +186,10 @@ namespace SvgToXamlConverter
 
             if (twoPointConicalGradientShader.Mode != ShimSkiaSharp.SKShaderTileMode.Clamp)
             {
-                brush += $" SpreadMethod=\"{ToGradientSpreadMethod(twoPointConicalGradientShader.Mode)}\">{NewLine}";
+                brush += $" SpreadMethod=\"{ToGradientSpreadMethod(twoPointConicalGradientShader.Mode)}\"";
             }
+
+            brush += $">{NewLine}";
 
             brush += $"{indent}  <RadialGradientBrush.GradientStops>{NewLine}";
 
