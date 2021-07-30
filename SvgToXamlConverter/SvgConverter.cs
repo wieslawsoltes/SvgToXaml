@@ -59,6 +59,22 @@ namespace SvgToXamlConverter
             }
         }
 
+        public static string ToTileMode(this SKShaderTileMode shaderTileMode)
+        {
+            switch (shaderTileMode)
+            {
+                default:
+                case SKShaderTileMode.Clamp:
+                    return "None";
+
+                case SKShaderTileMode.Repeat:
+                    return "Tile";
+
+                case SKShaderTileMode.Mirror:
+                    return "FlipXY";
+            };
+        }
+
         public static string ToBrush(SKShader skShader, SkiaSharp.SKRect skBounds, string indent = "")
         {
             if (skShader is ColorShader colorShader)
