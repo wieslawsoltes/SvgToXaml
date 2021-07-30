@@ -246,7 +246,10 @@ namespace SvgToXamlConverter
             }
 
             brush += $" SourceRect=\"{ToRect(sourceRect)}\"";
-            brush += $" DestinationRect=\"{ToRect(destinationRect)}\">{NewLine}";
+            brush += $" DestinationRect=\"{ToRect(destinationRect)}\"";
+
+            brush += $">{NewLine}";
+
             brush += $"{indent}  <VisualBrush.Visual>{NewLine}";
 
             var visual = ToXaml(pictureShader.Src, generateImage: true, $"{indent}    ", key: null);
