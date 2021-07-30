@@ -39,7 +39,7 @@ jobs:
         dotnet-version: 5.0.100
     - name: Publish
       if: github.event_name != 'pull_request'
-      run: dotnet publish -c Release -f net5.0 -r win7-x64 -o ./artifacts/SvgToXaml-win7-x64 ./SvgToXaml/SvgToXaml/SvgToXaml.csproj
+      run: dotnet publish -c Release -f net5.0 -r win7-x64 -o ./artifacts/SvgToXaml-win7-x64 ./SvgToXaml/SvgToXaml.csproj
     - name: Artifacts
       if: github.event_name != 'pull_request'
       uses: actions/upload-artifact@master
@@ -58,7 +58,7 @@ jobs:
         dotnet-version: 5.0.100
     - name: Publish
       if: github.event_name != 'pull_request'
-      run: dotnet publish -c Release -f net5.0 -r ubuntu.14.04-x64 -o ./artifacts/SvgToXaml-ubuntu.14.04-x64 ./SvgToXaml/SvgToXaml/SvgToXaml.csproj
+      run: dotnet publish -c Release -f net5.0 -r ubuntu.14.04-x64 -o ./artifacts/SvgToXaml-ubuntu.14.04-x64 ./SvgToXaml/SvgToXaml.csproj
     - name: Artifacts
       if: github.event_name != 'pull_request'
       uses: actions/upload-artifact@master
@@ -77,7 +77,7 @@ jobs:
         dotnet-version: 5.0.100
     - name: Publish
       if: github.event_name != 'pull_request'
-      run: dotnet publish -c Release -f net5.0 -r osx.10.12-x64 -o ./artifacts/SvgToXaml-osx.10.12-x64 ./SvgToXaml/SvgToXaml/SvgToXaml.csproj
+      run: dotnet publish -c Release -f net5.0 -r osx.10.12-x64 -o ./artifacts/SvgToXaml-osx.10.12-x64 ./SvgToXaml/SvgToXaml.csproj
     - name: Artifacts
       if: github.event_name != 'pull_request'
       uses: actions/upload-artifact@master
