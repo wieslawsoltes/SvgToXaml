@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -70,13 +71,22 @@ namespace SvgToXamlConverter
 
                 if (linearGradientShader.LocalMatrix is { })
                 {
+                    // TODO: Missing Transform property on LinearGradientBrush
                     var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(linearGradientShader.LocalMatrix.Value);
+
+                    localMatrix.TransX = Math.Max(0f, localMatrix.TransX - skBounds.Location.X);
+                    localMatrix.TransY = Math.Max(0f, localMatrix.TransY - skBounds.Location.Y);
+
                     start = localMatrix.MapPoint(start);
                     end = localMatrix.MapPoint(end);
                 }
-
-                start -= skBounds.Location;
-                end -= skBounds.Location;
+                else
+                {
+                    start.X = Math.Max(0f, start.X - skBounds.Location.X);
+                    start.Y = Math.Max(0f, start.Y - skBounds.Location.Y);
+                    end.X = Math.Max(0f, end.X - skBounds.Location.X);
+                    end.Y = Math.Max(0f, end.Y - skBounds.Location.Y);
+                }
 
                 brush += $"{indent}<LinearGradientBrush";
                 brush += $" StartPoint=\"{ToPoint(start)}\"";
@@ -116,16 +126,25 @@ namespace SvgToXamlConverter
 
                 if (twoPointConicalGradientShader.LocalMatrix is { })
                 {
+                    // TODO: Missing Transform property on RadialGradientBrush
                     var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(twoPointConicalGradientShader.LocalMatrix.Value);
+
+                    localMatrix.TransX = Math.Max(0f, localMatrix.TransX - skBounds.Location.X);
+                    localMatrix.TransY = Math.Max(0f, localMatrix.TransY - skBounds.Location.Y);
+
                     center = localMatrix.MapPoint(center);
                     gradientOrigin = localMatrix.MapPoint(gradientOrigin);
 
                     var radius = localMatrix.MapVector(new SkiaSharp.SKPoint(endRadius, 0));
                     endRadius = radius.X;
                 }
-
-                center -= skBounds.Location;
-                gradientOrigin -= skBounds.Location;
+                else
+                {
+                    center.X = Math.Max(0f, center.X - skBounds.Location.X);
+                    center.Y = Math.Max(0f, center.Y - skBounds.Location.Y);
+                    gradientOrigin.X = Math.Max(0f, gradientOrigin.X - skBounds.Location.X);
+                    gradientOrigin.Y = Math.Max(0f, gradientOrigin.Y - skBounds.Location.Y);
+                }
 
                 endRadius = endRadius / skBounds.Width;
 
