@@ -98,6 +98,7 @@ namespace SvgToXamlConverter
                 if (linearGradientShader.LocalMatrix is { })
                 {
                     // TODO: Missing Transform property on LinearGradientBrush
+
                     var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(linearGradientShader.LocalMatrix.Value);
 
                     localMatrix.TransX = Math.Max(0f, localMatrix.TransX - skBounds.Location.X);
@@ -153,6 +154,7 @@ namespace SvgToXamlConverter
                 if (twoPointConicalGradientShader.LocalMatrix is { })
                 {
                     // TODO: Missing Transform property on RadialGradientBrush
+
                     var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(twoPointConicalGradientShader.LocalMatrix.Value);
 
                     localMatrix.TransX = Math.Max(0f, localMatrix.TransX - skBounds.Location.X);
