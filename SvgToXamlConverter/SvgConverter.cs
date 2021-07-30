@@ -199,9 +199,44 @@ namespace SvgToXamlConverter
                 return brush;
             }
 
-            if (skShader is PictureShader pictureShader)
+            if (skShader is PictureShader pictureShader && pictureShader.Src is { })
             {
+                var brush = "";
+
+                if (pictureShader.LocalMatrix is { })
+                {
+                    // TODO:
+                    var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(pictureShader.LocalMatrix);
+
+                    // TODO: Missing Transform property on VisualBrush
+
+                    if (!localMatrix.IsIdentity)
+                    {
+                        brush += $"{indent}<!-- TODO: Transform: {ToMatrix(localMatrix)} -->{NewLine}";
+                    }
+                }
+                else
+                {
+                    // TODO:
+                }
+
+                var sourceRect = pictureShader.Src.CullRect;
+                var destinationRect = pictureShader.Tile;
+
                 // TODO:
+                brush += $"{indent}<VisualBrush";
+                brush += $" TileMode=\"{ToTileMode(pictureShader.TmX)}\"";
+                brush += $" SourceRect=\"{ToRect(sourceRect)}\"";
+                brush += $" DestinationRect=\"{ToRect(destinationRect)}\">{NewLine}";
+                brush += $"{indent}  <VisualBrush.Visual>{NewLine}";
+
+                var visual = ToXaml(pictureShader.Src, generateImage: true, $"{indent}    ", key: null);
+                brush += visual;
+
+                brush += $"{indent}  </VisualBrush.Visual>{NewLine}";
+                brush += $"{indent}</VisualBrush>{NewLine}";
+
+                return brush;
             }
 
             return "";
