@@ -4,8 +4,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using ShimSkiaSharp;
-using Svg.Skia;
 
 namespace SvgToXamlConverter
 {
@@ -23,17 +21,17 @@ namespace SvgToXamlConverter
             return value.ToString(CultureInfo.InvariantCulture);
         }
 
-        public static string ToHexColor(SKColor skColor, string indent = "")
+        public static string ToHexColor(ShimSkiaSharp.SKColor skColor, string indent = "")
         {
             return $"{indent}#{skColor.Alpha:X2}{skColor.Red:X2}{skColor.Green:X2}{skColor.Blue:X2}";
         }
 
-        public static string ToPoint(SKPoint skPoint)
+        public static string ToPoint(ShimSkiaSharp.SKPoint skPoint)
         {
             return $"{ToString(skPoint.X)},{ToString(skPoint.Y)}";
         }
 
-        public static string ToRect(SKRect sKRect)
+        public static string ToRect(ShimSkiaSharp.SKRect sKRect)
         {
             return $"{ToString(sKRect.Left)},{ToString(sKRect.Top)},{ToString(sKRect.Width)},{ToString(sKRect.Height)}";
         }
@@ -43,39 +41,39 @@ namespace SvgToXamlConverter
             return $"{ToString(skPoint.X)},{ToString(skPoint.Y)}";
         }
 
-        public static string ToGradientSpreadMethod(SKShaderTileMode shaderTileMode)
+        public static string ToGradientSpreadMethod(ShimSkiaSharp.SKShaderTileMode shaderTileMode)
         {
             switch (shaderTileMode)
             {
                 default:
-                case SKShaderTileMode.Clamp:
+                case ShimSkiaSharp.SKShaderTileMode.Clamp:
                     return "Pad";
 
-                case SKShaderTileMode.Repeat:
+                case ShimSkiaSharp.SKShaderTileMode.Repeat:
                     return "Repeat";
 
-                case SKShaderTileMode.Mirror:
+                case ShimSkiaSharp.SKShaderTileMode.Mirror:
                     return "Reflect";
             }
         }
 
-        public static string ToTileMode(this SKShaderTileMode shaderTileMode)
+        public static string ToTileMode(ShimSkiaSharp.SKShaderTileMode shaderTileMode)
         {
             switch (shaderTileMode)
             {
                 default:
-                case SKShaderTileMode.Clamp:
+                case ShimSkiaSharp.SKShaderTileMode.Clamp:
                     return "None";
 
-                case SKShaderTileMode.Repeat:
+                case ShimSkiaSharp.SKShaderTileMode.Repeat:
                     return "Tile";
 
-                case SKShaderTileMode.Mirror:
+                case ShimSkiaSharp.SKShaderTileMode.Mirror:
                     return "FlipXY";
             };
         }
 
-        public static string ToBrush(ColorShader colorShader, SkiaSharp.SKRect skBounds, string indent)
+        public static string ToBrush(ShimSkiaSharp.ColorShader colorShader, SkiaSharp.SKRect skBounds, string indent)
         {
             var brush = "";
 
@@ -86,7 +84,7 @@ namespace SvgToXamlConverter
             return brush;
         }
 
-        public static string ToBrush(LinearGradientShader linearGradientShader, SkiaSharp.SKRect skBounds, string indent)
+        public static string ToBrush(ShimSkiaSharp.LinearGradientShader linearGradientShader, SkiaSharp.SKRect skBounds, string indent)
         {
             var brush = "";
 
@@ -117,7 +115,7 @@ namespace SvgToXamlConverter
             brush += $" StartPoint=\"{ToPoint(start)}\"";
             brush += $" EndPoint=\"{ToPoint(end)}\"";
 
-            if (linearGradientShader.Mode != SKShaderTileMode.Clamp)
+            if (linearGradientShader.Mode != ShimSkiaSharp.SKShaderTileMode.Clamp)
             {
                 brush += $" SpreadMethod=\"{ToGradientSpreadMethod(linearGradientShader.Mode)}\">{NewLine}";
             }
@@ -140,7 +138,7 @@ namespace SvgToXamlConverter
             return brush;
         }
 
-        public static string ToBrush(TwoPointConicalGradientShader twoPointConicalGradientShader, SkiaSharp.SKRect skBounds, string indent)
+        public static string ToBrush(ShimSkiaSharp.TwoPointConicalGradientShader twoPointConicalGradientShader, SkiaSharp.SKRect skBounds, string indent)
         {
             var brush = "";
 
@@ -184,7 +182,7 @@ namespace SvgToXamlConverter
             brush += $" GradientOrigin=\"{ToPoint(gradientOrigin)}\"";
             brush += $" Radius=\"{ToString(endRadius)}\"";
 
-            if (twoPointConicalGradientShader.Mode != SKShaderTileMode.Clamp)
+            if (twoPointConicalGradientShader.Mode != ShimSkiaSharp.SKShaderTileMode.Clamp)
             {
                 brush += $" SpreadMethod=\"{ToGradientSpreadMethod(twoPointConicalGradientShader.Mode)}\">{NewLine}";
             }
@@ -207,7 +205,7 @@ namespace SvgToXamlConverter
             return brush;
         }
 
-        public static string ToBrush(PictureShader pictureShader, SkiaSharp.SKRect skBounds, string indent)
+        public static string ToBrush(ShimSkiaSharp.PictureShader pictureShader, SkiaSharp.SKRect skBounds, string indent)
         {
             var brush = "";
 
@@ -238,7 +236,7 @@ namespace SvgToXamlConverter
             // TODO: Use different than Image ?
             brush += $"{indent}<VisualBrush";
 
-            if (pictureShader.TmX != SKShaderTileMode.Clamp)
+            if (pictureShader.TmX != ShimSkiaSharp.SKShaderTileMode.Clamp)
             {
                 brush += $" TileMode=\"{ToTileMode(pictureShader.TmX)}\"";
             }
@@ -256,51 +254,51 @@ namespace SvgToXamlConverter
             return brush;
         }
 
-        public static string ToBrush(SKShader skShader, SkiaSharp.SKRect skBounds, string indent = "")
+        public static string ToBrush(ShimSkiaSharp.SKShader skShader, SkiaSharp.SKRect skBounds, string indent = "")
         {
             return skShader switch
             {
-                ColorShader colorShader => ToBrush(colorShader, skBounds, indent),
-                LinearGradientShader linearGradientShader => ToBrush(linearGradientShader, skBounds, indent),
-                TwoPointConicalGradientShader twoPointConicalGradientShader => ToBrush(twoPointConicalGradientShader, skBounds, indent),
-                PictureShader pictureShader => ToBrush(pictureShader, skBounds, indent),
+                ShimSkiaSharp.ColorShader colorShader => ToBrush(colorShader, skBounds, indent),
+                ShimSkiaSharp.LinearGradientShader linearGradientShader => ToBrush(linearGradientShader, skBounds, indent),
+                ShimSkiaSharp.TwoPointConicalGradientShader twoPointConicalGradientShader => ToBrush(twoPointConicalGradientShader, skBounds, indent),
+                ShimSkiaSharp.PictureShader pictureShader => ToBrush(pictureShader, skBounds, indent),
                 _ => ""
             };
         }
 
-        public static string ToPenLineCap(SKStrokeCap strokeCap)
+        public static string ToPenLineCap(ShimSkiaSharp.SKStrokeCap strokeCap)
         {
             switch (strokeCap)
             {
                 default:
-                case SKStrokeCap.Butt:
+                case ShimSkiaSharp.SKStrokeCap.Butt:
                     return "Flat";
 
-                case SKStrokeCap.Round:
+                case ShimSkiaSharp.SKStrokeCap.Round:
                     return "Round";
 
-                case SKStrokeCap.Square:
+                case ShimSkiaSharp.SKStrokeCap.Square:
                     return "Square";
             }
         }
 
-        public static string ToPenLineJoin(SKStrokeJoin strokeJoin)
+        public static string ToPenLineJoin(ShimSkiaSharp.SKStrokeJoin strokeJoin)
         {
             switch (strokeJoin)
             {
                 default:
-                case SKStrokeJoin.Miter:
+                case ShimSkiaSharp.SKStrokeJoin.Miter:
                     return "Miter";
 
-                case SKStrokeJoin.Round:
+                case ShimSkiaSharp.SKStrokeJoin.Round:
                     return "Round";
 
-                case SKStrokeJoin.Bevel:
+                case ShimSkiaSharp.SKStrokeJoin.Bevel:
                     return "Bevel";
             }
         }
 
-        public static string ToPen(SKPaint skPaint, SkiaSharp.SKRect skBounds, string indent = "")
+        public static string ToPen(ShimSkiaSharp.SKPaint skPaint, SkiaSharp.SKRect skBounds, string indent = "")
         {
             if (skPaint.Shader is { })
             {
@@ -308,7 +306,7 @@ namespace SvgToXamlConverter
 
                 pen += $"{indent}<Pen";
 
-                if (skPaint.Shader is ColorShader colorShader)
+                if (skPaint.Shader is ShimSkiaSharp.ColorShader colorShader)
                 {
                     pen += $" Brush=\"{ToHexColor(colorShader.Color)}\"";
                 }
@@ -318,12 +316,12 @@ namespace SvgToXamlConverter
                     pen += $" Thickness=\"{ToString(skPaint.StrokeWidth)}\"";
                 }
 
-                if (skPaint.StrokeCap != SKStrokeCap.Butt)
+                if (skPaint.StrokeCap != ShimSkiaSharp.SKStrokeCap.Butt)
                 {
                     pen += $" LineCap=\"{ToPenLineCap(skPaint.StrokeCap)}\"";
                 }
 
-                if (skPaint.StrokeJoin != SKStrokeJoin.Bevel)
+                if (skPaint.StrokeJoin != ShimSkiaSharp.SKStrokeJoin.Bevel)
                 {
                     pen += $" LineJoin=\"{ToPenLineJoin(skPaint.StrokeJoin)}\"";
                 }
@@ -333,7 +331,7 @@ namespace SvgToXamlConverter
                     pen += $" MiterLimit=\"{ToString(skPaint.StrokeMiter)}\"";
                 }
 
-                if (skPaint.Shader is not ColorShader || (skPaint.PathEffect is DashPathEffect { Intervals: { } }))
+                if (skPaint.Shader is not ShimSkiaSharp.ColorShader || (skPaint.PathEffect is ShimSkiaSharp.DashPathEffect { Intervals: { } }))
                 {
                     pen += $">{NewLine}";
                 }
@@ -342,7 +340,7 @@ namespace SvgToXamlConverter
                     pen += $"/>{NewLine}";
                 }
 
-                if (skPaint.PathEffect is DashPathEffect dashPathEffect && dashPathEffect.Intervals is { })
+                if (skPaint.PathEffect is ShimSkiaSharp.DashPathEffect dashPathEffect && dashPathEffect.Intervals is { })
                 {
                     var dashes = new List<double>();
 
@@ -358,14 +356,14 @@ namespace SvgToXamlConverter
                     pen += $"{indent}  </Pen.DashStyle>{NewLine}";
                 }
 
-                if (skPaint.Shader is not ColorShader)
+                if (skPaint.Shader is not ShimSkiaSharp.ColorShader)
                 {
                     pen += $"{indent}  <Pen.Brush>{NewLine}";
                     pen += ToBrush(skPaint.Shader, skBounds, indent + "    ");
                     pen += $"{indent}  </Pen.Brush>{NewLine}";
                 }
 
-                if (skPaint.Shader is not ColorShader || (skPaint.PathEffect is DashPathEffect { Intervals: { } }))
+                if (skPaint.Shader is not ShimSkiaSharp.ColorShader || (skPaint.PathEffect is ShimSkiaSharp.DashPathEffect { Intervals: { } }))
                 {
                     pen += $"{indent}</Pen>{NewLine}";
                 }
@@ -404,7 +402,7 @@ namespace SvgToXamlConverter
                    $"{ToString(skMatrix.TransY)}";
         }
 
-        public static string ToXaml(SKPicture? skPicture, bool generateImage = true, string indent = "", string? key = null)
+        public static string ToXaml(ShimSkiaSharp.SKPicture? skPicture, bool generateImage = true, string indent = "", string? key = null)
         {
             var sb = new StringBuilder();
 
@@ -431,7 +429,7 @@ namespace SvgToXamlConverter
                 {
                     switch (canvasCommand)
                     {
-                        case ClipPathCanvasCommand(var clipPath, var skClipOperation, var antialias):
+                        case ShimSkiaSharp.ClipPathCanvasCommand(var clipPath, var skClipOperation, var antialias):
                         {
                             var path = Svg.Skia.SkiaModelExtensions.ToSKPath(clipPath);
                             var operation = Svg.Skia.SkiaModelExtensions.ToSKClipOperation(skClipOperation);
@@ -444,7 +442,7 @@ namespace SvgToXamlConverter
 
                             break;
                         }
-                        case ClipRectCanvasCommand(var skRect, var skClipOperation, var antialias):
+                        case ShimSkiaSharp.ClipRectCanvasCommand(var skRect, var skClipOperation, var antialias):
                         {
                             var rect = Svg.Skia.SkiaModelExtensions.ToSKRect(skRect);
                             var operation = Svg.Skia.SkiaModelExtensions.ToSKClipOperation(skClipOperation);
@@ -457,7 +455,7 @@ namespace SvgToXamlConverter
 
                             break;
                         }
-                        case SaveCanvasCommand:
+                        case ShimSkiaSharp.SaveCanvasCommand:
                         {
                             totalMatrixStack.Push(totalMatrix);
 
@@ -467,7 +465,7 @@ namespace SvgToXamlConverter
 
                             break;
                         }
-                        case RestoreCanvasCommand:
+                        case ShimSkiaSharp.RestoreCanvasCommand:
                         {
                             // TODO:
                             if (totalMatrixStack.Count > 0)
@@ -485,7 +483,7 @@ namespace SvgToXamlConverter
 
                             break;
                         }
-                        case SetMatrixCanvasCommand(var skMatrix):
+                        case ShimSkiaSharp.SetMatrixCanvasCommand(var skMatrix):
                         {
                             totalMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(skMatrix);
 
@@ -493,19 +491,19 @@ namespace SvgToXamlConverter
 
                             break;
                         }
-                        case SaveLayerCanvasCommand(var count, var skPaint):
+                        case ShimSkiaSharp.SaveLayerCanvasCommand(var count, var skPaint):
                         {
                             // TODO:
 
                             break;
                         }
-                        case DrawImageCanvasCommand(var skImage, var skRect, var dest, var skPaint):
+                        case ShimSkiaSharp.DrawImageCanvasCommand(var skImage, var skRect, var dest, var skPaint):
                         {
                             // TODO:
 
                             break;
                         }
-                        case DrawPathCanvasCommand(var skPath, var skPaint):
+                        case ShimSkiaSharp.DrawPathCanvasCommand(var skPath, var skPaint):
                         {
                             var clipPath = default(SkiaSharp.SKPath);
 
@@ -551,7 +549,7 @@ namespace SvgToXamlConverter
 
                             sb.Append($"{geometryIndent}<GeometryDrawing");
 
-                            if ((skPaint.Style == SKPaintStyle.Fill || skPaint.Style == SKPaintStyle.StrokeAndFill) && skPaint.Shader is ColorShader colorShader)
+                            if ((skPaint.Style == ShimSkiaSharp.SKPaintStyle.Fill || skPaint.Style == ShimSkiaSharp.SKPaintStyle.StrokeAndFill) && skPaint.Shader is ShimSkiaSharp.ColorShader colorShader)
                             {
                                 sb.Append($" Brush=\"{ToHexColor(colorShader.Color)}\"");
                             }
@@ -564,7 +562,7 @@ namespace SvgToXamlConverter
                             var brush = default(string);
                             var pen = default(string);
 
-                            if ((skPaint.Style == SKPaintStyle.Fill || skPaint.Style == SKPaintStyle.StrokeAndFill) && skPaint.Shader is not ColorShader)
+                            if ((skPaint.Style == ShimSkiaSharp.SKPaintStyle.Fill || skPaint.Style == ShimSkiaSharp.SKPaintStyle.StrokeAndFill) && skPaint.Shader is not ShimSkiaSharp.ColorShader)
                             {
                                 if (skPaint.Shader is { })
                                 {
@@ -572,7 +570,7 @@ namespace SvgToXamlConverter
                                 }
                             }
 
-                            if (skPaint.Style == SKPaintStyle.Stroke || skPaint.Style == SKPaintStyle.StrokeAndFill)
+                            if (skPaint.Style == ShimSkiaSharp.SKPaintStyle.Stroke || skPaint.Style == ShimSkiaSharp.SKPaintStyle.StrokeAndFill)
                             {
                                 if (skPaint.Shader is { })
                                 {
@@ -615,19 +613,19 @@ namespace SvgToXamlConverter
 
                             break;
                         }
-                        case DrawTextBlobCanvasCommand(var skTextBlob, var f, var y, var skPaint):
+                        case ShimSkiaSharp.DrawTextBlobCanvasCommand(var skTextBlob, var f, var y, var skPaint):
                         {
                             // TODO:
 
                             break;
                         }
-                        case DrawTextCanvasCommand(var text, var f, var y, var skPaint):
+                        case ShimSkiaSharp.DrawTextCanvasCommand(var text, var f, var y, var skPaint):
                         {
                             // TODO:
 
                             break;
                         }
-                        case DrawTextOnPathCanvasCommand(var text, var skPath, var hOffset, var vOffset, var skPaint):
+                        case ShimSkiaSharp.DrawTextOnPathCanvasCommand(var text, var skPath, var hOffset, var vOffset, var skPaint):
                         {
                             // TODO:
 
@@ -667,7 +665,7 @@ namespace SvgToXamlConverter
             for (var i = 0; i < paths.Count; i++)
             {
                 var path = paths[i];
-                var svg = new SKSvg();
+                var svg = new Svg.Skia.SKSvg();
                 svg.Load(path);
                 if (svg.Model is null)
                 {
