@@ -18,6 +18,11 @@ namespace SvgToXamlConverter
             return value.ToString(CultureInfo.InvariantCulture);
         }
 
+        public static string ToString(float value)
+        {
+            return value.ToString(CultureInfo.InvariantCulture);
+        }
+
         public static string ToHexColor(SKColor skColor, string indent = "")
         {
             return $"{indent}#{skColor.Alpha:X2}{skColor.Red:X2}{skColor.Green:X2}{skColor.Blue:X2}";
@@ -26,6 +31,11 @@ namespace SvgToXamlConverter
         public static string ToPoint(SKPoint skPoint)
         {
             return $"{ToString(skPoint.X)},{ToString(skPoint.Y)}";
+        }
+
+        public static string ToRect(SKRect sKRect)
+        {
+            return $"{ToString(sKRect.Left)},{ToString(sKRect.Top)},{ToString(sKRect.Width)},{ToString(sKRect.Height)}";
         }
 
         public static string ToPoint(SkiaSharp.SKPoint skPoint)
