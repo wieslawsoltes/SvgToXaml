@@ -75,167 +75,192 @@ namespace SvgToXamlConverter
             };
         }
 
+        private static string ToBrush(ColorShader colorShader, string indent)
+        {
+            var brush = "";
+
+            brush += $"{indent}<SolidColorBrush";
+            brush += $" Color=\"{ToHexColor(colorShader.Color)}\"";
+            brush += $"/>{NewLine}";
+
+            return brush;
+        }
+
+        private static string ToBrush(LinearGradientShader linearGradientShader, SkiaSharp.SKRect skBounds, string indent)
+        {
+            var brush = "";
+
+            var start = Svg.Skia.SkiaModelExtensions.ToSKPoint(linearGradientShader.Start);
+            var end = Svg.Skia.SkiaModelExtensions.ToSKPoint(linearGradientShader.End);
+
+            if (linearGradientShader.LocalMatrix is { })
+            {
+                // TODO: Missing Transform property on LinearGradientBrush
+
+                var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(linearGradientShader.LocalMatrix.Value);
+
+                localMatrix.TransX = Math.Max(0f, localMatrix.TransX - skBounds.Location.X);
+                localMatrix.TransY = Math.Max(0f, localMatrix.TransY - skBounds.Location.Y);
+
+                start = localMatrix.MapPoint(start);
+                end = localMatrix.MapPoint(end);
+            }
+            else
+            {
+                start.X = Math.Max(0f, start.X - skBounds.Location.X);
+                start.Y = Math.Max(0f, start.Y - skBounds.Location.Y);
+                end.X = Math.Max(0f, end.X - skBounds.Location.X);
+                end.Y = Math.Max(0f, end.Y - skBounds.Location.Y);
+            }
+
+            brush += $"{indent}<LinearGradientBrush";
+            brush += $" StartPoint=\"{ToPoint(start)}\"";
+            brush += $" EndPoint=\"{ToPoint(end)}\"";
+            brush += $" SpreadMethod=\"{ToGradientSpreadMethod(linearGradientShader.Mode)}\">{NewLine}";
+            brush += $"{indent}  <LinearGradientBrush.GradientStops>{NewLine}";
+
+            if (linearGradientShader.Colors is { } && linearGradientShader.ColorPos is { })
+            {
+                for (var i = 0; i < linearGradientShader.Colors.Length; i++)
+                {
+                    var color = ToHexColor(linearGradientShader.Colors[i]);
+                    var offset = ToString(linearGradientShader.ColorPos[i]);
+                    brush += $"{indent}    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{NewLine}";
+                }
+            }
+
+            brush += $"{indent}  </LinearGradientBrush.GradientStops>{NewLine}";
+            brush += $"{indent}</LinearGradientBrush>{NewLine}";
+
+            return brush;
+        }
+
+        private static string ToBrush(TwoPointConicalGradientShader twoPointConicalGradientShader, SkiaSharp.SKRect skBounds, string indent)
+        {
+            var brush = "";
+
+            // NOTE: twoPointConicalGradientShader.StartRadius is always 0.0
+            var startRadius = twoPointConicalGradientShader.StartRadius;
+
+            // TODO: Avalonia is passing 'radius' to 'SKShader.CreateTwoPointConicalGradient' as 'startRadius'
+            // TODO: but we need to pass it as 'endRadius' to 'SKShader.CreateTwoPointConicalGradient'
+            var endRadius = twoPointConicalGradientShader.EndRadius;
+
+            var center = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.Start);
+            var gradientOrigin = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.End);
+
+            if (twoPointConicalGradientShader.LocalMatrix is { })
+            {
+                // TODO: Missing Transform property on RadialGradientBrush
+
+                var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(twoPointConicalGradientShader.LocalMatrix.Value);
+
+                localMatrix.TransX = Math.Max(0f, localMatrix.TransX - skBounds.Location.X);
+                localMatrix.TransY = Math.Max(0f, localMatrix.TransY - skBounds.Location.Y);
+
+                center = localMatrix.MapPoint(center);
+                gradientOrigin = localMatrix.MapPoint(gradientOrigin);
+
+                var radius = localMatrix.MapVector(new SkiaSharp.SKPoint(endRadius, 0));
+                endRadius = radius.X;
+            }
+            else
+            {
+                center.X = Math.Max(0f, center.X - skBounds.Location.X);
+                center.Y = Math.Max(0f, center.Y - skBounds.Location.Y);
+                gradientOrigin.X = Math.Max(0f, gradientOrigin.X - skBounds.Location.X);
+                gradientOrigin.Y = Math.Max(0f, gradientOrigin.Y - skBounds.Location.Y);
+            }
+
+            endRadius = endRadius / skBounds.Width;
+
+            brush += $"{indent}<RadialGradientBrush";
+            brush += $" Center=\"{ToPoint(center)}\"";
+            brush += $" GradientOrigin=\"{ToPoint(gradientOrigin)}\"";
+            brush += $" Radius=\"{ToString(endRadius)}\"";
+            brush += $" SpreadMethod=\"{ToGradientSpreadMethod(twoPointConicalGradientShader.Mode)}\">{NewLine}";
+            brush += $"{indent}  <RadialGradientBrush.GradientStops>{NewLine}";
+
+            if (twoPointConicalGradientShader.Colors is { } && twoPointConicalGradientShader.ColorPos is { })
+            {
+                for (var i = 0; i < twoPointConicalGradientShader.Colors.Length; i++)
+                {
+                    var color = ToHexColor(twoPointConicalGradientShader.Colors[i]);
+                    var offset = ToString(twoPointConicalGradientShader.ColorPos[i]);
+                    brush += $"{indent}    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{NewLine}";
+                }
+            }
+
+            brush += $"{indent}  </RadialGradientBrush.GradientStops>{NewLine}";
+            brush += $"{indent}</RadialGradientBrush>{NewLine}";
+
+            return brush;
+        }
+
+        private static string ToBrush(PictureShader pictureShader, SkiaSharp.SKRect skBounds, string indent)
+        {
+            var brush = "";
+
+            if (pictureShader.Src is null)
+            {
+                return brush;
+            }
+
+            if (pictureShader.LocalMatrix is { })
+            {
+                // TODO: Missing Transform property on VisualBrush
+
+                var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(pictureShader.LocalMatrix);
+
+                if (!localMatrix.IsIdentity)
+                {
+                    brush += $"{indent}<!-- TODO: Transform: {ToMatrix(localMatrix)} -->{NewLine}";
+                }
+            }
+            else
+            {
+                // TODO: Adjust using skBounds.Location
+            }
+
+            var sourceRect = pictureShader.Src.CullRect;
+            var destinationRect = pictureShader.Tile;
+
+            // TODO: Use different than Image ?
+            brush += $"{indent}<VisualBrush";
+            brush += $" TileMode=\"{ToTileMode(pictureShader.TmX)}\"";
+            brush += $" SourceRect=\"{ToRect(sourceRect)}\"";
+            brush += $" DestinationRect=\"{ToRect(destinationRect)}\">{NewLine}";
+            brush += $"{indent}  <VisualBrush.Visual>{NewLine}";
+
+            var visual = ToXaml(pictureShader.Src, generateImage: true, $"{indent}    ", key: null);
+            brush += visual;
+
+            brush += $"{indent}  </VisualBrush.Visual>{NewLine}";
+            brush += $"{indent}</VisualBrush>{NewLine}";
+
+            return brush;
+        }
+
         public static string ToBrush(SKShader skShader, SkiaSharp.SKRect skBounds, string indent = "")
         {
             if (skShader is ColorShader colorShader)
             {
-                var brush = "";
-
-                brush += $"{indent}<SolidColorBrush";
-                brush += $" Color=\"{ToHexColor(colorShader.Color)}\"";
-                brush += $"/>{NewLine}";
-
-                return brush;
+                return ToBrush(colorShader, indent);
             }
 
             if (skShader is LinearGradientShader linearGradientShader)
             {
-                var brush = "";
-
-                var start = Svg.Skia.SkiaModelExtensions.ToSKPoint(linearGradientShader.Start);
-                var end = Svg.Skia.SkiaModelExtensions.ToSKPoint(linearGradientShader.End);
-
-                if (linearGradientShader.LocalMatrix is { })
-                {
-                    // TODO: Missing Transform property on LinearGradientBrush
-
-                    var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(linearGradientShader.LocalMatrix.Value);
-
-                    localMatrix.TransX = Math.Max(0f, localMatrix.TransX - skBounds.Location.X);
-                    localMatrix.TransY = Math.Max(0f, localMatrix.TransY - skBounds.Location.Y);
-
-                    start = localMatrix.MapPoint(start);
-                    end = localMatrix.MapPoint(end);
-                }
-                else
-                {
-                    start.X = Math.Max(0f, start.X - skBounds.Location.X);
-                    start.Y = Math.Max(0f, start.Y - skBounds.Location.Y);
-                    end.X = Math.Max(0f, end.X - skBounds.Location.X);
-                    end.Y = Math.Max(0f, end.Y - skBounds.Location.Y);
-                }
-
-                brush += $"{indent}<LinearGradientBrush";
-                brush += $" StartPoint=\"{ToPoint(start)}\"";
-                brush += $" EndPoint=\"{ToPoint(end)}\"";
-                brush += $" SpreadMethod=\"{ToGradientSpreadMethod(linearGradientShader.Mode)}\">{NewLine}";
-                brush += $"{indent}  <LinearGradientBrush.GradientStops>{NewLine}";
-
-                if (linearGradientShader.Colors is { } && linearGradientShader.ColorPos is { })
-                {
-                    for (var i = 0; i < linearGradientShader.Colors.Length; i++)
-                    {
-                        var color = ToHexColor(linearGradientShader.Colors[i]);
-                        var offset = ToString(linearGradientShader.ColorPos[i]);
-                        brush += $"{indent}    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{NewLine}";
-                    }
-                }
-
-                brush += $"{indent}  </LinearGradientBrush.GradientStops>{NewLine}";
-                brush += $"{indent}</LinearGradientBrush>{NewLine}";
-
-                return brush;
+                return ToBrush(linearGradientShader, skBounds, indent);
             }
 
             if (skShader is TwoPointConicalGradientShader twoPointConicalGradientShader)
             {
-                var brush = "";
-
-                // NOTE: twoPointConicalGradientShader.StartRadius is always 0.0
-                var startRadius = twoPointConicalGradientShader.StartRadius;
-
-                // TODO: Avalonia is passing 'radius' to 'SKShader.CreateTwoPointConicalGradient' as 'startRadius'
-                // TODO: but we need to pass it as 'endRadius' to 'SKShader.CreateTwoPointConicalGradient'
-                var endRadius = twoPointConicalGradientShader.EndRadius;
-
-                var center = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.Start);
-                var gradientOrigin = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.End);
-
-                if (twoPointConicalGradientShader.LocalMatrix is { })
-                {
-                    // TODO: Missing Transform property on RadialGradientBrush
-
-                    var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(twoPointConicalGradientShader.LocalMatrix.Value);
-
-                    localMatrix.TransX = Math.Max(0f, localMatrix.TransX - skBounds.Location.X);
-                    localMatrix.TransY = Math.Max(0f, localMatrix.TransY - skBounds.Location.Y);
-
-                    center = localMatrix.MapPoint(center);
-                    gradientOrigin = localMatrix.MapPoint(gradientOrigin);
-
-                    var radius = localMatrix.MapVector(new SkiaSharp.SKPoint(endRadius, 0));
-                    endRadius = radius.X;
-                }
-                else
-                {
-                    center.X = Math.Max(0f, center.X - skBounds.Location.X);
-                    center.Y = Math.Max(0f, center.Y - skBounds.Location.Y);
-                    gradientOrigin.X = Math.Max(0f, gradientOrigin.X - skBounds.Location.X);
-                    gradientOrigin.Y = Math.Max(0f, gradientOrigin.Y - skBounds.Location.Y);
-                }
-
-                endRadius = endRadius / skBounds.Width;
-
-                brush += $"{indent}<RadialGradientBrush";
-                brush += $" Center=\"{ToPoint(center)}\"";
-                brush += $" GradientOrigin=\"{ToPoint(gradientOrigin)}\"";
-                brush += $" Radius=\"{ToString(endRadius)}\"";
-                brush += $" SpreadMethod=\"{ToGradientSpreadMethod(twoPointConicalGradientShader.Mode)}\">{NewLine}";
-                brush += $"{indent}  <RadialGradientBrush.GradientStops>{NewLine}";
-
-                if (twoPointConicalGradientShader.Colors is { } && twoPointConicalGradientShader.ColorPos is { })
-                {
-                    for (var i = 0; i < twoPointConicalGradientShader.Colors.Length; i++)
-                    {
-                        var color = ToHexColor(twoPointConicalGradientShader.Colors[i]);
-                        var offset = ToString(twoPointConicalGradientShader.ColorPos[i]);
-                        brush += $"{indent}    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{NewLine}";
-                    }
-                }
-
-                brush += $"{indent}  </RadialGradientBrush.GradientStops>{NewLine}";
-                brush += $"{indent}</RadialGradientBrush>{NewLine}";
-
-                return brush;
+                return ToBrush(twoPointConicalGradientShader, skBounds, indent);
             }
 
             if (skShader is PictureShader pictureShader && pictureShader.Src is { })
             {
-                var brush = "";
-
-                if (pictureShader.LocalMatrix is { })
-                {
-                    // TODO: Missing Transform property on VisualBrush
-
-                    var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(pictureShader.LocalMatrix);
-
-                    if (!localMatrix.IsIdentity)
-                    {
-                        brush += $"{indent}<!-- TODO: Transform: {ToMatrix(localMatrix)} -->{NewLine}";
-                    }
-                }
-                else
-                {
-                    // TODO: Adjust using skBounds.Location
-                }
-
-                var sourceRect = pictureShader.Src.CullRect;
-                var destinationRect = pictureShader.Tile;
-
-                // TODO: Use different than Image ?
-                brush += $"{indent}<VisualBrush";
-                brush += $" TileMode=\"{ToTileMode(pictureShader.TmX)}\"";
-                brush += $" SourceRect=\"{ToRect(sourceRect)}\"";
-                brush += $" DestinationRect=\"{ToRect(destinationRect)}\">{NewLine}";
-                brush += $"{indent}  <VisualBrush.Visual>{NewLine}";
-
-                var visual = ToXaml(pictureShader.Src, generateImage: true, $"{indent}    ", key: null);
-                brush += visual;
-
-                brush += $"{indent}  </VisualBrush.Visual>{NewLine}";
-                brush += $"{indent}</VisualBrush>{NewLine}";
-
-                return brush;
+                return ToBrush(pictureShader, skBounds, indent);
             }
 
             return "";
