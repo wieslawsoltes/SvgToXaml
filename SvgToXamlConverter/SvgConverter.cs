@@ -580,6 +580,10 @@ namespace SvgToXamlConverter
                         }
                         case ShimSkiaSharp.SaveLayerCanvasCommand(var count, var skPaint):
                         {
+                            totalMatrixStack.Push(totalMatrix);
+
+                            totalClipPathsStack.Push(totalClipPaths.ToList());
+
                             // TODO:
                             if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is null)
                             {
