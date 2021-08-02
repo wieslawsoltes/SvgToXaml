@@ -1,4 +1,5 @@
-﻿using System;
+﻿//#define USE_BRUSH_TRANSFORM
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -72,6 +73,20 @@ namespace SvgToXamlConverter
                     return "FlipXY";
             };
         }
+        
+        private static SkiaSharp.SKMatrix AdjustMatrixLocation(SkiaSharp.SKMatrix matrix, float x, float y)
+        {
+            return new SkiaSharp.SKMatrix(
+                matrix.ScaleX, 
+                matrix.SkewX, 
+                matrix.TransX - x, 
+                matrix.SkewY, 
+                matrix.ScaleY, 
+                matrix.TransY - y, 
+                matrix.Persp0, 
+                matrix.Persp1, 
+                matrix.Persp2);
+        }
 
         public static string ToBrush(ShimSkiaSharp.ColorShader colorShader, SkiaSharp.SKRect skBounds, string indent)
         {
@@ -91,12 +106,10 @@ namespace SvgToXamlConverter
             var start = Svg.Skia.SkiaModelExtensions.ToSKPoint(linearGradientShader.Start);
             var end = Svg.Skia.SkiaModelExtensions.ToSKPoint(linearGradientShader.End);
 
+#if !USE_BRUSH_TRANSFORM
             if (linearGradientShader.LocalMatrix is { })
             {
-                // TODO: Missing Transform property on LinearGradientBrush
-
                 var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(linearGradientShader.LocalMatrix.Value);
-
                 localMatrix.TransX = Math.Max(0f, localMatrix.TransX - skBounds.Location.X);
                 localMatrix.TransY = Math.Max(0f, localMatrix.TransY - skBounds.Location.Y);
 
@@ -110,6 +123,15 @@ namespace SvgToXamlConverter
                 end.X = Math.Max(0f, end.X - skBounds.Location.X);
                 end.Y = Math.Max(0f, end.Y - skBounds.Location.Y);
             }
+#else
+            if (linearGradientShader.LocalMatrix is null)
+            {
+                start.X = Math.Max(0f, start.X - skBounds.Location.X);
+                start.Y = Math.Max(0f, start.Y - skBounds.Location.Y);
+                end.X = Math.Max(0f, end.X - skBounds.Location.X);
+                end.Y = Math.Max(0f, end.Y - skBounds.Location.Y);
+            }
+#endif
 
             brush += $"{indent}<LinearGradientBrush";
             brush += $" StartPoint=\"{ToPoint(start)}\"";
@@ -121,6 +143,18 @@ namespace SvgToXamlConverter
             }
 
             brush += $">{NewLine}";
+
+#if USE_BRUSH_TRANSFORM
+            if (linearGradientShader.LocalMatrix is { })
+            {
+                // TODO: Missing Transform property on LinearGradientBrush
+                var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(linearGradientShader.LocalMatrix.Value);
+                localMatrix = AdjustMatrixLocation(localMatrix, skBounds.Location.X, skBounds.Location.Y);
+                brush += $"{indent}  <LinearGradientBrush.Transform>{NewLine}";
+                brush += $"{indent}    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{NewLine}";
+                brush += $"{indent}  </LinearGradientBrush.Transform>{NewLine}";
+            }
+#endif
 
             brush += $"{indent}  <LinearGradientBrush.GradientStops>{NewLine}";
 
@@ -154,10 +188,9 @@ namespace SvgToXamlConverter
             var center = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.Start);
             var gradientOrigin = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.End);
 
+#if !USE_BRUSH_TRANSFORM
             if (twoPointConicalGradientShader.LocalMatrix is { })
             {
-                // TODO: Missing Transform property on RadialGradientBrush
-
                 var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(twoPointConicalGradientShader.LocalMatrix.Value);
 
                 localMatrix.TransX = Math.Max(0f, localMatrix.TransX - skBounds.Location.X);
@@ -176,6 +209,15 @@ namespace SvgToXamlConverter
                 gradientOrigin.X = Math.Max(0f, gradientOrigin.X - skBounds.Location.X);
                 gradientOrigin.Y = Math.Max(0f, gradientOrigin.Y - skBounds.Location.Y);
             }
+#else
+            if (twoPointConicalGradientShader.LocalMatrix is null)
+            {
+                center.X = Math.Max(0f, center.X - skBounds.Location.X);
+                center.Y = Math.Max(0f, center.Y - skBounds.Location.Y);
+                gradientOrigin.X = Math.Max(0f, gradientOrigin.X - skBounds.Location.X);
+                gradientOrigin.Y = Math.Max(0f, gradientOrigin.Y - skBounds.Location.Y);
+            }
+#endif
 
             endRadius = endRadius / skBounds.Width;
 
@@ -190,6 +232,18 @@ namespace SvgToXamlConverter
             }
 
             brush += $">{NewLine}";
+
+#if USE_BRUSH_TRANSFORM
+            if (twoPointConicalGradientShader.LocalMatrix is { })
+            {
+                // TODO: Missing Transform property on RadialGradientBrush
+                var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(twoPointConicalGradientShader.LocalMatrix.Value);
+                localMatrix = AdjustMatrixLocation(localMatrix, skBounds.Location.X, skBounds.Location.Y);
+                brush += $"{indent}  <RadialGradientBrush.Transform>{NewLine}";
+                brush += $"{indent}    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{NewLine}";
+                brush += $"{indent}  </RadialGradientBrush.Transform>{NewLine}";
+            }
+#endif
 
             brush += $"{indent}  <RadialGradientBrush.GradientStops>{NewLine}";
 
@@ -213,15 +267,14 @@ namespace SvgToXamlConverter
         {
             var brush = "";
 
-            if (pictureShader.Src is null)
+            if (pictureShader?.Src is null)
             {
                 return brush;
             }
 
+#if !USE_BRUSH_TRANSFORM
             if (pictureShader.LocalMatrix is { })
             {
-                // TODO: Missing Transform property on VisualBrush
-
                 var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(pictureShader.LocalMatrix);
 
                 if (!localMatrix.IsIdentity)
@@ -231,8 +284,9 @@ namespace SvgToXamlConverter
             }
             else
             {
-                // TODO: Adjust using skBounds.Location
+                // TODO: Adjust using skBounds.Location ?
             }
+#endif
 
             var sourceRect = pictureShader.Src.CullRect;
             var destinationRect = pictureShader.Tile;
@@ -249,6 +303,18 @@ namespace SvgToXamlConverter
             brush += $" DestinationRect=\"{ToRect(destinationRect)}\"";
 
             brush += $">{NewLine}";
+
+#if USE_BRUSH_TRANSFORM
+            if (pictureShader?.LocalMatrix is { })
+            {
+                // TODO: Missing Transform property on VisualBrush
+                var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(pictureShader.LocalMatrix);
+                localMatrix = AdjustMatrixLocation(localMatrix, skBounds.Location.X, skBounds.Location.Y);
+                brush += $"{indent}  <VisualBrush.Transform>{NewLine}";
+                brush += $"{indent}    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{NewLine}";
+                brush += $"{indent}  </VisualBrush.Transform>{NewLine}";
+            }
+#endif
 
             brush += $"{indent}  <VisualBrush.Visual>{NewLine}";
 
