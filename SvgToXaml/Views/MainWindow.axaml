@@ -10,4 +10,5 @@
         Title="SvgToXaml"
         DragDrop.AllowDrop="True">
   <views:MainView/>
+  <!-- <views:SandBox/> -->
 </Window>
