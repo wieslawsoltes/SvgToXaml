@@ -3,8 +3,8 @@
         xmlns:vm="using:SvgToXaml.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="950" d:DesignHeight="480"
-        MinWidth="950" MinHeight="480"
+        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="480"
+        MinWidth="1100" MinHeight="480"
         x:Class="SvgToXaml.Views.MainWindow"
         Icon="/Assets/Icon.ico"
         Title="SvgToXaml"
@@ -87,6 +87,9 @@
                 Command="{Binding CopySelectedCommand}"
                 CommandParameter="XAML"
                 Margin="0,0,6,0" />
+        <CheckBox IsChecked="{Binding EnableGenerateStyles}"
+                  Content="Styles"
+                  Margin="0,0,6,0"/>
         <Button Content="Copy All"
                 Command="{Binding CopyAllCommand}"
                 CommandParameter="XAML"
