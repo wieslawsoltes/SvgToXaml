@@ -20,7 +20,7 @@ namespace SvgToXaml.ViewModels
         private ObservableCollection<FileItemViewModel>? _items;
         private FileItemViewModel? _selectedItem;
         private bool _enableGenerateImage;
-        private bool _enableGenerateStyles;
+        private bool _enableGeneratePreview;
 
         public FileItemViewModel? SelectedItem
         {
@@ -40,10 +40,10 @@ namespace SvgToXaml.ViewModels
             set => this.RaiseAndSetIfChanged(ref _enableGenerateImage, value);
         }
 
-        public bool EnableGenerateStyles
+        public bool EnableGeneratePreview
         {
-            get => _enableGenerateStyles;
-            set => this.RaiseAndSetIfChanged(ref _enableGenerateStyles, value);
+            get => _enableGeneratePreview;
+            set => this.RaiseAndSetIfChanged(ref _enableGeneratePreview, value);
         }
 
         public ICommand ClearCommand { get; }
@@ -64,8 +64,8 @@ namespace SvgToXaml.ViewModels
         {
             _items = new ObservableCollection<FileItemViewModel>();
 
-            _enableGenerateImage = true;
-            _enableGenerateStyles = true;
+            _enableGenerateImage = false;
+            _enableGeneratePreview = true;
 
             ClearCommand = ReactiveCommand.Create(() =>
             {
@@ -123,7 +123,7 @@ namespace SvgToXaml.ViewModels
                 var paths = Items?.Select(x => x.Path).ToList();
                 if (paths is { })
                 {
-                    var xaml = SvgConverter.ToXaml(paths, generateImage: _enableGenerateImage, generateStyles: _enableGenerateStyles);
+                    var xaml = SvgConverter.ToXaml(paths, generateImage: _enableGenerateImage, generatePreview: _enableGeneratePreview);
                     
                     await Dispatcher.UIThread.InvokeAsync(() =>
                     {
@@ -185,7 +185,7 @@ namespace SvgToXaml.ViewModels
                     var paths = Items?.Select(x => x.Path).ToList();
                     if (paths is { })
                     {
-                        var xaml = SvgConverter.ToXaml(paths, generateImage: _enableGenerateImage, generateStyles: _enableGenerateStyles);
+                        var xaml = SvgConverter.ToXaml(paths, generateImage: _enableGenerateImage, generatePreview: _enableGeneratePreview);
 
                         try
                         {

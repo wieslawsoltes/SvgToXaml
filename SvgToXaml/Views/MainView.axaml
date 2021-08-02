@@ -83,8 +83,8 @@
                 Command="{Binding CopySelectedCommand}"
                 CommandParameter="XAML"
                 Margin="0,0,6,0" />
-        <CheckBox IsChecked="{Binding EnableGenerateStyles}"
-                  Content="Styles"
+        <CheckBox IsChecked="{Binding EnableGeneratePreview}"
+                  Content="Preview"
                   Margin="0,0,6,0"/>
         <Button Content="Copy All"
                 Command="{Binding CopyAllCommand}"

@@ -766,39 +766,80 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
-        public static string ToXaml(List<string> paths, bool generateImage = false, bool generateStyles = true)
+        public static string ToXaml(List<string> paths, bool generateImage = false, bool generatePreview = true)
         {
             var sb = new StringBuilder();
 
-            if (generateStyles)
-            {
-                sb.Append($"<Styles xmlns=\"https://github.com/avaloniaui\"{NewLine}");
-                sb.Append($"        xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">{NewLine}");
-                sb.Append($"  <Style>{NewLine}");
-                sb.Append($"    <Style.Resources>{NewLine}");
-            }
-
+            var results = new List<(string Path, string Key, string Xaml)>();
+            
             foreach (var path in paths)
             {
-                var svg = new Svg.Skia.SKSvg();
-                svg.Load(path);
-                if (svg.Model is null)
+                try
                 {
-                    continue;
+                    var svg = new Svg.Skia.SKSvg();
+                    svg.Load(path);
+                    if (svg.Model is null)
+                    {
+                        continue;
+                    }
+
+                    var key = $"_{CreateKey(path)}";
+                    var xaml = ToXaml(svg.Model, generateImage, key);
+                    results.Add((path, key, xaml));
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
+ 
+            sb.Append($"<Styles xmlns=\"https://github.com/avaloniaui\"{NewLine}");
+            sb.Append($"        xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">{NewLine}");
+
+            if (generatePreview)
+            {
+                sb.Append($"  <Design.PreviewWith>");
+                sb.Append($"    <ScrollViewer HorizontalScrollBarVisibility=\"Auto\" VerticalScrollBarVisibility=\"Auto\">");
+                //sb.Append($"      <StackPanel Spacing=\"20\">");
+                sb.Append($"      <WrapPanel ItemWidth=\"50\" ItemHeight=\"50\" MaxWidth=\"400\">");
+
+                foreach (var result in results)
+                {
+                    if (generateImage)
+                    {
+                        //sb.Append($"        <TextBlock>{Path.GetFileName(result.Path)}</TextBlock>{NewLine}");
+                        sb.Append($"        <ContentControl Content=\"{{DynamicResource {result.Key}}}\"/>");
+                    }
+                    else
+                    {
+                        //sb.Append($"        <TextBlock>{Path.GetFileName(result.Path)}</TextBlock>{NewLine}");
+                        sb.Append($"        <Image>");
+                        sb.Append($"            <Image.Source>");
+                        sb.Append($"                <DrawingImage Drawing=\"{{DynamicResource {result.Key}}}\"/>");
+                        sb.Append($"            </Image.Source>");
+                        sb.Append($"        </Image>"); 
+                    }
                 }
 
-                var xaml = ToXaml(svg.Model, generateImage: generateImage, key: generateStyles ? $"_{CreateKey(path)}" : null);
-                sb.Append($"<!-- {Path.GetFileName(path)} -->{NewLine}");
-                sb.Append(xaml);
+                //sb.Append($"      </StackPanel>");
+                sb.Append($"      </WrapPanel>");
+                sb.Append($"    </ScrollViewer>");
+                sb.Append($"  </Design.PreviewWith>");
+            }
+
+            sb.Append($"  <Style>{NewLine}");
+            sb.Append($"    <Style.Resources>{NewLine}");
+
+            foreach (var result in results)
+            {
+                sb.Append($"<!-- {Path.GetFileName(result.Path)} -->{NewLine}");
+                sb.Append(result.Xaml);
                 sb.Append(NewLine);
             }
 
-            if (generateStyles)
-            {
-                sb.Append($"    </Style.Resources>{NewLine}");
-                sb.Append($"  </Style>{NewLine}");
-                sb.Append($"</Styles>");
-            }
+            sb.Append($"    </Style.Resources>{NewLine}");
+            sb.Append($"  </Style>{NewLine}");
+            sb.Append($"</Styles>");
 
             return sb.ToString();
         }
