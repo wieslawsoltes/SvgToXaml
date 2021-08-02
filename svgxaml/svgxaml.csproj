@@ -1,10 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
-    <IsPackable>True</IsPackable>
+    <IsPackable>False</IsPackable>
+    <IsTool>True</IsTool>
+    <PackAsTool>True</PackAsTool>
+    <ToolCommandName>svgxaml</ToolCommandName>
     <Nullable>enable</Nullable>
-    <RootNamespace>SvgToXamlConverter</RootNamespace>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <RootNamespace>svgxaml</RootNamespace>
   </PropertyGroup>
   <PropertyGroup>
     <AnalysisLevel>latest</AnalysisLevel>
@@ -20,13 +24,22 @@
   </PropertyGroup>
   <PropertyGroup>
     <Description>An Svg to Xaml conveter.</Description>
-    <PackageId>SvgToXamlConverter</PackageId>
+    <PackageId>svgxaml</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>svg;xaml;axaml;avalonia;avaloniaui;convert;converter;vector graphics;rendering;2d;graphics;geometry;shapes;skiasharp;skia</PackageTags>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="Icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="Svg.Skia" Version="0.5.6.2" />
     <PackageReference Include="SkiaSharp" Version="2.88.0-preview.61" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.0-preview.61" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\SvgToXamlConverter\SvgConverter.cs">
+      <Link>SvgConverter.cs</Link>
+    </Compile>
   </ItemGroup>
 </Project>

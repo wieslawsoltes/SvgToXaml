@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Svg.Skia;
+using SvgToXamlConverter;
 
-namespace SvgToXamlConverter
+namespace svgxaml
 {
     class Program
     {
@@ -33,7 +34,7 @@ namespace SvgToXamlConverter
         {
             if (args.Length != 1 && args.Length != 2)
             {
-                Console.WriteLine("Usage: SvgToXamlConverter <InputPath> [OutputPath]");
+                Console.WriteLine("Usage: svgxaml <InputPath> [OutputPath]");
                 return;
             }
 
