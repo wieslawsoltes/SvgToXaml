@@ -1,0 +1,134 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:SvgToXaml.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="480"
+             x:Class="SvgToXaml.Views.MainView">
+
+  <Design.DataContext>
+    <vm:MainWindowViewModel />
+  </Design.DataContext>
+
+  <Grid ColumnDefinitions="300,8,*" RowDefinitions="*,Auto">
+
+    <ListBox Grid.Column="0"
+             Grid.Row="0"
+             Margin="6,0,6,0"
+             Items="{Binding Items}"
+             SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+      <ListBox.Styles>
+        <Style Selector="ListBoxItem">
+          <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+          <Setter Property="Margin" Value="0" />
+          <Setter Property="Padding" Value="0" />
+        </Style>
+      </ListBox.Styles>
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <Panel Background="Transparent"
+                 VerticalAlignment="Stretch"
+                 HorizontalAlignment="Stretch"
+                 ToolTip.Tip="{Binding Path}"
+                 Focusable="True">
+            <Panel.KeyBindings>
+              <KeyBinding Gesture="Delete" Command="{Binding RemoveCommand}" />
+            </Panel.KeyBindings>
+            <Panel.ContextFlyout>
+              <MenuFlyout Placement="Bottom">
+                <MenuItem Header="Remove" Command="{Binding RemoveCommand}" />
+              </MenuFlyout>
+            </Panel.ContextFlyout>
+            <TextBlock Text="{Binding Name}"
+                       Padding="12"
+                       IsHitTestVisible="False" />
+          </Panel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+
+    <UniformGrid Grid.Column="0"
+                 Grid.Row="1"
+                 Columns="2">
+      <Button Content="Clear"
+              Margin="6,6,3,6"
+              HorizontalContentAlignment="Center"
+              HorizontalAlignment="Stretch"
+              Command="{Binding ClearCommand}" />
+      <Button Content="Add"
+              Margin="3,6,6,6"
+              HorizontalContentAlignment="Center"
+              HorizontalAlignment="Stretch"
+              Command="{Binding AddCommand}" />
+    </UniformGrid>
+
+    <GridSplitter Grid.Column="1"
+                  Grid.Row="0"
+                  Grid.RowSpan="2"
+                  Background="Transparent" />
+
+    <DockPanel Grid.Column="2"
+               Grid.Row="0"
+               Grid.RowSpan="2"
+               Name="DockPanel"
+               Background="Transparent"
+               Margin="6"
+               VerticalAlignment="Stretch"
+               HorizontalAlignment="Stretch">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DockPanel.Dock="Top" Margin="0,0,0,6">
+        <CheckBox IsChecked="{Binding EnableGenerateImage}"
+                  Content="Image"
+                  Margin="0,0,6,0"/>
+        <Button Content="Copy Selected"
+                Command="{Binding CopySelectedCommand}"
+                CommandParameter="XAML"
+                Margin="0,0,6,0" />
+        <CheckBox IsChecked="{Binding EnableGenerateStyles}"
+                  Content="Styles"
+                  Margin="0,0,6,0"/>
+        <Button Content="Copy All"
+                Command="{Binding CopyAllCommand}"
+                CommandParameter="XAML"
+                Margin="0,0,6,0" />
+        <Button Content="Export Selected"
+                Command="{Binding ExportSelectedCommand}"
+                CommandParameter="XAML"
+                Margin="0,0,6,0" />
+        <Button Content="Export All"
+                Command="{Binding ExportAllCommand}"
+                CommandParameter="XAML"
+                Margin="0,0,6,0" />
+        <Button Content="Clipboard to Xaml"
+                Command="{Binding ClipboardCommand}"
+                CommandParameter="XAML"
+                Margin="0,0,0,0" />
+      </StackPanel>
+
+      <Panel Background="Transparent">
+        <Panel.ContextFlyout>
+          <MenuFlyout Placement="Bottom">
+            <MenuItem Header="Copy Selected"
+                      Command="{Binding CopySelectedCommand}"
+                      CommandParameter="XAML" />
+            <MenuItem Header="Copy All"
+                      Command="{Binding CopyAllCommand}"
+                      CommandParameter="XAML" />
+            <MenuItem Header="Export Selected"
+                      Command="{Binding ExportSelectedCommand}"
+                      CommandParameter="XAML" />
+            <MenuItem Header="Export All"
+                      Command="{Binding ExportAllCommand}"
+                      CommandParameter="XAML" />
+          </MenuFlyout>
+        </Panel.ContextFlyout>
+        <Viewbox>
+          <SKPictureControl Picture="{Binding SelectedItem.Picture, FallbackValue={x:Null}}" />
+        </Viewbox>
+      </Panel>
+
+    </DockPanel>
+
+  </Grid>
+
+</UserControl>
+
