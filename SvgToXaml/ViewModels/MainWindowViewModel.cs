@@ -20,6 +20,7 @@ namespace SvgToXaml.ViewModels
         private ObservableCollection<FileItemViewModel>? _items;
         private FileItemViewModel? _selectedItem;
         private bool _enableGenerateImage;
+        private bool _enableGenerateStyles;
 
         public FileItemViewModel? SelectedItem
         {
@@ -37,6 +38,12 @@ namespace SvgToXaml.ViewModels
         {
             get => _enableGenerateImage;
             set => this.RaiseAndSetIfChanged(ref _enableGenerateImage, value);
+        }
+
+        public bool EnableGenerateStyles
+        {
+            get => _enableGenerateStyles;
+            set => this.RaiseAndSetIfChanged(ref _enableGenerateStyles, value);
         }
 
         public ICommand ClearCommand { get; }
@@ -58,6 +65,7 @@ namespace SvgToXaml.ViewModels
             _items = new ObservableCollection<FileItemViewModel>();
 
             _enableGenerateImage = true;
+            _enableGenerateStyles = true;
 
             ClearCommand = ReactiveCommand.Create(() =>
             {
@@ -115,7 +123,7 @@ namespace SvgToXaml.ViewModels
                 var paths = Items?.Select(x => x.Path).ToList();
                 if (paths is { })
                 {
-                    var xaml = SvgConverter.ToXaml(paths, generateImage: _enableGenerateImage, generateStyles: true, indent: "");
+                    var xaml = SvgConverter.ToXaml(paths, generateImage: _enableGenerateImage, generateStyles: _enableGenerateStyles, indent: "");
 
                     await Dispatcher.UIThread.InvokeAsync(() =>
                     {
@@ -170,7 +178,7 @@ namespace SvgToXaml.ViewModels
                     var paths = Items?.Select(x => x.Path).ToList();
                     if (paths is { })
                     {
-                        var xaml = SvgConverter.ToXaml(paths, generateImage: _enableGenerateImage, generateStyles: true, indent: "");
+                        var xaml = SvgConverter.ToXaml(paths, generateImage: _enableGenerateImage, generateStyles: _enableGenerateStyles, indent: "");
 
                         await File.WriteAllTextAsync(result, xaml);
                     }
