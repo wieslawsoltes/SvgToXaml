@@ -89,22 +89,44 @@ namespace SvgToXamlConverter
 
         public static string ToHexColor(ShimSkiaSharp.SKColor skColor)
         {
-            return $"#{skColor.Alpha:X2}{skColor.Red:X2}{skColor.Green:X2}{skColor.Blue:X2}";
+            var sb = new StringBuilder();
+            sb.Append('#');
+            sb.AppendFormat("{0:X2}", skColor.Alpha);
+            sb.AppendFormat("{0:X2}", skColor.Red);
+            sb.AppendFormat("{0:X2}", skColor.Green);
+            sb.AppendFormat("{0:X2}", skColor.Blue);
+            return sb.ToString();
         }
 
         public static string ToPoint(ShimSkiaSharp.SKPoint skPoint)
         {
-            return $"{ToString(skPoint.X)},{ToString(skPoint.Y)}";
+            var sb = new StringBuilder();
+            sb.Append(ToString(skPoint.X));
+            sb.Append(',');
+            sb.Append(ToString(skPoint.Y));
+            return sb.ToString();
         }
 
         public static string ToRect(ShimSkiaSharp.SKRect sKRect)
         {
-            return $"{ToString(sKRect.Left)},{ToString(sKRect.Top)},{ToString(sKRect.Width)},{ToString(sKRect.Height)}";
+            var sb = new StringBuilder();
+            sb.Append(ToString(sKRect.Left));
+            sb.Append(',');
+            sb.Append(ToString(sKRect.Top));
+            sb.Append(',');
+            sb.Append(ToString(sKRect.Width));
+            sb.Append(',');
+            sb.Append(ToString(sKRect.Height));
+            return sb.ToString();
         }
 
         public static string ToPoint(SkiaSharp.SKPoint skPoint)
         {
-            return $"{ToString(skPoint.X)},{ToString(skPoint.Y)}";
+            var sb = new StringBuilder();
+            sb.Append(ToString(skPoint.X));
+            sb.Append(',');
+            sb.Append(ToString(skPoint.Y));
+            return sb.ToString();
         }
 
         public static string ToMatrix(SkiaSharp.SKMatrix skMatrix)
