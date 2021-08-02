@@ -54,18 +54,18 @@ namespace SvgToXamlConverter
                         return;
                     }
 
-                    var xaml = SvgConverter.ToXaml(paths, generateImage: false, generateStyles: true, indent: "");
+                    var xaml = SvgConverter.ToXaml(paths, generateImage: false, generateStyles: true);
 
                     if (args.Length == 1)
                     {
-                        Console.WriteLine(xaml);
+                        Console.WriteLine(SvgConverter.Format(xaml));
                         return;
                     }
 
                     if (args.Length == 2)
                     {
                         var outputPath = args[1];
-                        File.WriteAllText(outputPath, xaml);
+                        File.WriteAllText(outputPath, SvgConverter.Format(xaml));
                     }
                 }
                 else
@@ -76,14 +76,14 @@ namespace SvgToXamlConverter
 
                     if (args.Length == 1)
                     {
-                        Console.WriteLine(xaml);
+                        Console.WriteLine(SvgConverter.Format(xaml));
                         return;
                     }
 
                     if (args.Length == 2)
                     {
                         var outputPath = args[1];
-                        File.WriteAllText(outputPath, xaml);
+                        File.WriteAllText(outputPath, SvgConverter.Format(xaml));
                     }
                 }
             }

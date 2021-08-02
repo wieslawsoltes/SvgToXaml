@@ -5,7 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using SkiaSharp;
+using System.Xml;
 
 namespace SvgToXamlConverter
 {
@@ -23,9 +23,9 @@ namespace SvgToXamlConverter
             return value.ToString(CultureInfo.InvariantCulture);
         }
 
-        public static string ToHexColor(ShimSkiaSharp.SKColor skColor, string indent = "")
+        public static string ToHexColor(ShimSkiaSharp.SKColor skColor)
         {
-            return $"{indent}#{skColor.Alpha:X2}{skColor.Red:X2}{skColor.Green:X2}{skColor.Blue:X2}";
+            return $"#{skColor.Alpha:X2}{skColor.Red:X2}{skColor.Green:X2}{skColor.Blue:X2}";
         }
 
         public static string ToPoint(ShimSkiaSharp.SKPoint skPoint)
@@ -89,18 +89,18 @@ namespace SvgToXamlConverter
                 matrix.Persp2);
         }
 
-        public static string ToBrush(ShimSkiaSharp.ColorShader colorShader, SkiaSharp.SKRect skBounds, string indent)
+        public static string ToBrush(ShimSkiaSharp.ColorShader colorShader, SkiaSharp.SKRect skBounds)
         {
             var brush = "";
 
-            brush += $"{indent}<SolidColorBrush";
+            brush += $"<SolidColorBrush";
             brush += $" Color=\"{ToHexColor(colorShader.Color)}\"";
             brush += $"/>{NewLine}";
 
             return brush;
         }
 
-        public static string ToBrush(ShimSkiaSharp.LinearGradientShader linearGradientShader, SkiaSharp.SKRect skBounds, string indent)
+        public static string ToBrush(ShimSkiaSharp.LinearGradientShader linearGradientShader, SkiaSharp.SKRect skBounds)
         {
             var brush = "";
 
@@ -134,7 +134,7 @@ namespace SvgToXamlConverter
             }
 #endif
 
-            brush += $"{indent}<LinearGradientBrush";
+            brush += $"<LinearGradientBrush";
             brush += $" StartPoint=\"{ToPoint(start)}\"";
             brush += $" EndPoint=\"{ToPoint(end)}\"";
 
@@ -151,13 +151,13 @@ namespace SvgToXamlConverter
                 // TODO: Missing Transform property on LinearGradientBrush
                 var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(linearGradientShader.LocalMatrix.Value);
                 localMatrix = AdjustMatrixLocation(localMatrix, skBounds.Location.X, skBounds.Location.Y);
-                brush += $"{indent}  <LinearGradientBrush.Transform>{NewLine}";
-                brush += $"{indent}    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{NewLine}";
-                brush += $"{indent}  </LinearGradientBrush.Transform>{NewLine}";
+                brush += $"  <LinearGradientBrush.Transform>{NewLine}";
+                brush += $"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{NewLine}";
+                brush += $"  </LinearGradientBrush.Transform>{NewLine}";
             }
 #endif
 
-            brush += $"{indent}  <LinearGradientBrush.GradientStops>{NewLine}";
+            brush += $"  <LinearGradientBrush.GradientStops>{NewLine}";
 
             if (linearGradientShader.Colors is { } && linearGradientShader.ColorPos is { })
             {
@@ -165,17 +165,17 @@ namespace SvgToXamlConverter
                 {
                     var color = ToHexColor(linearGradientShader.Colors[i]);
                     var offset = ToString(linearGradientShader.ColorPos[i]);
-                    brush += $"{indent}    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{NewLine}";
+                    brush += $"    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{NewLine}";
                 }
             }
 
-            brush += $"{indent}  </LinearGradientBrush.GradientStops>{NewLine}";
-            brush += $"{indent}</LinearGradientBrush>{NewLine}";
+            brush += $"  </LinearGradientBrush.GradientStops>{NewLine}";
+            brush += $"</LinearGradientBrush>{NewLine}";
 
             return brush;
         }
 
-        public static string ToBrush(ShimSkiaSharp.TwoPointConicalGradientShader twoPointConicalGradientShader, SkiaSharp.SKRect skBounds, string indent)
+        public static string ToBrush(ShimSkiaSharp.TwoPointConicalGradientShader twoPointConicalGradientShader, SkiaSharp.SKRect skBounds)
         {
             var brush = "";
 
@@ -222,7 +222,7 @@ namespace SvgToXamlConverter
 
             endRadius = endRadius / skBounds.Width;
 
-            brush += $"{indent}<RadialGradientBrush";
+            brush += $"<RadialGradientBrush";
             brush += $" Center=\"{ToPoint(center)}\"";
             brush += $" GradientOrigin=\"{ToPoint(gradientOrigin)}\"";
             brush += $" Radius=\"{ToString(endRadius)}\"";
@@ -240,13 +240,13 @@ namespace SvgToXamlConverter
                 // TODO: Missing Transform property on RadialGradientBrush
                 var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(twoPointConicalGradientShader.LocalMatrix.Value);
                 localMatrix = AdjustMatrixLocation(localMatrix, skBounds.Location.X, skBounds.Location.Y);
-                brush += $"{indent}  <RadialGradientBrush.Transform>{NewLine}";
-                brush += $"{indent}    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{NewLine}";
-                brush += $"{indent}  </RadialGradientBrush.Transform>{NewLine}";
+                brush += $"  <RadialGradientBrush.Transform>{NewLine}";
+                brush += $"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{NewLine}";
+                brush += $"  </RadialGradientBrush.Transform>{NewLine}";
             }
 #endif
 
-            brush += $"{indent}  <RadialGradientBrush.GradientStops>{NewLine}";
+            brush += $"  <RadialGradientBrush.GradientStops>{NewLine}";
 
             if (twoPointConicalGradientShader.Colors is { } && twoPointConicalGradientShader.ColorPos is { })
             {
@@ -254,17 +254,17 @@ namespace SvgToXamlConverter
                 {
                     var color = ToHexColor(twoPointConicalGradientShader.Colors[i]);
                     var offset = ToString(twoPointConicalGradientShader.ColorPos[i]);
-                    brush += $"{indent}    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{NewLine}";
+                    brush += $"    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{NewLine}";
                 }
             }
 
-            brush += $"{indent}  </RadialGradientBrush.GradientStops>{NewLine}";
-            brush += $"{indent}</RadialGradientBrush>{NewLine}";
+            brush += $"  </RadialGradientBrush.GradientStops>{NewLine}";
+            brush += $"</RadialGradientBrush>{NewLine}";
 
             return brush;
         }
 
-        public static string ToBrush(ShimSkiaSharp.PictureShader pictureShader, SkiaSharp.SKRect skBounds, string indent)
+        public static string ToBrush(ShimSkiaSharp.PictureShader pictureShader, SkiaSharp.SKRect skBounds)
         {
             var brush = "";
 
@@ -280,7 +280,7 @@ namespace SvgToXamlConverter
 
                 if (!localMatrix.IsIdentity)
                 {
-                    brush += $"{indent}<!-- TODO: Transform: {ToMatrix(localMatrix)} -->{NewLine}";
+                    brush += $"<!-- TODO: Transform: {ToMatrix(localMatrix)} -->{NewLine}";
                 }
             }
             else
@@ -293,7 +293,7 @@ namespace SvgToXamlConverter
             var destinationRect = pictureShader.Tile;
 
             // TODO: Use different than Image ?
-            brush += $"{indent}<VisualBrush";
+            brush += $"<VisualBrush";
 
             if (pictureShader.TmX != ShimSkiaSharp.SKShaderTileMode.Clamp)
             {
@@ -311,32 +311,32 @@ namespace SvgToXamlConverter
                 // TODO: Missing Transform property on VisualBrush
                 var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(pictureShader.LocalMatrix);
                 localMatrix = AdjustMatrixLocation(localMatrix, skBounds.Location.X, skBounds.Location.Y);
-                brush += $"{indent}  <VisualBrush.Transform>{NewLine}";
-                brush += $"{indent}    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{NewLine}";
-                brush += $"{indent}  </VisualBrush.Transform>{NewLine}";
+                brush += $"  <VisualBrush.Transform>{NewLine}";
+                brush += $"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{NewLine}";
+                brush += $"  </VisualBrush.Transform>{NewLine}";
             }
 #endif
 
-            brush += $"{indent}  <VisualBrush.Visual>{NewLine}";
+            brush += $"  <VisualBrush.Visual>{NewLine}";
 
-            var visual = ToXaml(pictureShader.Src, generateImage: true, $"{indent}    ", key: null);
+            var visual = ToXaml(pictureShader.Src, generateImage: true, key: null);
             brush += visual;
             brush += $"{NewLine}";
 
-            brush += $"{indent}  </VisualBrush.Visual>{NewLine}";
-            brush += $"{indent}</VisualBrush>{NewLine}";
+            brush += $"  </VisualBrush.Visual>{NewLine}";
+            brush += $"</VisualBrush>{NewLine}";
 
             return brush;
         }
 
-        public static string ToBrush(ShimSkiaSharp.SKShader skShader, SkiaSharp.SKRect skBounds, string indent = "")
+        public static string ToBrush(ShimSkiaSharp.SKShader skShader, SkiaSharp.SKRect skBounds)
         {
             return skShader switch
             {
-                ShimSkiaSharp.ColorShader colorShader => ToBrush(colorShader, skBounds, indent),
-                ShimSkiaSharp.LinearGradientShader linearGradientShader => ToBrush(linearGradientShader, skBounds, indent),
-                ShimSkiaSharp.TwoPointConicalGradientShader twoPointConicalGradientShader => ToBrush(twoPointConicalGradientShader, skBounds, indent),
-                ShimSkiaSharp.PictureShader pictureShader => ToBrush(pictureShader, skBounds, indent),
+                ShimSkiaSharp.ColorShader colorShader => ToBrush(colorShader, skBounds),
+                ShimSkiaSharp.LinearGradientShader linearGradientShader => ToBrush(linearGradientShader, skBounds),
+                ShimSkiaSharp.TwoPointConicalGradientShader twoPointConicalGradientShader => ToBrush(twoPointConicalGradientShader, skBounds),
+                ShimSkiaSharp.PictureShader pictureShader => ToBrush(pictureShader, skBounds),
                 _ => ""
             };
         }
@@ -373,13 +373,13 @@ namespace SvgToXamlConverter
             }
         }
 
-        public static string ToPen(ShimSkiaSharp.SKPaint skPaint, SkiaSharp.SKRect skBounds, string indent = "")
+        public static string ToPen(ShimSkiaSharp.SKPaint skPaint, SkiaSharp.SKRect skBounds)
         {
             if (skPaint.Shader is { })
             {
                 var pen = "";
 
-                pen += $"{indent}<Pen";
+                pen += $"<Pen";
 
                 if (skPaint.Shader is ShimSkiaSharp.ColorShader colorShader)
                 {
@@ -426,21 +426,21 @@ namespace SvgToXamlConverter
 
                     var offset = dashPathEffect.Phase / skPaint.StrokeWidth;
 
-                    pen += $"{indent}  <Pen.DashStyle>{NewLine}";
-                    pen += $"{indent}    <DashStyle Dashes=\"{string.Join(",", dashes.Select(ToString))}\" Offset=\"{ToString(offset)}\"/>{NewLine}";
-                    pen += $"{indent}  </Pen.DashStyle>{NewLine}";
+                    pen += $"  <Pen.DashStyle>{NewLine}";
+                    pen += $"    <DashStyle Dashes=\"{string.Join(",", dashes.Select(ToString))}\" Offset=\"{ToString(offset)}\"/>{NewLine}";
+                    pen += $"  </Pen.DashStyle>{NewLine}";
                 }
 
                 if (skPaint.Shader is not ShimSkiaSharp.ColorShader)
                 {
-                    pen += $"{indent}  <Pen.Brush>{NewLine}";
-                    pen += ToBrush(skPaint.Shader, skBounds, indent + "    ");
-                    pen += $"{indent}  </Pen.Brush>{NewLine}";
+                    pen += $"  <Pen.Brush>{NewLine}";
+                    pen += ToBrush(skPaint.Shader, skBounds);
+                    pen += $"  </Pen.Brush>{NewLine}";
                 }
 
                 if (skPaint.Shader is not ShimSkiaSharp.ColorShader || (skPaint.PathEffect is ShimSkiaSharp.DashPathEffect { Intervals: { } }))
                 {
-                    pen += $"{indent}</Pen>{NewLine}";
+                    pen += $"</Pen>{NewLine}";
                 }
 
                 return pen;
@@ -477,7 +477,7 @@ namespace SvgToXamlConverter
                    $"{ToString(skMatrix.TransY)}";
         }
 
-        public static string ToXaml(ShimSkiaSharp.SKPicture? skPicture, bool generateImage = true, string indent = "", string? key = null)
+        public static string ToXaml(ShimSkiaSharp.SKPicture? skPicture, bool generateImage = true, string? key = null)
         {
             const byte opaqueAlpha = 255;
 
@@ -485,13 +485,13 @@ namespace SvgToXamlConverter
 
             if (generateImage)
             {
-                sb.Append($"{indent}<Image{(key is null ? "" : ($" x:Key=\"{key}\""))}>{NewLine}");
-                sb.Append($"{indent}  <DrawingImage>{NewLine}");
-                sb.Append($"{indent}    <DrawingGroup>{NewLine}");
+                sb.Append($"<Image{(key is null ? "" : ($" x:Key=\"{key}\""))}>{NewLine}");
+                sb.Append($"  <DrawingImage>{NewLine}");
+                sb.Append($"    <DrawingGroup>{NewLine}");
             }
             else
             {
-                sb.Append($"{indent}<DrawingGroup{(key is null ? "" : ($" x:Key=\"{key}\""))}>{NewLine}");
+                sb.Append($"<DrawingGroup{(key is null ? "" : ($" x:Key=\"{key}\""))}>{NewLine}");
             }
 
             if (skPicture?.Commands is { })
@@ -517,10 +517,10 @@ namespace SvgToXamlConverter
                                 path.Transform(totalMatrix);
                                 var clipGeometry = ToSvgPathData(path);
  
-                                sb.Append($"{indent}<DrawingGroup>{NewLine}");
-                                sb.Append($"{indent}  <DrawingGroup.ClipGeometry>{NewLine}");
-                                sb.Append($"{indent}    <StreamGeometry>{clipGeometry}</StreamGeometry>{NewLine}");
-                                sb.Append($"{indent}  </DrawingGroup.ClipGeometry>{NewLine}");
+                                sb.Append($"<DrawingGroup>{NewLine}");
+                                sb.Append($"  <DrawingGroup.ClipGeometry>{NewLine}");
+                                sb.Append($"    <StreamGeometry>{clipGeometry}</StreamGeometry>{NewLine}");
+                                sb.Append($"  </DrawingGroup.ClipGeometry>{NewLine}");
 
                                 currentClipPathList.Add(path);
                             }
@@ -535,10 +535,10 @@ namespace SvgToXamlConverter
                             path.Transform(totalMatrix);
                             var clipGeometry = ToSvgPathData(path);
 
-                            sb.Append($"{indent}<DrawingGroup>{NewLine}");
-                            sb.Append($"{indent}  <DrawingGroup.ClipGeometry>{NewLine}");
-                            sb.Append($"{indent}    <StreamGeometry>{clipGeometry}</StreamGeometry>{NewLine}");
-                            sb.Append($"{indent}  </DrawingGroup.ClipGeometry>{NewLine}");
+                            sb.Append($"<DrawingGroup>{NewLine}");
+                            sb.Append($"  <DrawingGroup.ClipGeometry>{NewLine}");
+                            sb.Append($"    <StreamGeometry>{clipGeometry}</StreamGeometry>{NewLine}");
+                            sb.Append($"  </DrawingGroup.ClipGeometry>{NewLine}");
 
                             currentClipPathList.Add(path);
     
@@ -557,7 +557,7 @@ namespace SvgToXamlConverter
                             totalMatrixStack.Push(totalMatrix);
                             
                             clipPathStack.Push(currentClipPathList);
-                            currentClipPathList = new List<SKPath>();
+                            currentClipPathList = new List<SkiaSharp.SKPath>();
                             
                             opacityStack.Push(currentOpacityList);
                             currentOpacityList = new List<byte>();
@@ -567,7 +567,7 @@ namespace SvgToXamlConverter
                             {
                                 if (skPaint.Color is { } skColor && skColor.Alpha < opaqueAlpha)
                                 {
-                                    sb.Append($"{indent}<DrawingGroup Opacity=\"{ToString(skColor.Alpha / 255.0)}\">{NewLine}");
+                                    sb.Append($"<DrawingGroup Opacity=\"{ToString(skColor.Alpha / 255.0)}\">{NewLine}");
                                     currentOpacityList.Add(skColor.Alpha);
                                 }
                                 else
@@ -587,7 +587,7 @@ namespace SvgToXamlConverter
                             totalMatrixStack.Push(totalMatrix);
                             
                             clipPathStack.Push(currentClipPathList);
-                            currentClipPathList = new List<SKPath>();
+                            currentClipPathList = new List<SkiaSharp.SKPath>();
                             
                             opacityStack.Push(currentOpacityList);
                             currentOpacityList = new List<byte>();
@@ -598,7 +598,7 @@ namespace SvgToXamlConverter
                         {
                             foreach (var clipPath in currentClipPathList)
                             {
-                                sb.Append($"{indent}</DrawingGroup>{NewLine}");
+                                sb.Append($"</DrawingGroup>{NewLine}");
                             }
 
                             currentClipPathList.Clear();
@@ -612,7 +612,7 @@ namespace SvgToXamlConverter
                             {
                                 if (totalOpacity < opaqueAlpha)
                                 {
-                                    sb.Append($"{indent}</DrawingGroup>{NewLine}");
+                                    sb.Append($"</DrawingGroup>{NewLine}");
                                 }
                             }
 
@@ -640,14 +640,14 @@ namespace SvgToXamlConverter
                         {
                             if (!totalMatrix.IsIdentity)
                             {
-                                sb.Append($"{indent}<DrawingGroup>{NewLine}");
+                                sb.Append($"<DrawingGroup>{NewLine}");
                                 
-                                sb.Append($"{indent}  <DrawingGroup.Transform>{NewLine}");
-                                sb.Append($"{indent}    <MatrixTransform Matrix=\"{ToMatrix(totalMatrix)}\"/>{NewLine}");
-                                sb.Append($"{indent}  </DrawingGroup.Transform>{NewLine}");
+                                sb.Append($"  <DrawingGroup.Transform>{NewLine}");
+                                sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(totalMatrix)}\"/>{NewLine}");
+                                sb.Append($"  </DrawingGroup.Transform>{NewLine}");
                             }
 
-                            sb.Append($"{indent}<GeometryDrawing");
+                            sb.Append($"<GeometryDrawing");
 
                             if ((skPaint.Style == ShimSkiaSharp.SKPaintStyle.Fill || skPaint.Style == ShimSkiaSharp.SKPaintStyle.StrokeAndFill) && skPaint.Shader is ShimSkiaSharp.ColorShader colorShader)
                             {
@@ -666,7 +666,7 @@ namespace SvgToXamlConverter
                             {
                                 if (skPaint.Shader is { })
                                 {
-                                    brush = ToBrush(skPaint.Shader, path.Bounds, $"{indent}    ");
+                                    brush = ToBrush(skPaint.Shader, path.Bounds);
                                 }
                             }
 
@@ -674,7 +674,7 @@ namespace SvgToXamlConverter
                             {
                                 if (skPaint.Shader is { })
                                 {
-                                    pen = ToPen(skPaint, path.Bounds, $"{indent}    ");
+                                    pen = ToPen(skPaint, path.Bounds);
                                 }
                             }
 
@@ -689,26 +689,26 @@ namespace SvgToXamlConverter
 
                             if (brush is { })
                             {
-                                sb.Append($"{indent}  <GeometryDrawing.Brush>{NewLine}");
+                                sb.Append($"  <GeometryDrawing.Brush>{NewLine}");
                                 sb.Append($"{brush}");
-                                sb.Append($"{indent}  </GeometryDrawing.Brush>{NewLine}");
+                                sb.Append($"  </GeometryDrawing.Brush>{NewLine}");
                             }
 
                             if (pen is { })
                             {
-                                sb.Append($"{indent}  <GeometryDrawing.Pen>{NewLine}");
+                                sb.Append($"  <GeometryDrawing.Pen>{NewLine}");
                                 sb.Append($"{pen}");
-                                sb.Append($"{indent}  </GeometryDrawing.Pen>{NewLine}");
+                                sb.Append($"  </GeometryDrawing.Pen>{NewLine}");
                             }
 
                             if (brush is not null || pen is not null)
                             {
-                                sb.Append($"{indent}</GeometryDrawing>{NewLine}");
+                                sb.Append($"</GeometryDrawing>{NewLine}");
                             }
 
                             if (!totalMatrix.IsIdentity)
                             {
-                                sb.Append($"{indent}</DrawingGroup>{NewLine}");
+                                sb.Append($"</DrawingGroup>{NewLine}");
                             }
 
                             break;
@@ -736,7 +736,7 @@ namespace SvgToXamlConverter
                                 
                 foreach (var clipPath in currentClipPathList)
                 {
-                    sb.Append($"{indent}</DrawingGroup>{NewLine}");
+                    sb.Append($"</DrawingGroup>{NewLine}");
                 }
 
                 currentClipPathList.Clear();
@@ -745,7 +745,7 @@ namespace SvgToXamlConverter
                 {
                     if (totalOpacity < opaqueAlpha)
                     {
-                        sb.Append($"{indent}</DrawingGroup>{NewLine}");
+                        sb.Append($"</DrawingGroup>{NewLine}");
                     }
                 }
 
@@ -754,34 +754,32 @@ namespace SvgToXamlConverter
 
             if (generateImage)
             {
-                sb.Append($"{indent}    </DrawingGroup>{NewLine}");
-                sb.Append($"{indent}  </DrawingImage>{NewLine}");
-                sb.Append($"{indent}</Image>");
+                sb.Append($"    </DrawingGroup>{NewLine}");
+                sb.Append($"  </DrawingImage>{NewLine}");
+                sb.Append($"</Image>");
             }
             else
             {
-                sb.Append($"{indent}</DrawingGroup>");
+                sb.Append($"</DrawingGroup>");
             }
 
             return sb.ToString();
         }
 
-        public static string ToXaml(List<string> paths, bool generateImage = false, bool generateStyles = true, string indent = "")
+        public static string ToXaml(List<string> paths, bool generateImage = false, bool generateStyles = true)
         {
-            var indentXaml = $"{indent}{(generateStyles ? "      " : "")}";
             var sb = new StringBuilder();
 
             if (generateStyles)
             {
-                sb.Append($"{indent}<Styles xmlns=\"https://github.com/avaloniaui\"{NewLine}");
-                sb.Append($"{indent}        xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">{NewLine}");
-                sb.Append($"{indent}  <Style>{NewLine}");
-                sb.Append($"{indent}    <Style.Resources>{NewLine}");
+                sb.Append($"<Styles xmlns=\"https://github.com/avaloniaui\"{NewLine}");
+                sb.Append($"        xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">{NewLine}");
+                sb.Append($"  <Style>{NewLine}");
+                sb.Append($"    <Style.Resources>{NewLine}");
             }
 
-            for (var i = 0; i < paths.Count; i++)
+            foreach (var path in paths)
             {
-                var path = paths[i];
                 var svg = new Svg.Skia.SKSvg();
                 svg.Load(path);
                 if (svg.Model is null)
@@ -789,17 +787,17 @@ namespace SvgToXamlConverter
                     continue;
                 }
 
-                var xaml = ToXaml(svg.Model, generateImage: generateImage, indent: indentXaml, key: generateStyles ? $"_{CreateKey(path)}" : null);
-                sb.Append($"{indentXaml}<!-- {Path.GetFileName(path)} -->{NewLine}");
+                var xaml = ToXaml(svg.Model, generateImage: generateImage, key: generateStyles ? $"_{CreateKey(path)}" : null);
+                sb.Append($"<!-- {Path.GetFileName(path)} -->{NewLine}");
                 sb.Append(xaml);
                 sb.Append(NewLine);
             }
 
             if (generateStyles)
             {
-                sb.Append($"{indent}    </Style.Resources>{NewLine}");
-                sb.Append($"{indent}  </Style>{NewLine}");
-                sb.Append($"{indent}</Styles>");
+                sb.Append($"    </Style.Resources>{NewLine}");
+                sb.Append($"  </Style>{NewLine}");
+                sb.Append($"</Styles>");
             }
 
             return sb.ToString();
@@ -810,6 +808,32 @@ namespace SvgToXamlConverter
             string name = Path.GetFileNameWithoutExtension(path);
             string key = name.Replace("-", "_");
             return $"_{key}";
+        }
+
+        public static string Format(string xml)
+        {
+            try
+            {
+                using var ms = new MemoryStream();
+                using var writer = new XmlTextWriter(ms, Encoding.UTF8);
+                var document = new XmlDocument();
+                document.LoadXml(xml);
+                writer.Formatting = Formatting.Indented;
+                writer.Indentation = 2;
+                writer.IndentChar = ' ';
+                document.WriteContentTo(writer);
+                writer.Flush();
+                ms.Flush();
+                ms.Position = 0;
+                using var sReader = new StreamReader(ms);
+                return sReader.ReadToEnd();
+            }
+            catch
+            {
+                // ignored
+            }
+
+            return "";
         }
     }
 }

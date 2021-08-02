@@ -104,7 +104,7 @@ namespace SvgToXaml.ViewModels
                 {
                     try
                     {
-                        Application.Current.Clipboard.SetTextAsync(xaml);
+                        Application.Current.Clipboard.SetTextAsync(SvgConverter.Format(xaml));
                     }
                     catch
                     {
@@ -123,13 +123,13 @@ namespace SvgToXaml.ViewModels
                 var paths = Items?.Select(x => x.Path).ToList();
                 if (paths is { })
                 {
-                    var xaml = SvgConverter.ToXaml(paths, generateImage: _enableGenerateImage, generateStyles: _enableGenerateStyles, indent: "");
-
+                    var xaml = SvgConverter.ToXaml(paths, generateImage: _enableGenerateImage, generateStyles: _enableGenerateStyles);
+                    
                     await Dispatcher.UIThread.InvokeAsync(() =>
                     {
                         try
                         {
-                            Application.Current.Clipboard.SetTextAsync(xaml);
+                            Application.Current.Clipboard.SetTextAsync(SvgConverter.Format(xaml));
                         }
                         catch
                         {
@@ -156,7 +156,14 @@ namespace SvgToXaml.ViewModels
                 {
                     var xaml = await ToXaml(_selectedItem, _enableGenerateImage);
 
-                    await File.WriteAllTextAsync(result, xaml);
+                    try
+                    {
+                        await File.WriteAllTextAsync(result, SvgConverter.Format(xaml));
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
                 }
             });
 
@@ -178,9 +185,16 @@ namespace SvgToXaml.ViewModels
                     var paths = Items?.Select(x => x.Path).ToList();
                     if (paths is { })
                     {
-                        var xaml = SvgConverter.ToXaml(paths, generateImage: _enableGenerateImage, generateStyles: _enableGenerateStyles, indent: "");
+                        var xaml = SvgConverter.ToXaml(paths, generateImage: _enableGenerateImage, generateStyles: _enableGenerateStyles);
 
-                        await File.WriteAllTextAsync(result, xaml);
+                        try
+                        {
+                            await File.WriteAllTextAsync(result, SvgConverter.Format(xaml));
+                        }
+                        catch
+                        {
+                            // ignored
+                        }
                     }
                 }
             });
@@ -218,13 +232,13 @@ namespace SvgToXaml.ViewModels
                     // ignored
                 }
 
-                var xaml = await Task.Run(() => SvgConverter.ToXaml(svg.Model, generateImage: _enableGenerateImage, indent: "", key: null));
+                var xaml = await Task.Run(() => SvgConverter.ToXaml(svg.Model, generateImage: _enableGenerateImage, key: null));
 
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     try
                     {
-                        Application.Current.Clipboard.SetTextAsync(xaml);
+                        Application.Current.Clipboard.SetTextAsync(SvgConverter.Format(xaml));
                     }
                     catch
                     {
@@ -253,7 +267,7 @@ namespace SvgToXaml.ViewModels
 
                 if (fileItemViewModel.Svg is { })
                 {
-                    return SvgConverter.ToXaml(fileItemViewModel.Svg.Model, generateImage: enableGenerateImage, indent: "", key: null);
+                    return SvgConverter.ToXaml(fileItemViewModel.Svg.Model, generateImage: enableGenerateImage, key: null);
                 }
 
                 return "";
