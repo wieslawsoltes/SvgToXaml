@@ -478,6 +478,8 @@ namespace SvgToXamlConverter
 
         public static string ToXaml(ShimSkiaSharp.SKPicture? skPicture, bool generateImage = true, string indent = "", string? key = null)
         {
+            const double opaqueAlpha = 255.0;
+
             var sb = new StringBuilder();
 
             if (generateImage)
@@ -498,6 +500,9 @@ namespace SvgToXamlConverter
 
                 var totalClipPaths = new List<(SkiaSharp.SKPath Path, SkiaSharp.SKClipOperation Operation, bool Antialias)>();
                 var totalClipPathsStack = new Stack<List<(SkiaSharp.SKPath Path, SkiaSharp.SKClipOperation Operation, bool Antialias)>>();
+
+                var totalOpacityStack = new Stack<double>();
+                var totalOpacity = opaqueAlpha;
 
                 foreach (var canvasCommand in skPicture.Commands)
                 {
@@ -535,6 +540,8 @@ namespace SvgToXamlConverter
 
                             totalClipPathsStack.Push(totalClipPaths.ToList());
 
+                            totalOpacityStack.Push(totalOpacity);
+                            
                             // TODO:
 
                             break;
@@ -554,6 +561,12 @@ namespace SvgToXamlConverter
                             }
 
                             // TODO:
+                            if (totalOpacityStack.Count > 0)
+                            {
+                                totalOpacity = totalOpacityStack.Pop();
+                            }
+
+                            // TODO:
 
                             break;
                         }
@@ -568,6 +581,20 @@ namespace SvgToXamlConverter
                         case ShimSkiaSharp.SaveLayerCanvasCommand(var count, var skPaint):
                         {
                             // TODO:
+                            if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is null)
+                            {
+                                if (skPaint.Color is { } skColor && skColor.Alpha < opaqueAlpha)
+                                {
+                                    // TODO: Opacity
+                                    totalOpacityStack.Push(skColor.Alpha);
+                                    totalOpacity = skColor.Alpha;
+                                }
+                            }
+                            else
+                            {
+                                totalOpacityStack.Push(opaqueAlpha);
+                                totalOpacity = opaqueAlpha;
+                            }
 
                             break;
                         }
@@ -596,12 +623,19 @@ namespace SvgToXamlConverter
                                 }
                             }
 
-                            var isDrawingGroup = !totalMatrix.IsIdentity || clipPath is not null;
+                            var isDrawingGroup = !totalMatrix.IsIdentity || clipPath is not null || totalOpacity < opaqueAlpha;
                             var groupIndent = generateImage ? $"{indent}      " : $"{indent}  ";
 
                             if (isDrawingGroup)
                             {
-                                sb.Append($"{groupIndent}<DrawingGroup>{NewLine}");
+                                sb.Append($"{groupIndent}<DrawingGroup");
+
+                                if (totalOpacity < opaqueAlpha)
+                                {
+                                    sb.Append($" Opacity=\"{ToString(totalOpacity / 255.0)}\"");
+                                }
+
+                                sb.Append($">{NewLine}");
                             }
 
                             if (isDrawingGroup && !totalMatrix.IsIdentity)
