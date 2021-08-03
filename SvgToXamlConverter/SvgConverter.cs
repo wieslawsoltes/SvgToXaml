@@ -570,6 +570,15 @@ namespace SvgToXamlConverter
                 sb.Append($"</GeometryDrawing>{NewLine}");
             }
         }
+        
+        private enum LayerType
+        {
+            Unknown,
+            MaskGroup,
+            MaskBrush,
+            OpacityGroup,
+            FilterGroup
+        }
 
         public static string ToXamlDrawingGroup(ShimSkiaSharp.SKPicture? skPicture, string? key = null)
         {
@@ -594,9 +603,7 @@ namespace SvgToXamlConverter
             var maskStack = new Stack<List<StringBuilder>>();
             var currentMaskList = new List<StringBuilder>();
 
-            var layers = new Stack<StringBuilder?>();
-            
-            //layers.Push(sb);
+            var layersStack = new Stack<(StringBuilder Builder, LayerType Type, ShimSkiaSharp.SKPaint Paint)?>();
 
             foreach (var canvasCommand in skPicture.Commands)
             {
@@ -674,41 +681,38 @@ namespace SvgToXamlConverter
 
                         break;
                     }
-                    case ShimSkiaSharp.SaveLayerCanvasCommand(var count, var skPaint):
+                    case ShimSkiaSharp.SaveLayerCanvasCommand(_, var skPaint):
                     {
-                        // Save
- 
-                        sb.Append($"<!-- SaveLayer -->{NewLine}");
-                        layers.Push(sb);
-
-                        sb = new StringBuilder();
-
-                        Save();
-                        
-                        
-/*
                         // Mask
 
                         if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is { } && skPaint.ImageFilter is null && skPaint.Color is { } skMaskEndColor && skMaskEndColor.Equals(s_transparentBlack))
                         {
+                            sb.Append($"<!-- SaveLayer: MaskBrush -->{NewLine}");
+                            layersStack.Push((sb, LayerType.MaskBrush, skPaint));
+                            sb = new StringBuilder();
+                            Save();
+                            
                             // TODO: Mask End
 
-                            sb.Append($"<!-- TODO: Mask End -->{NewLine}");
-
-                            sb.Append($"<!-- MASK RECORDING BEGIN -->{NewLine}");
-  
-                            currentMaskList.Add(sb);
-
-                            sb = new StringBuilder();
+                            //sb.Append($"<!-- TODO: Mask End -->{NewLine}");
+                            //sb.Append($"<!-- MASK RECORDING BEGIN -->{NewLine}");
+                            //currentMaskList.Add(sb);
+                            //sb = new StringBuilder();
 
                             break;
                         }
 
                         if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is null && skPaint.Color is { } skMaskStartColor && skMaskStartColor.Equals(s_transparentBlack))
                         {
+                            sb.Append($"<!-- SaveLayer: MaskGroup -->{NewLine}");
+                            layersStack.Push((sb, LayerType.MaskGroup, skPaint));
+                            sb = new StringBuilder();
+                            Save();
+                            
+                            
                             // TODO: Mask Start
 
-                            sb.Append($"<!-- TODO: Mask Start -->{NewLine}");
+                            //sb.Append($"<!-- TODO: Mask Start -->{NewLine}");
 
                             break;
                         }
@@ -717,8 +721,13 @@ namespace SvgToXamlConverter
 
                         if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is null && skPaint.Color is { } skOpacityColor && skOpacityColor.Alpha < OpaqueAlpha)
                         {
-                            sb.Append($"<DrawingGroup Opacity=\"{ToString(skOpacityColor.Alpha / 255.0)}\">{NewLine}");
-                            currentOpacityList.Add(skOpacityColor.Alpha);
+                            sb.Append($"<!-- SaveLayer: OpacityGroup -->{NewLine}");
+                            layersStack.Push((sb, LayerType.OpacityGroup, skPaint));
+                            sb = new StringBuilder();
+                            Save();
+                            
+                            //sb.Append($"<DrawingGroup Opacity=\"{ToString(skOpacityColor.Alpha / 255.0)}\">{NewLine}");
+                            //currentOpacityList.Add(skOpacityColor.Alpha);
 
                             break;
                         }
@@ -727,18 +736,28 @@ namespace SvgToXamlConverter
 
                         if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is { } && skPaint.Color is { } skFilterColor && skFilterColor.Equals(s_empty))
                         {
+                            sb.Append($"<!-- SaveLayer: FilterGroup -->{NewLine}");
+                            layersStack.Push((sb, LayerType.FilterGroup, skPaint));
+                            sb = new StringBuilder();
+                            Save();
+
                             // TODO: Filter
                             
-                            sb.Append($"<!-- TODO: Filter -->{NewLine}");
+                            //sb.Append($"<!-- TODO: Filter -->{NewLine}");
 
                             break;
                         }
-*/
+
+                        sb.Append($"<!-- SaveLayer: Unknown -->{NewLine}");
+                        layersStack.Push((sb, LayerType.Unknown, skPaint));
+                        sb = new StringBuilder();
+                        Save();
+
                         break;
                     }
                     case ShimSkiaSharp.SaveCanvasCommand:
                     {
-                        layers.Push(null);
+                        layersStack.Push(null);
 
                         Save();
 
@@ -746,16 +765,62 @@ namespace SvgToXamlConverter
                     }
                     case ShimSkiaSharp.RestoreCanvasCommand:
                     {
-                        var layer = layers.Pop();
+                        var layer = layersStack.Pop();
                         if (layer is { })
                         {
-                            sb.Append($"<!-- RestoreLayer -->{NewLine}");
-
-                            layer.Append($"<!-- BEGIN Layer -->{NewLine}");
-                            layer.Append(sb.ToString());
-                            layer.Append($"<!-- END Layer -->{NewLine}");
+                            var builder = layer.Value.Builder;
                             
-                            sb = layer;
+                            //sb.Append($"<!-- RestoreLayer: {layer.Value.Type} -->{NewLine}");
+
+                            builder.Append($"<!-- BEGIN Layer: {layer.Value.Type} -->{NewLine}");
+
+                            switch (layer.Value.Type)
+                            {
+                                case LayerType.Unknown:
+                                    builder.Append(sb.ToString());
+                                    break;
+                                case LayerType.MaskGroup:
+                                    builder.Append($"<DrawingGroup>{NewLine}");
+                                    builder.Append(sb.ToString());
+                                    builder.Append($"</DrawingGroup>{NewLine}");
+                                    break;
+                                case LayerType.MaskBrush:
+
+                                    builder.Append($"<DrawingGroup.OpacityMask>{NewLine}");
+                                    builder.Append($"  <VisualBrush");
+                                    builder.Append($" TileMode=\"None\"");
+                                    //builder.Append($" SourceRect=\"{ToRect(sourceRect)}\"");
+                                    //builder.Append($" DestinationRect=\"{ToRect(destinationRect)}\"");
+                                    builder.Append($">{NewLine}");
+                                    builder.Append($"    <VisualBrush.Visual>{NewLine}");
+                                    builder.Append($"      <Image{(key is null ? "" : ($" x:Key=\"{key}\""))}>{NewLine}");
+                                    builder.Append($"        <DrawingImage>{NewLine}");
+                                    builder.Append($"          <DrawingGroup>{NewLine}");
+                                    builder.Append(sb.ToString());
+                                    builder.Append($"          </DrawingGroup>{NewLine}");
+                                    builder.Append($"        </DrawingImage>{NewLine}");
+                                    builder.Append($"      </Image>{NewLine}");
+                                    builder.Append($"    </VisualBrush.Visual>{NewLine}");
+                                    builder.Append($"  </VisualBrush>{NewLine}");
+                                    builder.Append($"</DrawingGroup.OpacityMask>{NewLine}");
+
+                                    break;
+                                case LayerType.OpacityGroup:
+                                    if (layer.Value.Paint.Color is { } skColor)
+                                    {
+                                        builder.Append($"<DrawingGroup Opacity=\"{ToString(skColor.Alpha / 255.0)}\">{NewLine}");
+                                        builder.Append(sb.ToString());
+                                        builder.Append($"</DrawingGroup>{NewLine}");
+                                    }
+                                    break;
+                                case LayerType.FilterGroup:
+                                    builder.Append(sb.ToString());
+                                    break;
+                            }
+
+                            builder.Append($"<!-- END Layer {layer.Value.Type} -->{NewLine}");
+
+                            sb = builder;
                         }
 
                         Restore();
