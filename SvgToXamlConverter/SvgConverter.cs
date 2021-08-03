@@ -583,15 +583,20 @@ namespace SvgToXamlConverter
                         }
                         case ShimSkiaSharp.SaveLayerCanvasCommand(var count, var skPaint):
                         {
+                            // matrix
+
                             totalMatrixStack.Push(totalMatrix);
-                            
+
+                            // clip-path
+
                             clipPathStack.Push(currentClipPathList);
                             currentClipPathList = new List<SkiaSharp.SKPath>();
-                            
+
+                            // opacity
+
                             opacityStack.Push(currentOpacityList);
                             currentOpacityList = new List<byte>();
 
-                            // TODO:
                             if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is null)
                             {
                                 if (skPaint.Color is { } skColor && skColor.Alpha < opaqueAlpha)
@@ -613,11 +618,17 @@ namespace SvgToXamlConverter
                         }
                         case ShimSkiaSharp.SaveCanvasCommand:
                         {
+                            // matrix
+
                             totalMatrixStack.Push(totalMatrix);
-                            
+
+                            // clip-path
+
                             clipPathStack.Push(currentClipPathList);
                             currentClipPathList = new List<SkiaSharp.SKPath>();
-                            
+
+                            // opacity
+
                             opacityStack.Push(currentOpacityList);
                             currentOpacityList = new List<byte>();
                             
@@ -625,17 +636,7 @@ namespace SvgToXamlConverter
                         }
                         case ShimSkiaSharp.RestoreCanvasCommand:
                         {
-                            foreach (var clipPath in currentClipPathList)
-                            {
-                                sb.Append($"</DrawingGroup>{NewLine}");
-                            }
-
-                            currentClipPathList.Clear();
-
-                            if (clipPathStack.Count > 0)
-                            {
-                                currentClipPathList = clipPathStack.Pop();
-                            }
+                            // opacity
 
                             foreach (var totalOpacity in currentOpacityList)
                             {
@@ -652,6 +653,22 @@ namespace SvgToXamlConverter
                                 currentOpacityList = opacityStack.Pop();
                             }
 
+                            // clip-path
+                            
+                            foreach (var clipPath in currentClipPathList)
+                            {
+                                sb.Append($"</DrawingGroup>{NewLine}");
+                            }
+
+                            currentClipPathList.Clear();
+
+                            if (clipPathStack.Count > 0)
+                            {
+                                currentClipPathList = clipPathStack.Pop();
+                            }
+
+                            // matrix
+                            
                             if (totalMatrixStack.Count > 0)
                             {
                                 totalMatrix = totalMatrixStack.Pop();
@@ -762,13 +779,8 @@ namespace SvgToXamlConverter
                         }
                     }
                 }
-                                
-                foreach (var clipPath in currentClipPathList)
-                {
-                    sb.Append($"</DrawingGroup>{NewLine}");
-                }
-
-                currentClipPathList.Clear();
+                    
+                // opacity
 
                 foreach (var totalOpacity in currentOpacityList)
                 {
@@ -779,6 +791,15 @@ namespace SvgToXamlConverter
                 }
 
                 currentOpacityList.Clear();
+
+                // clip-path
+
+                foreach (var clipPath in currentClipPathList)
+                {
+                    sb.Append($"</DrawingGroup>{NewLine}");
+                }
+
+                currentClipPathList.Clear();
             }
 
             if (generateImage)
