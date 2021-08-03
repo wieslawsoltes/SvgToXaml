@@ -11,7 +11,9 @@ namespace SvgToXamlConverter
 {
     public static class SvgConverter
     {
-        private const byte opaqueAlpha = 255;
+        private const byte OpaqueAlpha = 255;
+
+        private static readonly ShimSkiaSharp.SKColor s_transparentBlack = new ShimSkiaSharp.SKColor(0, 0, 0, 255);
 
         public static string NewLine = "\r\n";
 
@@ -508,6 +510,65 @@ namespace SvgToXamlConverter
 
         }
 
+        public static void ToXamlGeometryDrawing(SkiaSharp.SKPath path, ShimSkiaSharp.SKPaint skPaint, StringBuilder sb)
+        {
+            sb.Append($"<GeometryDrawing");
+
+            if ((skPaint.Style == ShimSkiaSharp.SKPaintStyle.Fill || skPaint.Style == ShimSkiaSharp.SKPaintStyle.StrokeAndFill) && skPaint.Shader is ShimSkiaSharp.ColorShader colorShader)
+            {
+                sb.Append($" Brush=\"{ToHexColor(colorShader.Color)}\"");
+            }
+
+            sb.Append($" Geometry=\"{ToSvgPathData(path)}\"");
+
+            var brush = default(string);
+            var pen = default(string);
+
+            if ((skPaint.Style == ShimSkiaSharp.SKPaintStyle.Fill || skPaint.Style == ShimSkiaSharp.SKPaintStyle.StrokeAndFill) && skPaint.Shader is not ShimSkiaSharp.ColorShader)
+            {
+                if (skPaint.Shader is { })
+                {
+                    brush = ToBrush(skPaint.Shader, path.Bounds);
+                }
+            }
+
+            if (skPaint.Style == ShimSkiaSharp.SKPaintStyle.Stroke || skPaint.Style == ShimSkiaSharp.SKPaintStyle.StrokeAndFill)
+            {
+                if (skPaint.Shader is { })
+                {
+                    pen = ToPen(skPaint, path.Bounds);
+                }
+            }
+
+            if (brush is not null || pen is not null)
+            {
+                sb.Append($">{NewLine}");
+            }
+            else
+            {
+                sb.Append($"/>{NewLine}");
+            }
+
+            if (brush is { })
+            {
+                sb.Append($"  <GeometryDrawing.Brush>{NewLine}");
+                sb.Append($"{brush}");
+                sb.Append($"  </GeometryDrawing.Brush>{NewLine}");
+            }
+
+            if (pen is { })
+            {
+                sb.Append($"  <GeometryDrawing.Pen>{NewLine}");
+                sb.Append($"{pen}");
+                sb.Append($"  </GeometryDrawing.Pen>{NewLine}");
+            }
+
+            if (brush is not null || pen is not null)
+            {
+                sb.Append($"</GeometryDrawing>{NewLine}");
+            }
+        }
+
         public static string ToXamlDrawingGroup(ShimSkiaSharp.SKPicture? skPicture, string? key = null)
         {
             if (skPicture?.Commands is null)
@@ -535,17 +596,19 @@ namespace SvgToXamlConverter
                     case ShimSkiaSharp.ClipPathCanvasCommand(var clipPath, _, _):
                     {
                         var path = Svg.Skia.SkiaModelExtensions.ToSKPath(clipPath);
-                        if (path is { })
+                        if (path is null)
                         {
-                            var clipGeometry = ToSvgPathData(path);
-
-                            sb.Append($"<DrawingGroup>{NewLine}");
-                            sb.Append($"  <DrawingGroup.ClipGeometry>{NewLine}");
-                            sb.Append($"    <StreamGeometry>{clipGeometry}</StreamGeometry>{NewLine}");
-                            sb.Append($"  </DrawingGroup.ClipGeometry>{NewLine}");
-
-                            currentClipPathList.Add(path);
+                            break;
                         }
+
+                        var clipGeometry = ToSvgPathData(path);
+
+                        sb.Append($"<DrawingGroup>{NewLine}");
+                        sb.Append($"  <DrawingGroup.ClipGeometry>{NewLine}");
+                        sb.Append($"    <StreamGeometry>{clipGeometry}</StreamGeometry>{NewLine}");
+                        sb.Append($"  </DrawingGroup.ClipGeometry>{NewLine}");
+
+                        currentClipPathList.Add(path);
 
                         break;
                     }
@@ -569,203 +632,88 @@ namespace SvgToXamlConverter
                     case ShimSkiaSharp.SetMatrixCanvasCommand(var skMatrix):
                     {
                         var matrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(skMatrix);
-                        if (!matrix.IsIdentity)
+                        if (matrix.IsIdentity)
                         {
-                            var previousMatrixList = new List<SkiaSharp.SKMatrix>();
-
-                            foreach (var totalMatrixList in totalMatrixStack)
-                            {
-                                if (totalMatrixList.Count > 0)
-                                {
-                                    var totalMatrix = totalMatrixList.FirstOrDefault();
-                                    previousMatrixList.Add(totalMatrix);
-                                }
-                            }
-
-                            previousMatrixList.Reverse();
-
-                            var result = matrix;
-
-                            foreach (var previousMatrix in previousMatrixList)
-                            {
-                                var inverted = previousMatrix.Invert();
-                                result = inverted.PreConcat(result);
-                            }
-
-                            sb.Append($"<DrawingGroup>{NewLine}");
-                            sb.Append($"  <DrawingGroup.Transform>{NewLine}");
-                            sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(result)}\"/>{NewLine}");
-                            sb.Append($"  </DrawingGroup.Transform>{NewLine}");
-
-                            currentTotalMatrixList.Add(result);
+                            break;
                         }
+
+                        var previousMatrixList = new List<SkiaSharp.SKMatrix>();
+
+                        foreach (var totalMatrixList in totalMatrixStack)
+                        {
+                            if (totalMatrixList.Count > 0)
+                            {
+                                var totalMatrix = totalMatrixList.FirstOrDefault();
+                                previousMatrixList.Add(totalMatrix);
+                            }
+                        }
+
+                        previousMatrixList.Reverse();
+
+                        foreach (var previousMatrix in previousMatrixList)
+                        {
+                            var inverted = previousMatrix.Invert();
+                            matrix = inverted.PreConcat(matrix);
+                        }
+
+                        sb.Append($"<DrawingGroup>{NewLine}");
+                        sb.Append($"  <DrawingGroup.Transform>{NewLine}");
+                        sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(matrix)}\"/>{NewLine}");
+                        sb.Append($"  </DrawingGroup.Transform>{NewLine}");
+
+                        currentTotalMatrixList.Add(matrix);
 
                         break;
                     }
                     case ShimSkiaSharp.SaveLayerCanvasCommand(var count, var skPaint):
                     {
-                        // matrix
+                        Save();
 
-                        totalMatrixStack.Push(currentTotalMatrixList);
-                        currentTotalMatrixList = new List<SkiaSharp.SKMatrix>();
+                        // Mask
 
-                        // clip-path
-
-                        clipPathStack.Push(currentClipPathList);
-                        currentClipPathList = new List<SkiaSharp.SKPath>();
-
-                        // opacity
-
-                        opacityStack.Push(currentOpacityList);
-                        currentOpacityList = new List<byte>();
-
-                        if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is null)
+                        if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is { } && skPaint.ImageFilter is { } && skPaint.Color is { } skMaskColor && skMaskColor.Equals(s_transparentBlack))
                         {
-                            if (skPaint.Color is { } skColor && skColor.Alpha < opaqueAlpha)
+                            // TODO:
+                        }
+
+                        // Opacity
+
+                        if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is null && skPaint.Color is { } skOpacityColor)
+                        {
+                            if (skOpacityColor.Alpha < OpaqueAlpha)
                             {
-                                sb.Append($"<DrawingGroup Opacity=\"{ToString(skColor.Alpha / 255.0)}\">{NewLine}");
-                                currentOpacityList.Add(skColor.Alpha);
-                            }
-                            else
-                            {
-                                currentOpacityList.Add(opaqueAlpha);
+                                sb.Append($"<DrawingGroup Opacity=\"{ToString(skOpacityColor.Alpha / 255.0)}\">{NewLine}");
+                                currentOpacityList.Add(skOpacityColor.Alpha);
                             }
                         }
-                        else
+
+                        // Filter
+
+                        if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is { } && skPaint.Color is null)
                         {
-                            currentOpacityList.Add(opaqueAlpha);
+                            // TODO:
                         }
 
                         break;
                     }
                     case ShimSkiaSharp.SaveCanvasCommand:
                     {
-                        // matrix
+                        Save();
 
-                        totalMatrixStack.Push(currentTotalMatrixList);
-                        currentTotalMatrixList = new List<SkiaSharp.SKMatrix>();
-
-                        // clip-path
-
-                        clipPathStack.Push(currentClipPathList);
-                        currentClipPathList = new List<SkiaSharp.SKPath>();
-
-                        // opacity
-
-                        opacityStack.Push(currentOpacityList);
-                        currentOpacityList = new List<byte>();
-                        
                         break;
                     }
                     case ShimSkiaSharp.RestoreCanvasCommand:
                     {
-                        // opacity
-
-                        foreach (var totalOpacity in currentOpacityList)
-                        {
-                            if (totalOpacity < opaqueAlpha)
-                            {
-                                sb.Append($"</DrawingGroup>{NewLine}");
-                            }
-                        }
-
-                        currentOpacityList.Clear();
-
-                        if (opacityStack.Count > 0)
-                        {
-                            currentOpacityList = opacityStack.Pop();
-                        }
-
-                        // clip-path
-                        
-                        foreach (var clipPath in currentClipPathList)
-                        {
-                            sb.Append($"</DrawingGroup>{NewLine}");
-                        }
-
-                        currentClipPathList.Clear();
-
-                        if (clipPathStack.Count > 0)
-                        {
-                            currentClipPathList = clipPathStack.Pop();
-                        }
-
-                        // matrix
-      
-                        foreach (var totalMatrix in currentTotalMatrixList)
-                        {
-                            sb.Append($"</DrawingGroup>{NewLine}");
-                        }
-
-                        currentTotalMatrixList.Clear();
-
-                        if (totalMatrixStack.Count > 0)
-                        {
-                            currentTotalMatrixList = totalMatrixStack.Pop();
-                        }
+                        Restore();
 
                         break;
                     }
-
                     case ShimSkiaSharp.DrawPathCanvasCommand(var skPath, var skPaint):
                     {
-                        sb.Append($"<GeometryDrawing");
-
-                        if ((skPaint.Style == ShimSkiaSharp.SKPaintStyle.Fill || skPaint.Style == ShimSkiaSharp.SKPaintStyle.StrokeAndFill) && skPaint.Shader is ShimSkiaSharp.ColorShader colorShader)
-                        {
-                            sb.Append($" Brush=\"{ToHexColor(colorShader.Color)}\"");
-                        }
-
                         var path = Svg.Skia.SkiaModelExtensions.ToSKPath(skPath);
-                        var geometry = ToSvgPathData(path);
-
-                        sb.Append($" Geometry=\"{geometry}\"");
-
-                        var brush = default(string);
-                        var pen = default(string);
-
-                        if ((skPaint.Style == ShimSkiaSharp.SKPaintStyle.Fill || skPaint.Style == ShimSkiaSharp.SKPaintStyle.StrokeAndFill) && skPaint.Shader is not ShimSkiaSharp.ColorShader)
+                        if (!path.IsEmpty)
                         {
-                            if (skPaint.Shader is { })
-                            {
-                                brush = ToBrush(skPaint.Shader, path.Bounds);
-                            }
-                        }
-
-                        if (skPaint.Style == ShimSkiaSharp.SKPaintStyle.Stroke || skPaint.Style == ShimSkiaSharp.SKPaintStyle.StrokeAndFill)
-                        {
-                            if (skPaint.Shader is { })
-                            {
-                                pen = ToPen(skPaint, path.Bounds);
-                            }
-                        }
-
-                        if (brush is not null || pen is not null)
-                        {
-                            sb.Append($">{NewLine}");
-                        }
-                        else
-                        {
-                            sb.Append($"/>{NewLine}");
-                        }
-
-                        if (brush is { })
-                        {
-                            sb.Append($"  <GeometryDrawing.Brush>{NewLine}");
-                            sb.Append($"{brush}");
-                            sb.Append($"  </GeometryDrawing.Brush>{NewLine}");
-                        }
-
-                        if (pen is { })
-                        {
-                            sb.Append($"  <GeometryDrawing.Pen>{NewLine}");
-                            sb.Append($"{pen}");
-                            sb.Append($"  </GeometryDrawing.Pen>{NewLine}");
-                        }
-
-                        if (brush is not null || pen is not null)
-                        {
-                            sb.Append($"</GeometryDrawing>{NewLine}");
+                            ToXamlGeometryDrawing(path, skPaint, sb);
                         }
 
                         break;
@@ -776,16 +724,22 @@ namespace SvgToXamlConverter
 
                         break;
                     }
-                    case ShimSkiaSharp.DrawTextBlobCanvasCommand(var skTextBlob, var f, var y, var skPaint):
+                    case ShimSkiaSharp.DrawTextBlobCanvasCommand(var skTextBlob, var x, var y, var skPaint):
                     {
                         // TODO:
 
                         break;
                     }
-                    case ShimSkiaSharp.DrawTextCanvasCommand(var text, var f, var y, var skPaint):
+                    case ShimSkiaSharp.DrawTextCanvasCommand(var text, var x, var y, var skPaint):
                     {
-                        // TODO:
-
+                        var paint = Svg.Skia.SkiaModelExtensions.ToSKPaint(skPaint);
+                        var path = paint.GetTextPath(text, x, y);
+                        if (!path.IsEmpty)
+                        {
+                            sb.Append($"<!-- {text} -->{NewLine}");
+                            ToXamlGeometryDrawing(path, skPaint, sb);
+                        }
+      
                         break;
                     }
                     case ShimSkiaSharp.DrawTextOnPathCanvasCommand(var text, var skPath, var hOffset, var vOffset, var skPaint):
@@ -796,36 +750,74 @@ namespace SvgToXamlConverter
                     }
                 }
             }
- 
-            // opacity
 
-            foreach (var totalOpacity in currentOpacityList)
+            void Save()
             {
-                if (totalOpacity < opaqueAlpha)
+                // matrix
+
+                totalMatrixStack.Push(currentTotalMatrixList);
+                currentTotalMatrixList = new List<SkiaSharp.SKMatrix>();
+
+                // clip-path
+
+                clipPathStack.Push(currentClipPathList);
+                currentClipPathList = new List<SkiaSharp.SKPath>();
+
+                // opacity
+
+                opacityStack.Push(currentOpacityList);
+                currentOpacityList = new List<byte>();
+            }
+
+            void Restore()
+            {
+                // opacity
+
+                foreach (var totalOpacity in currentOpacityList)
+                {
+                    if (totalOpacity < OpaqueAlpha)
+                    {
+                        sb.Append($"</DrawingGroup>{NewLine}");
+                    }
+                }
+
+                currentOpacityList.Clear();
+
+                if (opacityStack.Count > 0)
+                {
+                    currentOpacityList = opacityStack.Pop();
+                }
+
+                // clip-path
+                        
+                foreach (var clipPath in currentClipPathList)
                 {
                     sb.Append($"</DrawingGroup>{NewLine}");
                 }
+
+                currentClipPathList.Clear();
+
+                if (clipPathStack.Count > 0)
+                {
+                    currentClipPathList = clipPathStack.Pop();
+                }
+
+                // matrix
+      
+                foreach (var totalMatrix in currentTotalMatrixList)
+                {
+                    sb.Append($"</DrawingGroup>{NewLine}");
+                }
+
+                currentTotalMatrixList.Clear();
+
+                if (totalMatrixStack.Count > 0)
+                {
+                    currentTotalMatrixList = totalMatrixStack.Pop();
+                }
             }
 
-            currentOpacityList.Clear();
-
-            // clip-path
-
-            foreach (var clipPath in currentClipPathList)
-            {
-                sb.Append($"</DrawingGroup>{NewLine}");
-            }
-
-            currentClipPathList.Clear();
-
-            // matrix
-            
-            foreach (var totalMatrix in currentTotalMatrixList)
-            {
-                sb.Append($"</DrawingGroup>{NewLine}");
-            }
-
-            currentTotalMatrixList.Clear();
+            Restore();
 
             sb.Append($"</DrawingGroup>");
 
