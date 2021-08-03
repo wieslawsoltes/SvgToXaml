@@ -591,6 +591,9 @@ namespace SvgToXamlConverter
             var opacityStack = new Stack<List<byte>>();
             var currentOpacityList = new List<byte>();
 
+            var maskStack = new Stack<List<StringBuilder>>();
+            var currentMaskList = new List<StringBuilder>();
+
             foreach (var canvasCommand in skPicture.Commands)
             {
                 switch (canvasCommand)
@@ -669,24 +672,32 @@ namespace SvgToXamlConverter
                     }
                     case ShimSkiaSharp.SaveLayerCanvasCommand(var count, var skPaint):
                     {
+                        // Save
+ 
                         Save();
 
                         // Mask
-
-                        if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is null && skPaint.Color is { } skMaskStartColor && skMaskStartColor.Equals(s_transparentBlack))
-                        {
-                            // TODO: Mask Start
-
-                            sb.Append($"<!-- TODO: Mask Start -->{NewLine}");
-
-                            break;
-                        }
 
                         if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is { } && skPaint.ImageFilter is null && skPaint.Color is { } skMaskEndColor && skMaskEndColor.Equals(s_transparentBlack))
                         {
                             // TODO: Mask End
 
                             sb.Append($"<!-- TODO: Mask End -->{NewLine}");
+
+                            sb.Append($"<!-- MASK RECORDING BEGIN -->{NewLine}");
+  
+                            currentMaskList.Add(sb);
+
+                            sb = new StringBuilder();
+
+                            break;
+                        }
+
+                        if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is null && skPaint.Color is { } skMaskStartColor && skMaskStartColor.Equals(s_transparentBlack))
+                        {
+                            // TODO: Mask Start
+
+                            sb.Append($"<!-- TODO: Mask Start -->{NewLine}");
 
                             break;
                         }
@@ -706,7 +717,7 @@ namespace SvgToXamlConverter
                         if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is { } && skPaint.Color is { } skFilterColor && skFilterColor.Equals(s_empty))
                         {
                             // TODO: Filter
-
+                            
                             sb.Append($"<!-- TODO: Filter -->{NewLine}");
 
                             break;
@@ -724,6 +735,21 @@ namespace SvgToXamlConverter
                     {
                         Restore();
 
+                        if (currentMaskList.FirstOrDefault() is { } sbRestore)
+                        {
+                            currentMaskList.Remove(sbRestore);
+
+                            var mask = sb.ToString();
+
+                            sb = sbRestore;
+
+                            sb.Append($"<!--");
+                            sb.Append(mask);
+                            sb.Append($"-->");
+
+                            sb.Append($"<!-- MASK RECORDING END -->{NewLine}");
+                        }
+ 
                         break;
                     }
                     case ShimSkiaSharp.DrawPathCanvasCommand(var skPath, var skPaint):
@@ -755,6 +781,7 @@ namespace SvgToXamlConverter
                         if (!path.IsEmpty)
                         {
                             sb.Append($"<!-- {text} -->{NewLine}");
+
                             ToXamlGeometryDrawing(path, skPaint, sb);
                         }
       
@@ -781,6 +808,11 @@ namespace SvgToXamlConverter
                 clipPathStack.Push(currentClipPathList);
                 currentClipPathList = new List<SkiaSharp.SKPath>();
 
+                // mask
+
+                maskStack.Push(currentMaskList);
+                currentMaskList = new List<StringBuilder>();
+
                 // opacity
 
                 opacityStack.Push(currentOpacityList);
@@ -791,12 +823,9 @@ namespace SvgToXamlConverter
             {
                 // opacity
 
-                foreach (var totalOpacity in currentOpacityList)
+                foreach (var _ in currentOpacityList)
                 {
-                    if (totalOpacity < OpaqueAlpha)
-                    {
-                        sb.Append($"</DrawingGroup>{NewLine}");
-                    }
+                    sb.Append($"</DrawingGroup>{NewLine}");
                 }
 
                 currentOpacityList.Clear();
@@ -806,9 +835,23 @@ namespace SvgToXamlConverter
                     currentOpacityList = opacityStack.Pop();
                 }
 
+                // mask
+
+                foreach (var _ in currentMaskList)
+                {
+                    sb.Append($"</DrawingGroup>{NewLine}");
+                }
+
+                currentMaskList.Clear();
+
+                if (maskStack.Count > 0)
+                {
+                    currentMaskList = maskStack.Pop();
+                }
+
                 // clip-path
                         
-                foreach (var clipPath in currentClipPathList)
+                foreach (var _ in currentClipPathList)
                 {
                     sb.Append($"</DrawingGroup>{NewLine}");
                 }
@@ -822,7 +865,7 @@ namespace SvgToXamlConverter
 
                 // matrix
       
-                foreach (var totalMatrix in currentTotalMatrixList)
+                foreach (var _ in currentTotalMatrixList)
                 {
                     sb.Append($"</DrawingGroup>{NewLine}");
                 }
