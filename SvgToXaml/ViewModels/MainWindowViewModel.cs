@@ -158,7 +158,7 @@ namespace SvgToXaml.ViewModels
 
                     try
                     {
-                        await File.WriteAllTextAsync(result, SvgConverter.Format(xaml));
+                        await Task.Run(() => File.WriteAllText(result, SvgConverter.Format(xaml)));
                     }
                     catch
                     {
@@ -189,7 +189,7 @@ namespace SvgToXaml.ViewModels
 
                         try
                         {
-                            await File.WriteAllTextAsync(result, SvgConverter.Format(xaml));
+                            await Task.Run(() => File.WriteAllText(result, SvgConverter.Format(xaml)));
                         }
                         catch
                         {
@@ -280,8 +280,8 @@ namespace SvgToXaml.ViewModels
             {
                 if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
                 {
-                    var svgPaths = Directory.EnumerateFiles(path, "*.svg", new EnumerationOptions {RecurseSubdirectories = true});
-                    var svgzPaths = Directory.EnumerateFiles(path, "*.svgz", new EnumerationOptions {RecurseSubdirectories = true});
+                    var svgPaths = Directory.EnumerateFiles(path, "*.svg", SearchOption.AllDirectories);
+                    var svgzPaths = Directory.EnumerateFiles(path, "*.svgz", SearchOption.AllDirectories);
                     Drop(svgPaths);
                     Drop(svgzPaths);
                     continue;
