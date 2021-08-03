@@ -11,6 +11,8 @@ namespace SvgToXamlConverter
 {
     public static class SvgConverter
     {
+        private const byte opaqueAlpha = 255;
+
         public static string NewLine = "\r\n";
 
         public static string ToGradientSpreadMethod(ShimSkiaSharp.SKShaderTileMode shaderTileMode)
@@ -508,8 +510,6 @@ namespace SvgToXamlConverter
 
         public static string ToXaml(ShimSkiaSharp.SKPicture? skPicture, bool generateImage = true, string? key = null)
         {
-            const byte opaqueAlpha = 255;
-
             var sb = new StringBuilder();
 
             if (generateImage)
@@ -525,8 +525,8 @@ namespace SvgToXamlConverter
 
             if (skPicture?.Commands is { })
             {
-                var totalMatrixStack = new Stack<SkiaSharp.SKMatrix>();
-                var totalMatrix = SkiaSharp.SKMatrix.Identity;
+                var totalMatrixStack = new Stack<List<SkiaSharp.SKMatrix>>();
+                var currentTotalMatrixList = new List<SkiaSharp.SKMatrix>();
 
                 var clipPathStack = new Stack<List<SkiaSharp.SKPath>>();
                 var currentClipPathList = new List<SkiaSharp.SKPath>();
@@ -543,7 +543,6 @@ namespace SvgToXamlConverter
                             var path = Svg.Skia.SkiaModelExtensions.ToSKPath(clipPath);
                             if (path is { })
                             {
-                                path.Transform(totalMatrix);
                                 var clipGeometry = ToSvgPathData(path);
  
                                 sb.Append($"<DrawingGroup>{NewLine}");
@@ -561,7 +560,7 @@ namespace SvgToXamlConverter
                             var rect = Svg.Skia.SkiaModelExtensions.ToSKRect(skRect);
                             var path = new SkiaSharp.SKPath();
                             path.AddRect(rect);
-                            path.Transform(totalMatrix);
+
                             var clipGeometry = ToSvgPathData(path);
 
                             sb.Append($"<DrawingGroup>{NewLine}");
@@ -576,8 +575,36 @@ namespace SvgToXamlConverter
                         case ShimSkiaSharp.SetMatrixCanvasCommand(var skMatrix):
                         {
                             var matrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(skMatrix);
+                            if (!matrix.IsIdentity)
+                            {
+                                var previousMatrixList = new List<SkiaSharp.SKMatrix>();
 
-                            totalMatrix = matrix;
+                                foreach (var totalMatrixList in totalMatrixStack)
+                                {
+                                    if (totalMatrixList.Count > 0)
+                                    {
+                                        var totalMatrix = totalMatrixList.FirstOrDefault();
+                                        previousMatrixList.Add(totalMatrix);
+                                    }
+                                }
+
+                                previousMatrixList.Reverse();
+
+                                var result = matrix;
+ 
+                                foreach (var previousMatrix in previousMatrixList)
+                                {
+                                    var inverted = previousMatrix.Invert();
+                                    result = inverted.PreConcat(result);
+                                }
+
+                                sb.Append($"<DrawingGroup>{NewLine}");
+                                sb.Append($"  <DrawingGroup.Transform>{NewLine}");
+                                sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(result)}\"/>{NewLine}");
+                                sb.Append($"  </DrawingGroup.Transform>{NewLine}");
+
+                                currentTotalMatrixList.Add(result);
+                            }
 
                             break;
                         }
@@ -585,7 +612,8 @@ namespace SvgToXamlConverter
                         {
                             // matrix
 
-                            totalMatrixStack.Push(totalMatrix);
+                            totalMatrixStack.Push(currentTotalMatrixList);
+                            currentTotalMatrixList = new List<SkiaSharp.SKMatrix>();
 
                             // clip-path
 
@@ -620,7 +648,8 @@ namespace SvgToXamlConverter
                         {
                             // matrix
 
-                            totalMatrixStack.Push(totalMatrix);
+                            totalMatrixStack.Push(currentTotalMatrixList);
+                            currentTotalMatrixList = new List<SkiaSharp.SKMatrix>();
 
                             // clip-path
 
@@ -668,10 +697,17 @@ namespace SvgToXamlConverter
                             }
 
                             // matrix
-                            
+          
+                            foreach (var totalMatrix in currentTotalMatrixList)
+                            {
+                                sb.Append($"</DrawingGroup>{NewLine}");
+                            }
+
+                            currentTotalMatrixList.Clear();
+
                             if (totalMatrixStack.Count > 0)
                             {
-                                totalMatrix = totalMatrixStack.Pop();
+                                currentTotalMatrixList = totalMatrixStack.Pop();
                             }
 
                             break;
@@ -684,15 +720,6 @@ namespace SvgToXamlConverter
                         }
                         case ShimSkiaSharp.DrawPathCanvasCommand(var skPath, var skPaint):
                         {
-                            if (!totalMatrix.IsIdentity)
-                            {
-                                sb.Append($"<DrawingGroup>{NewLine}");
-                                
-                                sb.Append($"  <DrawingGroup.Transform>{NewLine}");
-                                sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(totalMatrix)}\"/>{NewLine}");
-                                sb.Append($"  </DrawingGroup.Transform>{NewLine}");
-                            }
-
                             sb.Append($"<GeometryDrawing");
 
                             if ((skPaint.Style == ShimSkiaSharp.SKPaintStyle.Fill || skPaint.Style == ShimSkiaSharp.SKPaintStyle.StrokeAndFill) && skPaint.Shader is ShimSkiaSharp.ColorShader colorShader)
@@ -752,11 +779,6 @@ namespace SvgToXamlConverter
                                 sb.Append($"</GeometryDrawing>{NewLine}");
                             }
 
-                            if (!totalMatrix.IsIdentity)
-                            {
-                                sb.Append($"</DrawingGroup>{NewLine}");
-                            }
-
                             break;
                         }
                         case ShimSkiaSharp.DrawTextBlobCanvasCommand(var skTextBlob, var f, var y, var skPaint):
@@ -800,6 +822,15 @@ namespace SvgToXamlConverter
                 }
 
                 currentClipPathList.Clear();
+
+                // matrix
+                
+                foreach (var totalMatrix in currentTotalMatrixList)
+                {
+                    sb.Append($"</DrawingGroup>{NewLine}");
+                }
+
+                currentTotalMatrixList.Clear();
             }
 
             if (generateImage)
