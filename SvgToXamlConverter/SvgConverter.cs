@@ -706,12 +706,7 @@ namespace SvgToXamlConverter
 
                         break;
                     }
-                    case ShimSkiaSharp.DrawImageCanvasCommand(var skImage, var skRect, var dest, var skPaint):
-                    {
-                        // TODO:
 
-                        break;
-                    }
                     case ShimSkiaSharp.DrawPathCanvasCommand(var skPath, var skPaint):
                     {
                         sb.Append($"<GeometryDrawing");
@@ -772,6 +767,12 @@ namespace SvgToXamlConverter
                         {
                             sb.Append($"</GeometryDrawing>{NewLine}");
                         }
+
+                        break;
+                    }
+                    case ShimSkiaSharp.DrawImageCanvasCommand(var skImage, var skRect, var dest, var skPaint):
+                    {
+                        // TODO:
 
                         break;
                     }
