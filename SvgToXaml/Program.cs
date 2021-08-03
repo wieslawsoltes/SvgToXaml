@@ -20,6 +20,19 @@ namespace SvgToXaml
             return AppBuilder.Configure<App>()
                 .UsePlatformDetect()
                 .LogToTrace()
+                .UseSkia()
+                .With(new Win32PlatformOptions()
+                {
+                    UseDeferredRendering = true
+                })
+                .With(new X11PlatformOptions()
+                {
+                    UseDeferredRendering = true
+                })
+                .With(new AvaloniaNativePlatformOptions()
+                {
+                    UseDeferredRendering = true
+                })
                 .UseReactiveUI();
         }
     }
