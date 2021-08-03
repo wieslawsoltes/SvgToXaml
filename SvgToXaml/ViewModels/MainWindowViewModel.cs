@@ -123,8 +123,8 @@ namespace SvgToXaml.ViewModels
                 var paths = Items?.Select(x => x.Path).ToList();
                 if (paths is { })
                 {
-                    var xaml = SvgConverter.ToXaml(paths, generateImage: _enableGenerateImage, generatePreview: _enableGeneratePreview);
-                    
+                    var xaml = SvgConverter.ToXamlStyles(paths, generateImage: _enableGenerateImage, generatePreview: _enableGeneratePreview);
+
                     await Dispatcher.UIThread.InvokeAsync(() =>
                     {
                         try
@@ -185,7 +185,7 @@ namespace SvgToXaml.ViewModels
                     var paths = Items?.Select(x => x.Path).ToList();
                     if (paths is { })
                     {
-                        var xaml = SvgConverter.ToXaml(paths, generateImage: _enableGenerateImage, generatePreview: _enableGeneratePreview);
+                        var xaml = SvgConverter.ToXamlStyles(paths, generateImage: _enableGenerateImage, generatePreview: _enableGeneratePreview);
 
                         try
                         {
@@ -232,7 +232,18 @@ namespace SvgToXaml.ViewModels
                     // ignored
                 }
 
-                var xaml = await Task.Run(() => SvgConverter.ToXaml(svg.Model, generateImage: _enableGenerateImage, key: null));
+                var xaml = await Task.Run(() =>
+                {
+                    if (_enableGenerateImage)
+                    {
+                        
+                        return SvgConverter.ToXamlImage(svg.Model, key: null);
+                    }
+                    else
+                    {
+                        return SvgConverter.ToXamlDrawingGroup(svg.Model, key: null);
+                    }
+                });
 
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
@@ -267,7 +278,14 @@ namespace SvgToXaml.ViewModels
 
                 if (fileItemViewModel.Svg is { })
                 {
-                    return SvgConverter.ToXaml(fileItemViewModel.Svg.Model, generateImage: enableGenerateImage, key: null);
+                    if (enableGenerateImage)
+                    {
+                        return SvgConverter.ToXamlImage(fileItemViewModel.Svg.Model, key: null);
+                    }
+                    else
+                    {
+                        return SvgConverter.ToXamlDrawingGroup(fileItemViewModel.Svg.Model, key: null);
+                    }
                 }
 
                 return "";

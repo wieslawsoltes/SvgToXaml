@@ -55,7 +55,7 @@ namespace svgxaml
                         return;
                     }
 
-                    var xaml = SvgConverter.ToXaml(paths, generateImage: false);
+                    var xaml = SvgConverter.ToXamlStyles(paths, generateImage: false);
 
                     if (args.Length == 1)
                     {
@@ -73,7 +73,7 @@ namespace svgxaml
                 {
                     var svg = new SKSvg();
                     svg.Load(inputPath);
-                    var xaml = SvgConverter.ToXaml(svg.Model);
+                    var xaml = SvgConverter.ToXamlImage(svg.Model, key: null);
 
                     if (args.Length == 1)
                     {
