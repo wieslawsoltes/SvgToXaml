@@ -594,6 +594,10 @@ namespace SvgToXamlConverter
             var maskStack = new Stack<List<StringBuilder>>();
             var currentMaskList = new List<StringBuilder>();
 
+            var layers = new Stack<StringBuilder?>();
+            
+            //layers.Push(sb);
+
             foreach (var canvasCommand in skPicture.Commands)
             {
                 switch (canvasCommand)
@@ -674,8 +678,15 @@ namespace SvgToXamlConverter
                     {
                         // Save
  
-                        Save();
+                        sb.Append($"<!-- SaveLayer -->{NewLine}");
+                        layers.Push(sb);
 
+                        sb = new StringBuilder();
+
+                        Save();
+                        
+                        
+/*
                         // Mask
 
                         if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is { } && skPaint.ImageFilter is null && skPaint.Color is { } skMaskEndColor && skMaskEndColor.Equals(s_transparentBlack))
@@ -722,19 +733,33 @@ namespace SvgToXamlConverter
 
                             break;
                         }
-
+*/
                         break;
                     }
                     case ShimSkiaSharp.SaveCanvasCommand:
                     {
+                        layers.Push(null);
+
                         Save();
 
                         break;
                     }
                     case ShimSkiaSharp.RestoreCanvasCommand:
                     {
-                        Restore();
+                        var layer = layers.Pop();
+                        if (layer is { })
+                        {
+                            sb.Append($"<!-- RestoreLayer -->{NewLine}");
 
+                            layer.Append($"<!-- BEGIN Layer -->{NewLine}");
+                            layer.Append(sb.ToString());
+                            layer.Append($"<!-- END Layer -->{NewLine}");
+                            
+                            sb = layer;
+                        }
+
+                        Restore();
+/*
                         if (currentMaskList.FirstOrDefault() is { } sbRestore)
                         {
                             currentMaskList.Remove(sbRestore);
@@ -749,7 +774,7 @@ namespace SvgToXamlConverter
 
                             sb.Append($"<!-- MASK RECORDING END -->{NewLine}");
                         }
- 
+ */
                         break;
                     }
                     case ShimSkiaSharp.DrawPathCanvasCommand(var skPath, var skPaint):
