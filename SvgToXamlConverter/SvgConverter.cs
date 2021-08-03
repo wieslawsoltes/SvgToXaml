@@ -13,6 +13,8 @@ namespace SvgToXamlConverter
     {
         private const byte OpaqueAlpha = 255;
 
+        private static readonly ShimSkiaSharp.SKColor s_empty = new ShimSkiaSharp.SKColor(0, 0, 0, 0);
+
         private static readonly ShimSkiaSharp.SKColor s_transparentBlack = new ShimSkiaSharp.SKColor(0, 0, 0, 255);
 
         public static string NewLine = "\r\n";
@@ -671,27 +673,43 @@ namespace SvgToXamlConverter
 
                         // Mask
 
-                        if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is { } && skPaint.ImageFilter is { } && skPaint.Color is { } skMaskColor && skMaskColor.Equals(s_transparentBlack))
+                        if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is null && skPaint.Color is { } skMaskStartColor && skMaskStartColor.Equals(s_transparentBlack))
                         {
-                            // TODO:
+                            // TODO: Mask Start
+
+                            sb.Append($"<!-- TODO: Mask Start -->{NewLine}");
+
+                            break;
+                        }
+
+                        if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is { } && skPaint.ImageFilter is null && skPaint.Color is { } skMaskEndColor && skMaskEndColor.Equals(s_transparentBlack))
+                        {
+                            // TODO: Mask End
+
+                            sb.Append($"<!-- TODO: Mask End -->{NewLine}");
+
+                            break;
                         }
 
                         // Opacity
 
-                        if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is null && skPaint.Color is { } skOpacityColor)
+                        if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is null && skPaint.Color is { } skOpacityColor && skOpacityColor.Alpha < OpaqueAlpha)
                         {
-                            if (skOpacityColor.Alpha < OpaqueAlpha)
-                            {
-                                sb.Append($"<DrawingGroup Opacity=\"{ToString(skOpacityColor.Alpha / 255.0)}\">{NewLine}");
-                                currentOpacityList.Add(skOpacityColor.Alpha);
-                            }
+                            sb.Append($"<DrawingGroup Opacity=\"{ToString(skOpacityColor.Alpha / 255.0)}\">{NewLine}");
+                            currentOpacityList.Add(skOpacityColor.Alpha);
+
+                            break;
                         }
 
                         // Filter
 
-                        if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is { } && skPaint.Color is null)
+                        if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is { } && skPaint.Color is { } skFilterColor && skFilterColor.Equals(s_empty))
                         {
-                            // TODO:
+                            // TODO: Filter
+
+                            sb.Append($"<!-- TODO: Filter -->{NewLine}");
+
+                            break;
                         }
 
                         break;
