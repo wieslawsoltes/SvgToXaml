@@ -30,6 +30,7 @@
                  VerticalAlignment="Stretch"
                  HorizontalAlignment="Stretch"
                  ToolTip.Tip="{Binding Path}"
+                 DoubleTapped="Panel_OnDoubleTapped"
                  Focusable="True">
             <Panel.KeyBindings>
               <KeyBinding Gesture="Delete" Command="{Binding RemoveCommand}" />
