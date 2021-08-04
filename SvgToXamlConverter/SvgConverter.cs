@@ -615,7 +615,7 @@ namespace SvgToXamlConverter
 
                         var clipGeometry = ToSvgPathData(path);
 
-                        Debug($"StarMatrix({totalMatrixStack.Count})");
+                        Debug($"StartClipPath({clipPathStack.Count})");
 
                         Write($"<DrawingGroup>{NewLine}");
                         Write($"  <DrawingGroup.ClipGeometry>{NewLine}");
@@ -670,6 +670,8 @@ namespace SvgToXamlConverter
                             var inverted = previousMatrix.Invert();
                             matrix = inverted.PreConcat(matrix);
                         }
+
+                        Debug($"StarMatrix({totalMatrixStack.Count})");
 
                         Write($"<DrawingGroup>{NewLine}");
                         Write($"  <DrawingGroup.Transform>{NewLine}");
