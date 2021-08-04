@@ -575,7 +575,9 @@ namespace SvgToXamlConverter
         
         private enum LayerType
         {
-            Unknown,
+            UnknownPaint,
+            MatrixGroup,
+            ClipPathGroup,
             MaskGroup,
             MaskBrush,
             OpacityGroup,
@@ -599,7 +601,7 @@ namespace SvgToXamlConverter
             var clipPathStack = new Stack<List<SkiaSharp.SKPath>>();
             var currentClipPathList = new List<SkiaSharp.SKPath>();
 
-            var layersStack = new Stack<(StringBuilder Builder, LayerType Type, ShimSkiaSharp.SKPaint? Paint)?>();
+            var layersStack = new Stack<(StringBuilder Builder, LayerType Type, object? Value)?>();
 
             foreach (var canvasCommand in skPicture.Commands)
             {
@@ -713,7 +715,7 @@ namespace SvgToXamlConverter
                             break;
                         }
 
-                        SaveLayer(LayerType.Unknown, skPaint);
+                        SaveLayer(LayerType.UnknownPaint, skPaint);
 
                         break;
                     }
@@ -793,11 +795,11 @@ namespace SvgToXamlConverter
                 sb.Append(value);
             }
 
-            void SaveLayer(LayerType type, ShimSkiaSharp.SKPaint? skPaint)
+            void SaveLayer(LayerType type, object? value)
             {
                 Debug($"SaveLayer({type})");
 
-                layersStack.Push((sb, type, skPaint));
+                layersStack.Push((sb, type, value));
                 sb = new StringBuilder();
 
                 Save();
@@ -827,7 +829,7 @@ namespace SvgToXamlConverter
                 var layer = layersStack.Count > 0 ? layersStack.Pop() : null;
                 if (layer is { })
                 {
-                    var (builder, type, paint) = layer.Value;
+                    var (builder, type, value) = layer.Value;
                     var content = sb.ToString();
 
                     sb = builder;
@@ -836,14 +838,24 @@ namespace SvgToXamlConverter
 
                     switch (type)
                     {
-                        case LayerType.Unknown:
+                        case LayerType.UnknownPaint:
                         {
+                            if (value is not ShimSkiaSharp.SKPaint)
+                            {
+                                break;
+                            }
+
                             Write(content);
 
                             break;
                         }
                         case LayerType.MaskGroup:
                         {
+                            if (value is not ShimSkiaSharp.SKPaint)
+                            {
+                                break;
+                            }
+
                             Write($"<DrawingGroup>{NewLine}");
                             Write(content);
                             Write($"</DrawingGroup>{NewLine}");
@@ -852,6 +864,11 @@ namespace SvgToXamlConverter
                         }
                         case LayerType.MaskBrush:
                         {
+                            if (value is not ShimSkiaSharp.SKPaint)
+                            {
+                                break;
+                            }
+
                             Write($"<DrawingGroup.OpacityMask>{NewLine}");
                             Write($"  <VisualBrush");
                             Write($" TileMode=\"None\"");
@@ -874,7 +891,12 @@ namespace SvgToXamlConverter
                         }
                         case LayerType.OpacityGroup:
                         {
-                            if (paint?.Color is { } skColor)
+                            if (value is not ShimSkiaSharp.SKPaint paint)
+                            {
+                                break;
+                            }
+
+                            if (paint.Color is { } skColor)
                             {
                                 Write($"<DrawingGroup Opacity=\"{ToString(skColor.Alpha / 255.0)}\">{NewLine}");
                                 Write(content);
@@ -885,6 +907,11 @@ namespace SvgToXamlConverter
                         }
                         case LayerType.FilterGroup:
                         {
+                            if (value is not ShimSkiaSharp.SKPaint)
+                            {
+                                break;
+                            }
+
                             Write(content);
 
                             break;
