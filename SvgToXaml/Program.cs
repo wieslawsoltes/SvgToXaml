@@ -21,9 +21,12 @@ namespace SvgToXaml
                 .UsePlatformDetect()
                 .LogToTrace()
                 .UseSkia()
+                //.UseDirect2D1()
                 .With(new Win32PlatformOptions()
                 {
-                    UseDeferredRendering = true
+                    UseDeferredRendering = true,
+                    AllowEglInitialization = true,
+                    UseWindowsUIComposition = true
                 })
                 .With(new X11PlatformOptions()
                 {
