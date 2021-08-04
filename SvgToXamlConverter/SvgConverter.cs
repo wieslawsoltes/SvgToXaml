@@ -589,7 +589,7 @@ namespace SvgToXamlConverter
 
             var sb = new StringBuilder();
 
-            sb.Append($"<DrawingGroup{(key is null ? "" : ($" x:Key=\"{key}\""))}>{NewLine}");
+            Write($"<DrawingGroup{(key is null ? "" : ($" x:Key=\"{key}\""))}>{NewLine}");
 
             var totalMatrixStack = new Stack<List<SkiaSharp.SKMatrix>>();
             var currentTotalMatrixList = new List<SkiaSharp.SKMatrix>();
@@ -613,10 +613,10 @@ namespace SvgToXamlConverter
 
                         var clipGeometry = ToSvgPathData(path);
 
-                        sb.Append($"<DrawingGroup>{NewLine}");
-                        sb.Append($"  <DrawingGroup.ClipGeometry>{NewLine}");
-                        sb.Append($"    <StreamGeometry>{clipGeometry}</StreamGeometry>{NewLine}");
-                        sb.Append($"  </DrawingGroup.ClipGeometry>{NewLine}");
+                        Write($"<DrawingGroup>{NewLine}");
+                        Write($"  <DrawingGroup.ClipGeometry>{NewLine}");
+                        Write($"    <StreamGeometry>{clipGeometry}</StreamGeometry>{NewLine}");
+                        Write($"  </DrawingGroup.ClipGeometry>{NewLine}");
 
                         currentClipPathList.Add(path);
 
@@ -630,10 +630,10 @@ namespace SvgToXamlConverter
 
                         var clipGeometry = ToSvgPathData(path);
 
-                        sb.Append($"<DrawingGroup>{NewLine}");
-                        sb.Append($"  <DrawingGroup.ClipGeometry>{NewLine}");
-                        sb.Append($"    <StreamGeometry>{clipGeometry}</StreamGeometry>{NewLine}");
-                        sb.Append($"  </DrawingGroup.ClipGeometry>{NewLine}");
+                        Write($"<DrawingGroup>{NewLine}");
+                        Write($"  <DrawingGroup.ClipGeometry>{NewLine}");
+                        Write($"    <StreamGeometry>{clipGeometry}</StreamGeometry>{NewLine}");
+                        Write($"  </DrawingGroup.ClipGeometry>{NewLine}");
 
                         currentClipPathList.Add(path);
 
@@ -666,10 +666,10 @@ namespace SvgToXamlConverter
                             matrix = inverted.PreConcat(matrix);
                         }
 
-                        sb.Append($"<DrawingGroup>{NewLine}");
-                        sb.Append($"  <DrawingGroup.Transform>{NewLine}");
-                        sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(matrix)}\"/>{NewLine}");
-                        sb.Append($"  </DrawingGroup.Transform>{NewLine}");
+                        Write($"<DrawingGroup>{NewLine}");
+                        Write($"  <DrawingGroup.Transform>{NewLine}");
+                        Write($"    <MatrixTransform Matrix=\"{ToMatrix(matrix)}\"/>{NewLine}");
+                        Write($"  </DrawingGroup.Transform>{NewLine}");
 
                         currentTotalMatrixList.Add(matrix);
 
@@ -757,7 +757,7 @@ namespace SvgToXamlConverter
                         var path = paint.GetTextPath(text, x, y);
                         if (!path.IsEmpty)
                         {
-                            sb.Append($"<!-- {text} -->{NewLine}");
+                            Write($"{text}{NewLine}");
 
                             ToXamlGeometryDrawing(path, skPaint, sb);
                         }
@@ -773,9 +773,19 @@ namespace SvgToXamlConverter
                 }
             }
 
+            void Write(string value)
+            {
+                sb.Append(value);
+            }
+
+            void Debug(string message)
+            {
+                sb.Append($"<!-- {message} -->{NewLine}");
+            }
+
             void SaveLayer(LayerType type, ShimSkiaSharp.SKPaint? skPaint)
             {
-                sb.Append($"<!-- SaveLayer({type}) -->{NewLine}");
+                Debug($"SaveLayer({type})");
 
                 layersStack.Push((sb, type, skPaint));
                 sb = new StringBuilder();
@@ -785,7 +795,7 @@ namespace SvgToXamlConverter
 
             void Save()
             {
-                sb.Append($"<!-- Save() -->{NewLine}");
+                Debug($"Save()");
 
                 // matrix
 
@@ -800,7 +810,7 @@ namespace SvgToXamlConverter
 
             void Restore()
             {
-                sb.Append($"<!-- Restore() -->{NewLine}");
+                Debug($"Restore()");
 
                 // layers
 
@@ -808,44 +818,47 @@ namespace SvgToXamlConverter
                 if (layer is { })
                 {
                     var (builder, type, paint) = layer.Value;
+                    var content = sb.ToString();
 
-                    builder.Append($"<!-- StartLayer({type}) -->{NewLine}");
+                    sb = builder;
+
+                    Debug($"StartLayer({type})");
 
                     switch (type)
                     {
                         case LayerType.Unknown:
                         {
-                            builder.Append(sb.ToString());
+                            Write(content);
 
                             break;
                         }
                         case LayerType.MaskGroup:
                         {
-                            builder.Append($"<DrawingGroup>{NewLine}");
-                            builder.Append(sb.ToString());
-                            builder.Append($"</DrawingGroup>{NewLine}");
+                            Write($"<DrawingGroup>{NewLine}");
+                            Write(content);
+                            Write($"</DrawingGroup>{NewLine}");
 
                             break;
                         }
                         case LayerType.MaskBrush:
                         {
-                            builder.Append($"<DrawingGroup.OpacityMask>{NewLine}");
-                            builder.Append($"  <VisualBrush");
-                            builder.Append($" TileMode=\"None\"");
-                            //builder.Append($" SourceRect=\"{ToRect(sourceRect)}\"");
-                            //builder.Append($" DestinationRect=\"{ToRect(destinationRect)}\"");
-                            builder.Append($">{NewLine}");
-                            builder.Append($"    <VisualBrush.Visual>{NewLine}");
-                            builder.Append($"      <Image{(key is null ? "" : ($" x:Key=\"{key}\""))}>{NewLine}");
-                            builder.Append($"        <DrawingImage>{NewLine}");
-                            builder.Append($"          <DrawingGroup>{NewLine}");
-                            builder.Append(sb.ToString());
-                            builder.Append($"          </DrawingGroup>{NewLine}");
-                            builder.Append($"        </DrawingImage>{NewLine}");
-                            builder.Append($"      </Image>{NewLine}");
-                            builder.Append($"    </VisualBrush.Visual>{NewLine}");
-                            builder.Append($"  </VisualBrush>{NewLine}");
-                            builder.Append($"</DrawingGroup.OpacityMask>{NewLine}");
+                            Write($"<DrawingGroup.OpacityMask>{NewLine}");
+                            Write($"  <VisualBrush");
+                            Write($" TileMode=\"None\"");
+                            //Write($" SourceRect=\"{ToRect(sourceRect)}\"");
+                            //Write($" DestinationRect=\"{ToRect(destinationRect)}\"");
+                            Write($">{NewLine}");
+                            Write($"    <VisualBrush.Visual>{NewLine}");
+                            Write($"      <Image>{NewLine}");
+                            Write($"        <DrawingImage>{NewLine}");
+                            Write($"          <DrawingGroup>{NewLine}");
+                            Write(content);
+                            Write($"          </DrawingGroup>{NewLine}");
+                            Write($"        </DrawingImage>{NewLine}");
+                            Write($"      </Image>{NewLine}");
+                            Write($"    </VisualBrush.Visual>{NewLine}");
+                            Write($"  </VisualBrush>{NewLine}");
+                            Write($"</DrawingGroup.OpacityMask>{NewLine}");
 
                             break;
                         }
@@ -853,31 +866,29 @@ namespace SvgToXamlConverter
                         {
                             if (paint?.Color is { } skColor)
                             {
-                                builder.Append($"<DrawingGroup Opacity=\"{ToString(skColor.Alpha / 255.0)}\">{NewLine}");
-                                builder.Append(sb.ToString());
-                                builder.Append($"</DrawingGroup>{NewLine}");
+                                Write($"<DrawingGroup Opacity=\"{ToString(skColor.Alpha / 255.0)}\">{NewLine}");
+                                Write(content);
+                                Write($"</DrawingGroup>{NewLine}");
                             }
 
                             break;
                         }
                         case LayerType.FilterGroup:
                         {
-                            builder.Append(sb.ToString());
+                            Write(content);
 
                             break;
                         }
                     }
 
-                    builder.Append($"<!-- EndLayer({type}) -->{NewLine}");
-
-                    sb = builder;
+                    Debug($"EndLayer({type})");
                 }
 
                 // clip-path
                         
                 foreach (var _ in currentClipPathList)
                 {
-                    sb.Append($"</DrawingGroup>{NewLine}");
+                    Write($"</DrawingGroup>{NewLine}");
                 }
 
                 currentClipPathList.Clear();
@@ -891,7 +902,7 @@ namespace SvgToXamlConverter
       
                 foreach (var _ in currentTotalMatrixList)
                 {
-                    sb.Append($"</DrawingGroup>{NewLine}");
+                    Write($"</DrawingGroup>{NewLine}");
                 }
 
                 currentTotalMatrixList.Clear();
@@ -904,7 +915,7 @@ namespace SvgToXamlConverter
 
             Restore();
 
-            sb.Append($"</DrawingGroup>");
+            Write($"</DrawingGroup>");
 
             return sb.ToString();
         }
