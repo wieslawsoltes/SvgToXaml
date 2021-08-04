@@ -576,8 +576,6 @@ namespace SvgToXamlConverter
         private enum LayerType
         {
             UnknownPaint,
-            MatrixGroup,
-            ClipPathGroup,
             MaskGroup,
             MaskBrush,
             OpacityGroup,
@@ -595,11 +593,11 @@ namespace SvgToXamlConverter
 
             Write($"<DrawingGroup{(key is null ? "" : ($" x:Key=\"{key}\""))}>{NewLine}");
 
-            var totalMatrixStack = new Stack<List<SkiaSharp.SKMatrix>>();
-            var currentTotalMatrixList = new List<SkiaSharp.SKMatrix>();
+            var totalMatrixStack = new Stack<SkiaSharp.SKMatrix?>();
+            var currentTotalMatrixList = default(SkiaSharp.SKMatrix?);
 
-            var clipPathStack = new Stack<List<SkiaSharp.SKPath>>();
-            var currentClipPathList = new List<SkiaSharp.SKPath>();
+            var clipPathStack = new Stack<SkiaSharp.SKPath?>();
+            var currentClipPathList = default(SkiaSharp.SKPath?);
 
             var layersStack = new Stack<(StringBuilder Builder, LayerType Type, object? Value)?>();
 
@@ -622,7 +620,7 @@ namespace SvgToXamlConverter
                         Write($"    <StreamGeometry>{clipGeometry}</StreamGeometry>{NewLine}");
                         Write($"  </DrawingGroup.ClipGeometry>{NewLine}");
 
-                        currentClipPathList.Add(path);
+                        currentClipPathList = path;
 
                         break;
                     }
@@ -639,7 +637,7 @@ namespace SvgToXamlConverter
                         Write($"    <StreamGeometry>{clipGeometry}</StreamGeometry>{NewLine}");
                         Write($"  </DrawingGroup.ClipGeometry>{NewLine}");
 
-                        currentClipPathList.Add(path);
+                        currentClipPathList = path;
 
                         break;
                     }
@@ -655,9 +653,8 @@ namespace SvgToXamlConverter
 
                         foreach (var totalMatrixList in totalMatrixStack)
                         {
-                            if (totalMatrixList.Count > 0)
+                            if (totalMatrixList is { } totalMatrix)
                             {
-                                var totalMatrix = totalMatrixList.FirstOrDefault();
                                 previousMatrixList.Add(totalMatrix);
                             }
                         }
@@ -675,24 +672,24 @@ namespace SvgToXamlConverter
                         Write($"    <MatrixTransform Matrix=\"{ToMatrix(matrix)}\"/>{NewLine}");
                         Write($"  </DrawingGroup.Transform>{NewLine}");
 
-                        currentTotalMatrixList.Add(matrix);
+                        currentTotalMatrixList = matrix;
 
                         break;
                     }
-                    case ShimSkiaSharp.SaveLayerCanvasCommand(_, var skPaint):
+                    case ShimSkiaSharp.SaveLayerCanvasCommand(var count, var skPaint):
                     {
                         // Mask
 
                         if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is { } && skPaint.ImageFilter is null && skPaint.Color is { } skMaskEndColor && skMaskEndColor.Equals(s_transparentBlack))
                         {
-                            SaveLayer(LayerType.MaskBrush, skPaint);
+                            SaveLayer(LayerType.MaskBrush, skPaint, count);
 
                             break;
                         }
 
                         if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is null && skPaint.Color is { } skMaskStartColor && skMaskStartColor.Equals(s_transparentBlack))
                         {
-                            SaveLayer(LayerType.MaskGroup, skPaint);
+                            SaveLayer(LayerType.MaskGroup, skPaint, count);
 
                             break;
                         }
@@ -701,7 +698,7 @@ namespace SvgToXamlConverter
 
                         if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is null && skPaint.Color is { } skOpacityColor && skOpacityColor.Alpha < OpaqueAlpha)
                         {
-                            SaveLayer(LayerType.OpacityGroup, skPaint);
+                            SaveLayer(LayerType.OpacityGroup, skPaint, count);
 
                             break;
                         }
@@ -710,26 +707,25 @@ namespace SvgToXamlConverter
 
                         if (skPaint is { } && skPaint.Shader is null && skPaint.ColorFilter is null && skPaint.ImageFilter is { } && skPaint.Color is { } skFilterColor && skFilterColor.Equals(s_transparentBlack))
                         {
-                            SaveLayer(LayerType.FilterGroup, skPaint);
+                            SaveLayer(LayerType.FilterGroup, skPaint, count);
 
                             break;
                         }
 
-                        SaveLayer(LayerType.UnknownPaint, skPaint);
+                        SaveLayer(LayerType.UnknownPaint, skPaint, count);
 
                         break;
                     }
-                    case ShimSkiaSharp.SaveCanvasCommand:
+                    case ShimSkiaSharp.SaveCanvasCommand(var count):
                     {
-                        layersStack.Push(null);
-
-                        Save();
+                        EmptyLayer();
+                        Save(count);
 
                         break;
                     }
-                    case ShimSkiaSharp.RestoreCanvasCommand:
+                    case ShimSkiaSharp.RestoreCanvasCommand(var count):
                     {
-                        Restore();
+                        Restore(count);
 
                         break;
                     }
@@ -795,140 +791,182 @@ namespace SvgToXamlConverter
                 sb.Append(value);
             }
 
-            void SaveLayer(LayerType type, object? value)
+            void EmptyLayer()
             {
-                Debug($"SaveLayer({type})");
+                layersStack.Push(null);
+            }
+
+            void SaveLayer(LayerType type, object? value, int count)
+            {
+                Debug($"SaveLayer({type}, {count})");
 
                 layersStack.Push((sb, type, value));
                 sb = new StringBuilder();
 
-                Save();
+                Save(count);
             }
 
-            void Save()
+            void RestoreLayer()
             {
-                Debug($"Save()");
+               // layers
 
+                var layer = layersStack.Count > 0 ? layersStack.Pop() : null;
+                if (layer is null)
+                {
+                    return;
+                }
+
+                var (builder, type, value) = layer.Value;
+                var content = sb.ToString();
+
+                sb = builder;
+
+                Debug($"StartLayer({type})");
+
+                switch (type)
+                {
+                    case LayerType.UnknownPaint:
+                    {
+                        if (value is not ShimSkiaSharp.SKPaint)
+                        {
+                            break;
+                        }
+
+                        Write(content);
+
+                        break;
+                    }
+                    /*
+                    case LayerType.ClipPathGroup:
+                    {
+                        if (value is not SkiaSharp.SKPath path)
+                        {
+                            break;
+                        }
+
+                        var clipGeometry = ToSvgPathData(path);
+
+                        Write($"<DrawingGroup>{NewLine}");
+                        Write($"  <DrawingGroup.ClipGeometry>{NewLine}");
+                        Write($"    <StreamGeometry>{clipGeometry}</StreamGeometry>{NewLine}");
+                        Write($"  </DrawingGroup.ClipGeometry>{NewLine}");
+                        Write(content);
+                        Write($"</DrawingGroup>{NewLine}");
+
+                        break;
+                    }
+                    case LayerType.MatrixGroup:
+                    {
+                        if (value is not SkiaSharp.SKMatrix matrix)
+                        {
+                            break;
+                        }
+
+                        Write($"<DrawingGroup>{NewLine}");
+                        Write($"  <DrawingGroup.Transform>{NewLine}");
+                        Write($"    <MatrixTransform Matrix=\"{ToMatrix(matrix)}\"/>{NewLine}");
+                        Write($"  </DrawingGroup.Transform>{NewLine}");
+                        Write(content);
+                        Write($"</DrawingGroup>{NewLine}");
+
+                        break;
+                    }
+                    */
+                    case LayerType.MaskGroup:
+                    {
+                        if (value is not ShimSkiaSharp.SKPaint)
+                        {
+                            break;
+                        }
+
+                        Write($"<DrawingGroup>{NewLine}");
+                        Write(content);
+                        Write($"</DrawingGroup>{NewLine}");
+
+                        break;
+                    }
+                    case LayerType.MaskBrush:
+                    {
+                        if (value is not ShimSkiaSharp.SKPaint)
+                        {
+                            break;
+                        }
+
+                        Write($"<DrawingGroup.OpacityMask>{NewLine}");
+                        Write($"  <VisualBrush");
+                        Write($" TileMode=\"None\"");
+                        //Write($" SourceRect=\"{ToRect(sourceRect)}\"");
+                        //Write($" DestinationRect=\"{ToRect(destinationRect)}\"");
+                        Write($">{NewLine}");
+                        Write($"    <VisualBrush.Visual>{NewLine}");
+                        Write($"      <Image>{NewLine}");
+                        Write($"        <DrawingImage>{NewLine}");
+                        Write($"          <DrawingGroup>{NewLine}");
+                        Write(content);
+                        Write($"          </DrawingGroup>{NewLine}");
+                        Write($"        </DrawingImage>{NewLine}");
+                        Write($"      </Image>{NewLine}");
+                        Write($"    </VisualBrush.Visual>{NewLine}");
+                        Write($"  </VisualBrush>{NewLine}");
+                        Write($"</DrawingGroup.OpacityMask>{NewLine}");
+
+                        break;
+                    }
+                    case LayerType.OpacityGroup:
+                    {
+                        if (value is not ShimSkiaSharp.SKPaint paint)
+                        {
+                            break;
+                        }
+
+                        if (paint.Color is { } skColor)
+                        {
+                            Write($"<DrawingGroup Opacity=\"{ToString(skColor.Alpha / 255.0)}\">{NewLine}");
+                            Write(content);
+                            Write($"</DrawingGroup>{NewLine}");
+                        }
+
+                        break;
+                    }
+                    case LayerType.FilterGroup:
+                    {
+                        if (value is not ShimSkiaSharp.SKPaint)
+                        {
+                            break;
+                        }
+
+                        Write(content);
+
+                        break;
+                    }
+                }
+
+                Debug($"EndLayer({type})");
+            }
+
+            void SaveGroups()
+            {
                 // matrix
 
                 totalMatrixStack.Push(currentTotalMatrixList);
-                currentTotalMatrixList = new List<SkiaSharp.SKMatrix>();
+                currentTotalMatrixList = default;
 
                 // clip-path
 
                 clipPathStack.Push(currentClipPathList);
-                currentClipPathList = new List<SkiaSharp.SKPath>();
+                currentClipPathList = default;
             }
 
-            void Restore()
+            void RestoreGroups()
             {
-                Debug($"Restore()");
-
-                // layers
-
-                var layer = layersStack.Count > 0 ? layersStack.Pop() : null;
-                if (layer is { })
-                {
-                    var (builder, type, value) = layer.Value;
-                    var content = sb.ToString();
-
-                    sb = builder;
-
-                    Debug($"StartLayer({type})");
-
-                    switch (type)
-                    {
-                        case LayerType.UnknownPaint:
-                        {
-                            if (value is not ShimSkiaSharp.SKPaint)
-                            {
-                                break;
-                            }
-
-                            Write(content);
-
-                            break;
-                        }
-                        case LayerType.MaskGroup:
-                        {
-                            if (value is not ShimSkiaSharp.SKPaint)
-                            {
-                                break;
-                            }
-
-                            Write($"<DrawingGroup>{NewLine}");
-                            Write(content);
-                            Write($"</DrawingGroup>{NewLine}");
-
-                            break;
-                        }
-                        case LayerType.MaskBrush:
-                        {
-                            if (value is not ShimSkiaSharp.SKPaint)
-                            {
-                                break;
-                            }
-
-                            Write($"<DrawingGroup.OpacityMask>{NewLine}");
-                            Write($"  <VisualBrush");
-                            Write($" TileMode=\"None\"");
-                            //Write($" SourceRect=\"{ToRect(sourceRect)}\"");
-                            //Write($" DestinationRect=\"{ToRect(destinationRect)}\"");
-                            Write($">{NewLine}");
-                            Write($"    <VisualBrush.Visual>{NewLine}");
-                            Write($"      <Image>{NewLine}");
-                            Write($"        <DrawingImage>{NewLine}");
-                            Write($"          <DrawingGroup>{NewLine}");
-                            Write(content);
-                            Write($"          </DrawingGroup>{NewLine}");
-                            Write($"        </DrawingImage>{NewLine}");
-                            Write($"      </Image>{NewLine}");
-                            Write($"    </VisualBrush.Visual>{NewLine}");
-                            Write($"  </VisualBrush>{NewLine}");
-                            Write($"</DrawingGroup.OpacityMask>{NewLine}");
-
-                            break;
-                        }
-                        case LayerType.OpacityGroup:
-                        {
-                            if (value is not ShimSkiaSharp.SKPaint paint)
-                            {
-                                break;
-                            }
-
-                            if (paint.Color is { } skColor)
-                            {
-                                Write($"<DrawingGroup Opacity=\"{ToString(skColor.Alpha / 255.0)}\">{NewLine}");
-                                Write(content);
-                                Write($"</DrawingGroup>{NewLine}");
-                            }
-
-                            break;
-                        }
-                        case LayerType.FilterGroup:
-                        {
-                            if (value is not ShimSkiaSharp.SKPaint)
-                            {
-                                break;
-                            }
-
-                            Write(content);
-
-                            break;
-                        }
-                    }
-
-                    Debug($"EndLayer({type})");
-                }
-
                 // clip-path
                         
-                foreach (var _ in currentClipPathList)
+                if (currentClipPathList is { })
                 {
                     Write($"</DrawingGroup>{NewLine}");
                 }
 
-                currentClipPathList.Clear();
+                currentClipPathList = default;
 
                 if (clipPathStack.Count > 0)
                 {
@@ -937,12 +975,12 @@ namespace SvgToXamlConverter
 
                 // matrix
       
-                foreach (var _ in currentTotalMatrixList)
+                if (currentTotalMatrixList is { })
                 {
                     Write($"</DrawingGroup>{NewLine}");
                 }
 
-                currentTotalMatrixList.Clear();
+                currentTotalMatrixList = default;
 
                 if (totalMatrixStack.Count > 0)
                 {
@@ -950,7 +988,20 @@ namespace SvgToXamlConverter
                 }
             }
 
-            Restore();
+            void Save(int count)
+            {
+                Debug($"Save({count})");
+                SaveGroups();
+            }
+
+            void Restore(int count)
+            {
+                Debug($"Restore({count})");
+                RestoreLayer();
+                RestoreGroups();
+            }
+
+            RestoreGroups();
 
             Write($"</DrawingGroup>");
 
