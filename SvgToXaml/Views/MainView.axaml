@@ -2,6 +2,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="using:Avalonia.Xaml.Interactivity"
+             xmlns:ia="using:Avalonia.Xaml.Interactions.Core"
+             xmlns:rx="using:System.Reactive"
              xmlns:vm="using:SvgToXaml.ViewModels"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="480"
              x:Class="SvgToXaml.Views.MainView">
@@ -30,8 +33,12 @@
                  VerticalAlignment="Stretch"
                  HorizontalAlignment="Stretch"
                  ToolTip.Tip="{Binding Path}"
-                 DoubleTapped="Panel_OnDoubleTapped"
                  Focusable="True">
+            <i:Interaction.Behaviors>
+              <ia:EventTriggerBehavior EventName="DoubleTapped">
+                <ia:InvokeCommandAction Command="{Binding PreviewCommand}" CommandParameter="{x:Static rx:Unit.Default}"/>
+              </ia:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
             <Panel.KeyBindings>
               <KeyBinding Gesture="Delete" Command="{Binding RemoveCommand}" />
             </Panel.KeyBindings>
