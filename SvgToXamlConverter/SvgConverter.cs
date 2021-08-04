@@ -969,9 +969,9 @@ namespace SvgToXamlConverter
 
                 if (currentClipPath is { })
                 {
-                    Debug($"EndClipPath({clipPathStack.Count})");
-
                     Write($"</DrawingGroup>{NewLine}");
+
+                    Debug($"EndClipPath({clipPathStack.Count})");
                 }
 
                 currentClipPath = default;
@@ -985,9 +985,9 @@ namespace SvgToXamlConverter
 
                 if (currentTotalMatrix is { })
                 {
-                    Debug($"EndMatrix({totalMatrixStack.Count})");
-
                     Write($"</DrawingGroup>{NewLine}");
+
+                    Debug($"EndMatrix({totalMatrixStack.Count})");
                 }
 
                 currentTotalMatrix = default;
