@@ -594,10 +594,10 @@ namespace SvgToXamlConverter
             Write($"<DrawingGroup{(key is null ? "" : ($" x:Key=\"{key}\""))}>{NewLine}");
 
             var totalMatrixStack = new Stack<SkiaSharp.SKMatrix?>();
-            var currentTotalMatrixList = default(SkiaSharp.SKMatrix?);
+            var currentTotalMatrix = default(SkiaSharp.SKMatrix?);
 
             var clipPathStack = new Stack<SkiaSharp.SKPath?>();
-            var currentClipPathList = default(SkiaSharp.SKPath?);
+            var currentClipPath = default(SkiaSharp.SKPath?);
 
             var layersStack = new Stack<(StringBuilder Builder, LayerType Type, object? Value)?>();
 
@@ -615,12 +615,14 @@ namespace SvgToXamlConverter
 
                         var clipGeometry = ToSvgPathData(path);
 
+                        Debug($"StarMatrix({totalMatrixStack.Count})");
+
                         Write($"<DrawingGroup>{NewLine}");
                         Write($"  <DrawingGroup.ClipGeometry>{NewLine}");
                         Write($"    <StreamGeometry>{clipGeometry}</StreamGeometry>{NewLine}");
                         Write($"  </DrawingGroup.ClipGeometry>{NewLine}");
 
-                        currentClipPathList = path;
+                        currentClipPath = path;
 
                         break;
                     }
@@ -632,12 +634,14 @@ namespace SvgToXamlConverter
 
                         var clipGeometry = ToSvgPathData(path);
 
+                        Debug($"StarClipPath({clipPathStack.Count})");
+
                         Write($"<DrawingGroup>{NewLine}");
                         Write($"  <DrawingGroup.ClipGeometry>{NewLine}");
                         Write($"    <StreamGeometry>{clipGeometry}</StreamGeometry>{NewLine}");
                         Write($"  </DrawingGroup.ClipGeometry>{NewLine}");
 
-                        currentClipPathList = path;
+                        currentClipPath = path;
 
                         break;
                     }
@@ -672,7 +676,7 @@ namespace SvgToXamlConverter
                         Write($"    <MatrixTransform Matrix=\"{ToMatrix(matrix)}\"/>{NewLine}");
                         Write($"  </DrawingGroup.Transform>{NewLine}");
 
-                        currentTotalMatrixList = matrix;
+                        currentTotalMatrix = matrix;
 
                         break;
                     }
@@ -948,43 +952,47 @@ namespace SvgToXamlConverter
             {
                 // matrix
 
-                totalMatrixStack.Push(currentTotalMatrixList);
-                currentTotalMatrixList = default;
+                totalMatrixStack.Push(currentTotalMatrix);
+                currentTotalMatrix = default;
 
                 // clip-path
 
-                clipPathStack.Push(currentClipPathList);
-                currentClipPathList = default;
+                clipPathStack.Push(currentClipPath);
+                currentClipPath = default;
             }
 
             void RestoreGroups()
             {
                 // clip-path
-                        
-                if (currentClipPathList is { })
+
+                if (currentClipPath is { })
                 {
+                    Debug($"EndClipPath({clipPathStack.Count})");
+
                     Write($"</DrawingGroup>{NewLine}");
                 }
 
-                currentClipPathList = default;
+                currentClipPath = default;
 
                 if (clipPathStack.Count > 0)
                 {
-                    currentClipPathList = clipPathStack.Pop();
+                    currentClipPath = clipPathStack.Pop();
                 }
 
                 // matrix
-      
-                if (currentTotalMatrixList is { })
+
+                if (currentTotalMatrix is { })
                 {
+                    Debug($"EndMatrix({totalMatrixStack.Count})");
+
                     Write($"</DrawingGroup>{NewLine}");
                 }
 
-                currentTotalMatrixList = default;
+                currentTotalMatrix = default;
 
                 if (totalMatrixStack.Count > 0)
                 {
-                    currentTotalMatrixList = totalMatrixStack.Pop();
+                    currentTotalMatrix = totalMatrixStack.Pop();
                 }
             }
 
