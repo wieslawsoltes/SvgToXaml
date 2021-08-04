@@ -377,7 +377,9 @@ namespace SvgToXamlConverter
 
                 if (!localMatrix.IsIdentity)
                 {
+#if DEBUG
                     sb.Append($"<!-- TODO: Transform: {ToMatrix(localMatrix)} -->{NewLine}");
+#endif
                 }
             }
             else
@@ -739,25 +741,13 @@ namespace SvgToXamlConverter
 
                         break;
                     }
-                    case ShimSkiaSharp.DrawImageCanvasCommand(var skImage, var skRect, var dest, var skPaint):
-                    {
-                        // TODO:
-
-                        break;
-                    }
-                    case ShimSkiaSharp.DrawTextBlobCanvasCommand(var skTextBlob, var x, var y, var skPaint):
-                    {
-                        // TODO:
-
-                        break;
-                    }
                     case ShimSkiaSharp.DrawTextCanvasCommand(var text, var x, var y, var skPaint):
                     {
                         var paint = Svg.Skia.SkiaModelExtensions.ToSKPaint(skPaint);
                         var path = paint.GetTextPath(text, x, y);
                         if (!path.IsEmpty)
                         {
-                            Write($"{text}{NewLine}");
+                            Debug($"{text}");
 
                             ToXamlGeometryDrawing(path, skPaint, sb);
                         }
@@ -768,19 +758,39 @@ namespace SvgToXamlConverter
                     {
                         // TODO:
 
+                        Debug($"TODO: TextOnPath");
+
+                        break;
+                    }
+                    case ShimSkiaSharp.DrawTextBlobCanvasCommand(var skTextBlob, var x, var y, var skPaint):
+                    {
+                        // TODO:
+ 
+                        Debug($"TODO: TextBlob");
+
+                        break;
+                    }
+                    case ShimSkiaSharp.DrawImageCanvasCommand(var skImage, var skRect, var dest, var skPaint):
+                    {
+                        // TODO:
+
+                        Debug($"TODO: Image");
+
                         break;
                     }
                 }
             }
 
+            void Debug(string message)
+            {
+#if DEBUG
+                sb.Append($"<!-- {message} -->{NewLine}");
+#endif
+            }
+
             void Write(string value)
             {
                 sb.Append(value);
-            }
-
-            void Debug(string message)
-            {
-                sb.Append($"<!-- {message} -->{NewLine}");
             }
 
             void SaveLayer(LayerType type, ShimSkiaSharp.SKPaint? skPaint)
@@ -789,7 +799,7 @@ namespace SvgToXamlConverter
 
                 layersStack.Push((sb, type, skPaint));
                 sb = new StringBuilder();
-                
+
                 Save();
             }
 
