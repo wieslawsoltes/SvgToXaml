@@ -38,14 +38,18 @@ namespace SvgToXaml.ViewModels
             private set => this.RaiseAndSetIfChanged(ref _picture, value);
         }
 
+        public ICommand PreviewCommand { get; }
+
         public ICommand RemoveCommand { get; }
 
-        public FileItemViewModel(string name, string path, Action<FileItemViewModel> remove)
+        public FileItemViewModel(string name, string path, Func<FileItemViewModel, Task> preview, Func<FileItemViewModel, Task> remove)
         {
             _name = name;
             _path = path;
 
-            RemoveCommand = ReactiveCommand.Create(() => remove(this));
+            PreviewCommand = ReactiveCommand.CreateFromTask(async () => await preview(this));
+
+            RemoveCommand = ReactiveCommand.Create(async () => await remove(this));
         }
 
         public async Task Load()
