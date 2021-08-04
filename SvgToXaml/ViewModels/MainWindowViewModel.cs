@@ -3,14 +3,18 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Markup.Xaml;
+using Avalonia.Styling;
 using Avalonia.Threading;
 using ReactiveUI;
 using Svg.Skia;
+using SvgToXaml.Views;
 using SvgToXamlConverter;
 
 namespace SvgToXaml.ViewModels
@@ -320,9 +324,61 @@ namespace SvgToXaml.ViewModels
         {
             if (_items is { })
             {
-                var item = await Task.Run(() => new FileItemViewModel(Path.GetFileName(path), path, x => _items.Remove(x)));
+                var item = await Task.Run(() => new FileItemViewModel(Path.GetFileName(path), path, Preview, Remove));
                 _items.Add(item);
             }
+        }
+
+        private async Task Preview(FileItemViewModel item)
+        {
+            await Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                if (item.Svg is null)
+                {
+                    await item.Load();
+                }
+
+                if (item.Svg is null)
+                {
+                    return;
+                }
+
+                var xaml = SvgConverter.Format(SvgConverter.ToXamlDrawingGroup(item.Svg.Model, key: null));
+
+                var sb = new StringBuilder();
+
+                sb.Append($"<Viewbox xmlns=\"https://github.com/avaloniaui\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">");
+                sb.Append($"<Image>");
+                sb.Append($"<DrawingImage>");
+                sb.Append($"{xaml}");
+                sb.Append($"</DrawingImage>");
+                sb.Append($"</Image>");
+                sb.Append($"</Viewbox>");
+
+                var viewboxXaml = sb.ToString();
+ 
+                var viewbox = AvaloniaRuntimeXamlLoader.Parse<Viewbox>(viewboxXaml);
+                
+                var window = new PreviewWindow()
+                {
+                    Content = viewbox,
+                    Width = 800,
+                    Height = 600
+                };
+  
+               await window.ShowDialog((Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow);
+            });
+        }
+
+        private async Task Remove(FileItemViewModel item)
+        {
+            await Task.Run(() =>
+            {
+                if (_items is { })
+                {
+                    _items.Remove(item);
+                }
+            });
         }
     }
 }
