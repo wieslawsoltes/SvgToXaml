@@ -749,7 +749,7 @@ namespace SvgToXamlConverter
                         var path = paint.GetTextPath(text, x, y);
                         if (!path.IsEmpty)
                         {
-                            Debug($"{text}");
+                            Debug($"Text='{text}'");
 
                             ToXamlGeometryDrawing(path, skPaint, sb);
                         }
