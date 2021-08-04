@@ -36,6 +36,7 @@
             </Panel.KeyBindings>
             <Panel.ContextFlyout>
               <MenuFlyout Placement="Bottom">
+                <MenuItem Header="Preview" Command="{Binding PreviewCommand}" />
                 <MenuItem Header="Remove" Command="{Binding RemoveCommand}" />
               </MenuFlyout>
             </Panel.ContextFlyout>
