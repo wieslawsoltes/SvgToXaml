@@ -6,6 +6,10 @@
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
+  <PropertyGroup>
+    <!--<DefineConstants>$(DefineConstants);USE_BRUSH_TRANSFORM</DefineConstants>-->
+    <!--<DefineConstants>$(DefineConstants);USE_COMPAT_MODE</DefineConstants>-->
+  </PropertyGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
