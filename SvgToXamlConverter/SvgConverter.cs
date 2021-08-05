@@ -804,17 +804,15 @@ namespace SvgToXamlConverter
                         {
                             Debug($"Text='{text}'");
 
-                            switch (skPaint.TextAlign)
+                            if (skPaint.TextAlign == ShimSkiaSharp.SKTextAlign.Center)
                             {
-                                case ShimSkiaSharp.SKTextAlign.Left:
-                                    break;
-                                case ShimSkiaSharp.SKTextAlign.Center:
-                                    path.Transform(SkiaSharp.SKMatrix.CreateTranslation(-path.Bounds.Width / 2f, 0f));
-                                    break;
-                                case ShimSkiaSharp.SKTextAlign.Right:
-                                    path.Transform(SkiaSharp.SKMatrix.CreateTranslation(-path.Bounds.Width, 0f));
-                                    break;
+                                path.Transform(SkiaSharp.SKMatrix.CreateTranslation(-path.Bounds.Width / 2f, 0f));
                             }
+
+                            if (skPaint.TextAlign == ShimSkiaSharp.SKTextAlign.Right)
+                            {
+                                path.Transform(SkiaSharp.SKMatrix.CreateTranslation(-path.Bounds.Width, 0f));
+                            } 
 
                             ToXamlGeometryDrawing(path, skPaint, sb);
                         }
