@@ -496,11 +496,35 @@ namespace SvgToXamlConverter
                 sb.Append($" LineJoin=\"{ToPenLineJoin(skPaint.StrokeJoin)}\"");
             }
 #endif
+
+#if USE_COMPAT_MODE
+            var miterLimit = skPaint.StrokeMiter;
+            var strokeWidth = skPaint.StrokeWidth;
+
+            if (miterLimit < 1.0f)
+            {
+                miterLimit = 10.0f;
+            }
+            else
+            {
+                if (strokeWidth <= 0.0f)
+                {
+                    miterLimit = 1.0f;
+                }
+            }
+
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
+            if (miterLimit != 10.0)
+            {
+                sb.Append($" MiterLimit=\"{ToString(miterLimit)}\"");
+            }
+#else
             // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (skPaint.StrokeMiter != 10.0)
             {
                 sb.Append($" MiterLimit=\"{ToString(skPaint.StrokeMiter)}\"");
             }
+#endif
 
             if (skPaint.Shader is not ShimSkiaSharp.ColorShader || (skPaint.PathEffect is ShimSkiaSharp.DashPathEffect { Intervals: { } }))
             {
