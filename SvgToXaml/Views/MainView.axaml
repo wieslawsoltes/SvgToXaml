@@ -124,39 +124,39 @@
                VerticalAlignment="Stretch"
                HorizontalAlignment="Stretch">
 
-      <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,*,Auto"
+      <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto"
             HorizontalAlignment="Stretch" 
             DockPanel.Dock="Top" 
             Margin="0,0,0,6">
-        <Button Command="{Binding CopySelectedCommand}"
+        <Button Command="{Binding ExportAllCommand}"
                 CommandParameter="XAML"
                 Padding="6,6,6,7"
                 Margin="0,0,6,0"
                 Grid.Column="0"
-                ToolTip.Tip="Copy Selected">
+                ToolTip.Tip="Export All">
           <StackPanel Orientation="Horizontal">
             <PathIcon Width="16" Height="16" 
-                      Data="{DynamicResource CopyIcon}"/>
-            <TextBlock Margin="0" Padding="12,0,12,0" Text="Selected"/>
+                      Data="{DynamicResource ExportIcon}"/>
+            <TextBlock Margin="0" Padding="12,0,12,0" Text="All"/>
           </StackPanel>
         </Button>
-        <Button Command="{Binding CopyAllCommand}"
+        <Button Command="{Binding ExportSelectedCommand}"
                 CommandParameter="XAML"
                 Padding="6,6,6,7"
                 Margin="0,0,6,0"
                 Grid.Column="1"
-                ToolTip.Tip="Copy All">
+                ToolTip.Tip="Export Selected">
           <StackPanel Orientation="Horizontal">
             <PathIcon Width="16" Height="16" 
-                      Data="{DynamicResource CopyIcon}"/>
-            <TextBlock Margin="0" Padding="12,0,12,0" Text="All"/>
+                      Data="{DynamicResource ExportIcon}"/>
+            <TextBlock Margin="0" Padding="12,0,12,0" Text="Selected"/>
           </StackPanel>
         </Button>
         <Button Command="{Binding ClipboardCommand}"
                 CommandParameter="XAML"
                 Padding="6,6,6,7"
                 Margin="0,0,6,0"
-                Grid.Column="2"
+                Grid.Column="3"
                 ToolTip.Tip="Paste Svg from Clipboard and Copy as Xaml">
           <StackPanel Orientation="Horizontal">
             <PathIcon Width="16" Height="16" 
@@ -168,28 +168,28 @@
                       Data="{DynamicResource CopyIcon}"/>
           </StackPanel>
         </Button>
-        <Button Command="{Binding ExportSelectedCommand}"
+        <Button Command="{Binding CopyAllCommand}"
                 CommandParameter="XAML"
                 Padding="6,6,6,7"
                 Margin="0,0,6,0"
                 Grid.Column="4"
-                ToolTip.Tip="Export Selected">
+                ToolTip.Tip="Copy All">
           <StackPanel Orientation="Horizontal">
             <PathIcon Width="16" Height="16" 
-                      Data="{DynamicResource ExportIcon}"/>
-            <TextBlock Margin="0" Padding="12,0,12,0" Text="Selected"/>
+                      Data="{DynamicResource CopyIcon}"/>
+            <TextBlock Margin="0" Padding="12,0,12,0" Text="All"/>
           </StackPanel>
         </Button>
-        <Button Command="{Binding ExportAllCommand}"
+        <Button Command="{Binding CopySelectedCommand}"
                 CommandParameter="XAML"
                 Padding="6,6,6,7"
                 Margin="0,0,6,0"
                 Grid.Column="5"
-                ToolTip.Tip="Export All">
+                ToolTip.Tip="Copy Selected">
           <StackPanel Orientation="Horizontal">
             <PathIcon Width="16" Height="16" 
-                      Data="{DynamicResource ExportIcon}"/>
-            <TextBlock Margin="0" Padding="12,0,12,0" Text="All"/>
+                      Data="{DynamicResource CopyIcon}"/>
+            <TextBlock Margin="0" Padding="12,0,12,0" Text="Selected"/>
           </StackPanel>
         </Button>
         <Button Grid.Column="7"
