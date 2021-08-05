@@ -1,5 +1,4 @@
-﻿//#define USE_BRUSH_TRANSFORM
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -13,7 +12,7 @@ namespace SvgToXamlConverter
     {
         private const byte OpaqueAlpha = 255;
 
-        private static readonly ShimSkiaSharp.SKColor s_transparentBlack = new ShimSkiaSharp.SKColor(0, 0, 0, 255);
+        private static readonly ShimSkiaSharp.SKColor s_transparentBlack = new(0, 0, 0, 255);
 
         public static string NewLine = "\r\n";
 
@@ -57,7 +56,11 @@ namespace SvgToXamlConverter
                 ShimSkiaSharp.SKStrokeJoin.Miter => "Miter",
                 ShimSkiaSharp.SKStrokeJoin.Round => "Round",
                 ShimSkiaSharp.SKStrokeJoin.Bevel => "Bevel",
+#if USE_COMPAT_MODE
                 _ => "Miter"
+#else
+                _ => "Bevel"
+#endif
             };
         }
 
@@ -191,14 +194,17 @@ namespace SvgToXamlConverter
 #else
             if (linearGradientShader.LocalMatrix is null)
             {
+#if !USE_COMPAT_MODE
                 start.X = Math.Max(0f, start.X - skBounds.Location.X);
                 start.Y = Math.Max(0f, start.Y - skBounds.Location.Y);
                 end.X = Math.Max(0f, end.X - skBounds.Location.X);
                 end.Y = Math.Max(0f, end.Y - skBounds.Location.Y);
+#endif
             }
 #endif
 
             sb.Append($"<LinearGradientBrush");
+
             sb.Append($" StartPoint=\"{ToPoint(start)}\"");
             sb.Append($" EndPoint=\"{ToPoint(end)}\"");
 
@@ -207,6 +213,10 @@ namespace SvgToXamlConverter
                 sb.Append($" SpreadMethod=\"{ToGradientSpreadMethod(linearGradientShader.Mode)}\"");
             }
 
+#if USE_COMPAT_MODE
+            sb.Append($" MappingMode=\"Absolute\"");
+#endif
+
             sb.Append($">{NewLine}");
 
 #if USE_BRUSH_TRANSFORM
@@ -214,7 +224,9 @@ namespace SvgToXamlConverter
             {
                 // TODO: Missing Transform property on LinearGradientBrush
                 var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(linearGradientShader.LocalMatrix.Value);
+#if !USE_COMPAT_MODE
                 localMatrix = AdjustMatrixLocation(localMatrix, skBounds.Location.X, skBounds.Location.Y);
+#endif
                 sb.Append($"  <LinearGradientBrush.Transform>{NewLine}");
                 sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{NewLine}");
                 sb.Append($"  </LinearGradientBrush.Transform>{NewLine}");
@@ -277,19 +289,33 @@ namespace SvgToXamlConverter
 #else
             if (twoPointConicalGradientShader.LocalMatrix is null)
             {
+#if !USE_COMPAT_MODE
                 center.X = Math.Max(0f, center.X - skBounds.Location.X);
                 center.Y = Math.Max(0f, center.Y - skBounds.Location.Y);
                 gradientOrigin.X = Math.Max(0f, gradientOrigin.X - skBounds.Location.X);
                 gradientOrigin.Y = Math.Max(0f, gradientOrigin.Y - skBounds.Location.Y);
+#endif
             }
 #endif
-
+#if !USE_COMPAT_MODE
             endRadius = endRadius / skBounds.Width;
+#endif
 
             sb.Append($"<RadialGradientBrush");
+
             sb.Append($" Center=\"{ToPoint(center)}\"");
             sb.Append($" GradientOrigin=\"{ToPoint(gradientOrigin)}\"");
+
+#if USE_COMPAT_MODE
+            sb.Append($" RadiusX=\"{ToString(endRadius)}\"");
+            sb.Append($" RadiusY=\"{ToString(endRadius)}\"");
+#else
             sb.Append($" Radius=\"{ToString(endRadius)}\"");
+#endif
+
+#if USE_COMPAT_MODE
+            sb.Append($" MappingMode=\"Absolute\"");
+#endif
 
             if (twoPointConicalGradientShader.Mode != ShimSkiaSharp.SKShaderTileMode.Clamp)
             {
@@ -303,7 +329,9 @@ namespace SvgToXamlConverter
             {
                 // TODO: Missing Transform property on RadialGradientBrush
                 var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(twoPointConicalGradientShader.LocalMatrix.Value);
+#if !USE_COMPAT_MODE
                 localMatrix = AdjustMatrixLocation(localMatrix, skBounds.Location.X, skBounds.Location.Y);
+#endif
                 sb.Append($"  <RadialGradientBrush.Transform>{NewLine}");
                 sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{NewLine}");
                 sb.Append($"  </RadialGradientBrush.Transform>{NewLine}");
@@ -366,8 +394,13 @@ namespace SvgToXamlConverter
                 sb.Append($" TileMode=\"{ToTileMode(pictureShader.TmX)}\"");
             }
 
+#if USE_COMPAT_MODE
+            sb.Append($" Viewport=\"{ToRect(sourceRect)}\" ViewportUnits=\"Absolute\"");
+            sb.Append($" Viewbox=\"{ToRect(destinationRect)}\" ViewboxUnits=\"Absolute\"");
+#else
             sb.Append($" SourceRect=\"{ToRect(sourceRect)}\"");
             sb.Append($" DestinationRect=\"{ToRect(destinationRect)}\"");
+#endif
 
             sb.Append($">{NewLine}");
 
@@ -376,17 +409,23 @@ namespace SvgToXamlConverter
             {
                 // TODO: Missing Transform property on VisualBrush
                 var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(pictureShader.LocalMatrix);
+#if !USE_COMPAT_MODE
                 localMatrix = AdjustMatrixLocation(localMatrix, skBounds.Location.X, skBounds.Location.Y);
+#endif
                 sb.Append($"  <VisualBrush.Transform>{NewLine}");
                 sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{NewLine}");
                 sb.Append($"  </VisualBrush.Transform>{NewLine}");
             }
 #endif
 
-            sb.Append($"  <VisualBrush.Visual>{NewLine}");
-            sb.Append(ToXamlImage(pictureShader.Src, key: null));
-            sb.Append($"{NewLine}");
-            sb.Append($"  </VisualBrush.Visual>{NewLine}");
+            if (pictureShader?.Src is not null)
+            {
+                sb.Append($"  <VisualBrush.Visual>{NewLine}");
+                sb.Append(ToXamlImage(pictureShader.Src, key: null));
+                sb.Append($"{NewLine}");
+                sb.Append($"  </VisualBrush.Visual>{NewLine}");
+            }
+
             sb.Append($"</VisualBrush>{NewLine}");
 
             return sb.ToString();
@@ -428,14 +467,24 @@ namespace SvgToXamlConverter
 
             if (skPaint.StrokeCap != ShimSkiaSharp.SKStrokeCap.Butt)
             {
+#if USE_COMPAT_MODE
+                sb.Append($" StartLineCap=\"{ToPenLineCap(skPaint.StrokeCap)}\"");
+                sb.Append($" EndLineCap=\"{ToPenLineCap(skPaint.StrokeCap)}\"");
+#else
                 sb.Append($" LineCap=\"{ToPenLineCap(skPaint.StrokeCap)}\"");
+#endif
             }
-
+#if USE_COMPAT_MODE
+            if (skPaint.StrokeJoin != ShimSkiaSharp.SKStrokeJoin.Miter)
+            {
+                sb.Append($" LineJoin=\"{ToPenLineJoin(skPaint.StrokeJoin)}\"");
+            }
+#else
             if (skPaint.StrokeJoin != ShimSkiaSharp.SKStrokeJoin.Bevel)
             {
                 sb.Append($" LineJoin=\"{ToPenLineJoin(skPaint.StrokeJoin)}\"");
             }
-
+#endif
             // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (skPaint.StrokeMiter != 10.0)
             {
@@ -864,16 +913,33 @@ namespace SvgToXamlConverter
                         sb.Append($"<DrawingGroup.OpacityMask>{NewLine}");
                         sb.Append($"  <VisualBrush");
                         sb.Append($" TileMode=\"None\"");
+#if USE_COMPAT_MODE
+                        //sb.Append($" Viewport=\"{ToRect(sourceRect)}\" ViewportUnits=\"Absolute\"");
+                        //sb.Append($" Viewbox=\"{ToRect(destinationRect)}\" ViewboxUnits=\"Absolute\"");
+#else
                         //sb.Append($" SourceRect=\"{ToRect(sourceRect)}\"");
                         //sb.Append($" DestinationRect=\"{ToRect(destinationRect)}\"");
+#endif
                         sb.Append($">{NewLine}");
                         sb.Append($"    <VisualBrush.Visual>{NewLine}");
                         sb.Append($"      <Image>{NewLine}");
+#if USE_COMPAT_MODE
+                        sb.Append($"      <Image.Source>{NewLine}");
+#endif
                         sb.Append($"        <DrawingImage>{NewLine}");
+#if USE_COMPAT_MODE
+                        sb.Append($"        <DrawingImage.Drawing>{NewLine}");
+#endif
                         sb.Append($"          <DrawingGroup>{NewLine}");
                         sb.Append(content);
                         sb.Append($"          </DrawingGroup>{NewLine}");
+#if USE_COMPAT_MODE
+                        sb.Append($"        </DrawingImage.Drawing>{NewLine}");
+#endif
                         sb.Append($"        </DrawingImage>{NewLine}");
+#if USE_COMPAT_MODE
+                        sb.Append($"      </Image.Source>{NewLine}");
+#endif
                         sb.Append($"      </Image>{NewLine}");
                         sb.Append($"    </VisualBrush.Visual>{NewLine}");
                         sb.Append($"  </VisualBrush>{NewLine}");
@@ -986,9 +1052,21 @@ namespace SvgToXamlConverter
             var sb = new StringBuilder();
 
             sb.Append($"<Image{(key is null ? "" : ($" x:Key=\"{key}\""))}>{NewLine}");
+#if USE_COMPAT_MODE
+            sb.Append($"<Image.Source>{NewLine}");
+#endif
             sb.Append($"  <DrawingImage>{NewLine}");
+#if USE_COMPAT_MODE
+            sb.Append($"  <DrawingImage.Drawing>{NewLine}");
+#endif
             sb.Append(ToXamlDrawingGroup(skPicture, key: null));
+#if USE_COMPAT_MODE
+            sb.Append($"  </DrawingImage.Drawing>{NewLine}");
+#endif
             sb.Append($"  </DrawingImage>{NewLine}");
+#if USE_COMPAT_MODE
+            sb.Append($"</Image.Source>{NewLine}");
+#endif
             sb.Append($"</Image>");
 
             return sb.ToString();
@@ -1047,9 +1125,13 @@ namespace SvgToXamlConverter
                     else
                     {
                         sb.Append($"        <Image>");
+#if USE_COMPAT_MODE
                         sb.Append($"            <Image.Source>");
+#endif
                         sb.Append($"                <DrawingImage Drawing=\"{{DynamicResource {result.Key}}}\"/>");
+#if USE_COMPAT_MODE
                         sb.Append($"            </Image.Source>");
+#endif
                         sb.Append($"        </Image>"); 
                     }
                 }
