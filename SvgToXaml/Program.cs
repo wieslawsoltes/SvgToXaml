@@ -2,6 +2,8 @@
 using Avalonia;
 using Avalonia.Controls.Skia;
 using Avalonia.ReactiveUI;
+using Avalonia.Xaml.Interactions.Core;
+using Avalonia.Xaml.Interactivity;
 
 namespace SvgToXaml
 {
@@ -16,6 +18,8 @@ namespace SvgToXaml
         public static AppBuilder BuildAvaloniaApp()
         {
             GC.KeepAlive(typeof(SKPictureControl).Assembly);
+            GC.KeepAlive(typeof(Behavior).Assembly);
+            GC.KeepAlive(typeof(ComparisonConditionType).Assembly);
 
             return AppBuilder.Configure<App>()
                 .UsePlatformDetect()
