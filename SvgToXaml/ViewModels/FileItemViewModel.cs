@@ -72,5 +72,16 @@ namespace SvgToXaml.ViewModels
 
             _isLoading = false;
         }
+
+        public void Clean()
+        {
+            if (Picture is not null)
+            {
+                Picture?.Dispose();
+                Svg?.Dispose();
+                Picture = null;
+                Svg = null;
+            }
+        }
     }
 }
