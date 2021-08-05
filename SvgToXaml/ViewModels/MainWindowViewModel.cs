@@ -25,6 +25,8 @@ namespace SvgToXaml.ViewModels
         private FileItemViewModel? _selectedItem;
         private bool _enableGenerateImage;
         private bool _enableGeneratePreview;
+        private bool _useCompatMode;
+        private bool _useBrushTransform;
 
         public FileItemViewModel? SelectedItem
         {
@@ -48,6 +50,18 @@ namespace SvgToXaml.ViewModels
         {
             get => _enableGeneratePreview;
             set => this.RaiseAndSetIfChanged(ref _enableGeneratePreview, value);
+        }
+
+        public bool UseCompatMode
+        {
+            get => _useCompatMode;
+            set => this.RaiseAndSetIfChanged(ref _useCompatMode, value);
+        }
+
+        public bool UseBrushTransform
+        {
+            get => _useBrushTransform;
+            set => this.RaiseAndSetIfChanged(ref _useBrushTransform, value);
         }
 
         public ICommand ClearCommand { get; }
@@ -269,8 +283,45 @@ namespace SvgToXaml.ViewModels
                     await x.Load();
                 }
             });
+  
+            this.WhenAnyValue(x => x.UseCompatMode).Subscribe(async x =>
+            {
+                SvgConverter.UseCompatMode = x;
+
+                await Reload();
+            });
+
+            this.WhenAnyValue(x => x.UseBrushTransform).Subscribe(async x =>
+            {
+                SvgConverter.UseBrushTransform = x;
+
+                await Reload();
+            });
         }
 
+        private async Task Reload()
+        {
+            var items = _items;
+
+            if (items is null || items.Count == 0)
+            {
+                return;
+            }
+
+            await Task.Run(() =>
+            {
+                foreach (var fileItemViewModel in items)
+                {
+                    fileItemViewModel.Clean();
+                }
+            });
+
+            if (_selectedItem is { } selectedItem)
+            {
+                await selectedItem.Load();
+            }
+        }
+        
         private static async Task<string> ToXaml(FileItemViewModel fileItemViewModel, bool enableGenerateImage)
         {
             return await Task.Run(async () =>
@@ -343,30 +394,37 @@ namespace SvgToXaml.ViewModels
                     return;
                 }
 
-                var xaml = SvgConverter.Format(SvgConverter.ToXamlDrawingGroup(item.Svg.Model, key: null));
-
-                var sb = new StringBuilder();
-
-                sb.Append($"<Viewbox xmlns=\"https://github.com/avaloniaui\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">");
-                sb.Append($"<Image>");
-                sb.Append($"<DrawingImage>");
-                sb.Append($"{xaml}");
-                sb.Append($"</DrawingImage>");
-                sb.Append($"</Image>");
-                sb.Append($"</Viewbox>");
-
-                var viewboxXaml = sb.ToString();
- 
-                var viewbox = AvaloniaRuntimeXamlLoader.Parse<Viewbox>(viewboxXaml);
-                
-                var window = new PreviewWindow()
+                try
                 {
-                    Content = viewbox,
-                    Width = 800,
-                    Height = 600
-                };
-  
-               await window.ShowDialog((Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow);
+                    var xaml = SvgConverter.Format(SvgConverter.ToXamlDrawingGroup(item.Svg.Model, key: null));
+
+                    var sb = new StringBuilder();
+
+                    sb.Append($"<Viewbox xmlns=\"https://github.com/avaloniaui\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">");
+                    sb.Append($"<Image>");
+                    sb.Append($"<DrawingImage>");
+                    sb.Append($"{xaml}");
+                    sb.Append($"</DrawingImage>");
+                    sb.Append($"</Image>");
+                    sb.Append($"</Viewbox>");
+
+                    var viewboxXaml = sb.ToString();
+     
+                    var viewbox = AvaloniaRuntimeXamlLoader.Parse<Viewbox>(viewboxXaml);
+                    
+                    var window = new PreviewWindow()
+                    {
+                        Content = viewbox,
+                        Width = 800,
+                        Height = 600
+                    };
+
+                   await window.ShowDialog((Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow);
+                }
+                catch
+                {
+                    // ignored
+                }
             });
         }
 
