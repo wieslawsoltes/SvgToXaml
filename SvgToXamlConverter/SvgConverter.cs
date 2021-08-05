@@ -503,12 +503,11 @@ namespace SvgToXamlConverter
             if (skPaint.PathEffect is ShimSkiaSharp.DashPathEffect dashPathEffect && dashPathEffect.Intervals is { })
             {
                 var dashes = new List<double>();
-
+                
                 foreach (var interval in dashPathEffect.Intervals)
                 {
                     dashes.Add(interval / skPaint.StrokeWidth);
                 }
-
                 var offset = dashPathEffect.Phase / skPaint.StrokeWidth;
 
                 sb.Append($"  <Pen.DashStyle>{NewLine}");
