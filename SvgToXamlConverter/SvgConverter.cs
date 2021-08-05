@@ -474,6 +474,17 @@ namespace SvgToXamlConverter
                 sb.Append($" LineCap=\"{ToPenLineCap(skPaint.StrokeCap)}\"");
 #endif
             }
+
+#if USE_COMPAT_MODE
+            if (skPaint.PathEffect is ShimSkiaSharp.DashPathEffect { Intervals: { } })
+            {
+                if (skPaint.StrokeCap != ShimSkiaSharp.SKStrokeCap.Square)
+                {
+                    sb.Append($" DashCap=\"{ToPenLineCap(skPaint.StrokeCap)}\"");
+                }
+            }
+#endif
+
 #if USE_COMPAT_MODE
             if (skPaint.StrokeJoin != ShimSkiaSharp.SKStrokeJoin.Miter)
             {
