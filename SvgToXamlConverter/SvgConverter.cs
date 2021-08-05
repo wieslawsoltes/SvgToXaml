@@ -957,6 +957,7 @@ namespace SvgToXamlConverter
                         sb.Append($"<DrawingGroup.OpacityMask>{NewLine}");
                         sb.Append($"  <VisualBrush");
                         sb.Append($" TileMode=\"None\"");
+                        sb.Append($" Stretch=\"None\"");
 #if USE_COMPAT_MODE
                         //sb.Append($" Viewport=\"{ToRect(sourceRect)}\" ViewportUnits=\"Absolute\"");
                         //sb.Append($" Viewbox=\"{ToRect(destinationRect)}\" ViewboxUnits=\"Absolute\"");
