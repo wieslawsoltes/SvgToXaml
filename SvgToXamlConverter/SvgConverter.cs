@@ -1252,7 +1252,7 @@ namespace SvgToXamlConverter
                             sb.Append($"            </Image.Source>");
                         }
 
-                        sb.Append($"        </Image>"); 
+                        sb.Append($"        </Image>");
                     }
                 }
 
