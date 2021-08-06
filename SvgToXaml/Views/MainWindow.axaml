@@ -4,12 +4,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:SvgToXaml.Views"
         mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="480"
-        MinWidth="900" MinHeight="480"
-        WindowStartupLocation="CenterScreen"
         x:Class="SvgToXaml.Views.MainWindow"
+        x:Name="MainWindow"
+        MinWidth="900"
+        MinHeight="480"
+        WindowStartupLocation="CenterScreen"
+        Background="{x:Null}"
+        TransparencyLevelHint="AcrylicBlur"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        UseLayoutRounding="True"
         Icon="/Assets/Icon.ico"
         Title="SvgToXaml"
         DragDrop.AllowDrop="True">
-  <views:MainView/>
-  <!-- <views:SandBox/> -->
+  <Panel Margin="{Binding #MainWindow.OffScreenMargin}">
+    <views:MainView/>
+    <!-- <views:SandBox Margin="0,36,0,0"/> -->
+  </Panel>
 </Window>
