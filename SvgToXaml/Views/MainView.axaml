@@ -244,7 +244,7 @@
             </Button>
             <!-- Settings -->
             <Button Margin="0,0,6,0" 
-                    Padding="6,6,6,7"
+                    Padding="6,7,6,7"
                     ToolTip.Tip="Settings">
               <Button.Flyout>
                 <Flyout ShowMode="TransientWithDismissOnPointerMoveAway" 
