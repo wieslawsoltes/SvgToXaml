@@ -4,4 +4,4 @@
 
 Svg to xaml conveter.
 
-![image](https://user-images.githubusercontent.com/2297442/128463124-fbc84231-f716-464a-96e7-e8a2ba59494e.png)
+![image](https://user-images.githubusercontent.com/2297442/128463186-1655dd7f-f576-4e5c-9fcc-a6a315f86667.png)
