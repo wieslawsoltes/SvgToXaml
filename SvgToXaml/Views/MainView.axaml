@@ -47,10 +47,12 @@
         </Panel>
         <!-- Items List Actions -->
         <UniformGrid DockPanel.Dock="Bottom"
+                     HorizontalAlignment="Left"
                      Columns="2">
           <Button Command="{Binding ClearCommand}"
                   HorizontalContentAlignment="Center"
-                  HorizontalAlignment="Stretch"
+                  HorizontalAlignment="Left"
+                  Background="Transparent"
                   ToolTip.Tip="Clear"
                   Padding="6,8,6,8"
                   Margin="12,6,6,12">
@@ -61,7 +63,8 @@
           </Button>
           <Button Command="{Binding AddCommand}"
                   HorizontalContentAlignment="Center"
-                  HorizontalAlignment="Stretch"
+                  HorizontalAlignment="Left"
+                  Background="Transparent"
                   ToolTip.Tip="Add"
                   Padding="6,8,6,8"
                   Margin="6,6,12,12">
@@ -71,6 +74,11 @@
             </Button.Content>
           </Button>
         </UniformGrid>
+        <Separator DockPanel.Dock="Bottom" 
+                   Margin="12,0,12,0"
+                   Background="{DynamicResource SystemBaseHighColor}" 
+                   Opacity="0.3" 
+                   Height="0.55"/>
         <!-- Items List -->
         <ListBox Items="{Binding Items}"
                  SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
