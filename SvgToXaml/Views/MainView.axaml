@@ -6,7 +6,7 @@
              xmlns:ia="using:Avalonia.Xaml.Interactions.Core"
              xmlns:rx="using:System.Reactive"
              xmlns:vm="using:SvgToXaml.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="480"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="480"
              x:Class="SvgToXaml.Views.MainView">
   <Design.DataContext>
     <vm:MainWindowViewModel />
@@ -35,27 +35,36 @@
         </ExperimentalAcrylicBorder.Material>
       </ExperimentalAcrylicBorder>
       <DockPanel>
-        <Panel Margin="12,36,12,0"
+        <Panel Margin="12,36,12,12"
                Height="34"
                Background="Transparent"
                DockPanel.Dock="Top">
           <Label Content="SVG to XAML"
                  Margin="0"
-                 Padding="0"
+                 Padding="6,0,6,0"
                  VerticalAlignment="Center"
+                 FontWeight="Light"
                  FontSize="24"/>
         </Panel>
+        <Separator DockPanel.Dock="Top" 
+                   Margin="12,0,12,0"
+                   Background="{DynamicResource SystemBaseHighColor}" 
+                   Opacity="0.3" 
+                   Height="0.55"/>
         <!-- Items List Actions -->
-        <UniformGrid DockPanel.Dock="Bottom"
-                     HorizontalAlignment="Left"
-                     Columns="2">
+        <DockPanel DockPanel.Dock="Bottom"
+                   LastChildFill="False"
+                   Background="Transparent"
+                   Margin="12,0,12,0"
+                   HorizontalAlignment="Stretch">
           <Button Command="{Binding ClearCommand}"
                   HorizontalContentAlignment="Center"
                   HorizontalAlignment="Left"
                   Background="Transparent"
+                  DockPanel.Dock="Left"
                   ToolTip.Tip="Clear"
-                  Padding="6,8,6,8"
-                  Margin="12,6,6,12">
+                  Padding="12,8,12,8"
+                  Margin="0,6,0,12">
             <Button.Content>
               <PathIcon Width="16" Height="16" 
                         Data="{DynamicResource DeleteIcon}"/>
@@ -65,15 +74,17 @@
                   HorizontalContentAlignment="Center"
                   HorizontalAlignment="Left"
                   Background="Transparent"
+                  DockPanel.Dock="Right"
                   ToolTip.Tip="Add"
-                  Padding="6,8,6,8"
-                  Margin="6,6,12,12">
+                  Padding="12,8,12,8"
+                  Margin="0,6,0,12">
             <Button.Content>
               <PathIcon Width="16" Height="16" 
                         Data="{DynamicResource AddIcon}"/>
             </Button.Content>
           </Button>
-        </UniformGrid>
+        </DockPanel>
+        <!-- Separator -->
         <Separator DockPanel.Dock="Bottom" 
                    Margin="12,0,12,0"
                    Background="{DynamicResource SystemBaseHighColor}" 
@@ -83,7 +94,7 @@
         <ListBox Items="{Binding Items}"
                  SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
                  Background="Transparent"
-                 Margin="12,12,12,0">
+                 Margin="12,12,12,12">
           <ListBox.Styles>
             <Style Selector="ListBoxItem">
               <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -142,27 +153,30 @@
                   Margin="0,0,0,0"
                   Background="White" />
     <!-- Right Pane -->
-    <DockPanel Grid.Column="2">
+    <DockPanel Grid.Column="2"
+               ClipToBounds="False">
       <Panel Background="White" 
              IsHitTestVisible="False"
              Height="36"
              DockPanel.Dock="Top"/>
-      <Panel Background="White">
+      <Panel Background="White"
+             ClipToBounds="False">
         <DockPanel Margin="6,0,6,6"
                    VerticalAlignment="Stretch"
-                   HorizontalAlignment="Stretch">
+                   HorizontalAlignment="Stretch"
+                   ClipToBounds="False">
           <!-- Main Action Buttons -->
-          <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto"
-                HorizontalAlignment="Stretch" 
+          <DockPanel
+                HorizontalAlignment="Right" 
                 Background="Transparent"
+                LastChildFill="False"
                 DockPanel.Dock="Top" 
-                Margin="0,0,0,6">
+                Margin="-36,0,0,12">
             <!-- Export All -->
             <Button Command="{Binding ExportAllCommand}"
                     CommandParameter="XAML"
                     Padding="6,6,6,7"
                     Margin="0,0,12,0"
-                    Grid.Column="0"
                     ToolTip.Tip="Export All">
               <StackPanel Orientation="Horizontal">
                 <PathIcon Width="16" Height="16" 
@@ -176,7 +190,6 @@
                     CommandParameter="XAML"
                     Padding="6,6,6,7"
                     Margin="0,0,12,0"
-                    Grid.Column="1"
                     ToolTip.Tip="Export Selected">
               <StackPanel Orientation="Horizontal">
                 <PathIcon Width="16" Height="16" 
@@ -190,7 +203,6 @@
                     CommandParameter="XAML"
                     Padding="6,6,6,7"
                     Margin="0,0,12,0"
-                    Grid.Column="2"
                     ToolTip.Tip="Paste Svg from Clipboard and Copy as Xaml">
               <StackPanel Orientation="Horizontal">
                 <PathIcon Width="16" Height="16" 
@@ -209,7 +221,6 @@
                     CommandParameter="XAML"
                     Padding="6,6,6,7"
                     Margin="0,0,12,0"
-                    Grid.Column="3"
                     ToolTip.Tip="Copy All">
               <StackPanel Orientation="Horizontal">
                 <PathIcon Width="16" Height="16" 
@@ -223,7 +234,6 @@
                     CommandParameter="XAML"
                     Padding="6,6,6,7"
                     Margin="0,0,12,0"
-                    Grid.Column="4"
                     ToolTip.Tip="Copy Selected">
               <StackPanel Orientation="Horizontal">
                 <PathIcon Width="16" Height="16" 
@@ -234,8 +244,7 @@
             </Button>
             <!-- Settings -->
             <Button Margin="0,0,6,0" 
-                    Padding="6"
-                    Grid.Column="6"
+                    Padding="6,6,6,7"
                     ToolTip.Tip="Settings">
               <Button.Flyout>
                 <Flyout ShowMode="TransientWithDismissOnPointerMoveAway" 
@@ -273,9 +282,9 @@
                         Margin="6,0,6,0"
                         Data="{DynamicResource SettingsIcon}"/>
             </Button>
-          </Grid>
+          </DockPanel>
           <!-- Picture Contents -->
-          <Panel Background="Transparent" Margin="0,6,6,6">
+          <Panel Background="Transparent" Margin="0,0,6,6">
             <Panel.ContextFlyout>
               <MenuFlyout Placement="Bottom">
                 <MenuItem Header="Copy Selected"
@@ -301,4 +310,3 @@
     </DockPanel>
   </Grid>
 </UserControl>
-
