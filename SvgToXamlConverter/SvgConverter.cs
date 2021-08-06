@@ -147,14 +147,14 @@ namespace SvgToXamlConverter
         private static SkiaSharp.SKMatrix AdjustMatrixLocation(SkiaSharp.SKMatrix matrix, float x, float y)
         {
             return new SkiaSharp.SKMatrix(
-                matrix.ScaleX, 
-                matrix.SkewX, 
-                matrix.TransX - x, 
-                matrix.SkewY, 
-                matrix.ScaleY, 
-                matrix.TransY - y, 
-                matrix.Persp0, 
-                matrix.Persp1, 
+                matrix.ScaleX,
+                matrix.SkewX,
+                matrix.TransX - x,
+                matrix.SkewY,
+                matrix.ScaleY,
+                matrix.TransY - y,
+                matrix.Persp0,
+                matrix.Persp1,
                 matrix.Persp2);
         }
 
