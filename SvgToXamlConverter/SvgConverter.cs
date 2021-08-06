@@ -438,12 +438,12 @@ namespace SvgToXamlConverter
                 {
                     // TODO: Missing Transform property on VisualBrush
                     var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(pictureShader.LocalMatrix);
-                    
+
                     if (!UseCompatMode)
                     {
                         localMatrix = AdjustMatrixLocation(localMatrix, skBounds.Location.X, skBounds.Location.Y);
                     }
-                    
+
                     sb.Append($"  <VisualBrush.Transform>{NewLine}");
                     sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{NewLine}");
                     sb.Append($"  </VisualBrush.Transform>{NewLine}");
@@ -663,7 +663,7 @@ namespace SvgToXamlConverter
                 sb.Append($"</GeometryDrawing>{NewLine}");
             }
         }
-        
+
         private enum LayerType
         {
             UnknownPaint,
@@ -852,11 +852,11 @@ namespace SvgToXamlConverter
                             if (skPaint.TextAlign == ShimSkiaSharp.SKTextAlign.Right)
                             {
                                 path.Transform(SkiaSharp.SKMatrix.CreateTranslation(-path.Bounds.Width, 0f));
-                            } 
+                            }
 
                             ToXamlGeometryDrawing(path, skPaint, sb);
                         }
-      
+
                         break;
                     }
                     case ShimSkiaSharp.DrawTextOnPathCanvasCommand(var text, var skPath, var hOffset, var vOffset, var skPaint):
@@ -870,7 +870,7 @@ namespace SvgToXamlConverter
                     case ShimSkiaSharp.DrawTextBlobCanvasCommand(var skTextBlob, var x, var y, var skPaint):
                     {
                         // TODO:
- 
+
                         Debug($"TODO: TextBlob");
 
                         break;
@@ -910,7 +910,7 @@ namespace SvgToXamlConverter
 
             void RestoreLayer()
             {
-               // layers
+                // layers
 
                 var layer = layersStack.Count > 0 ? layersStack.Pop() : null;
                 if (layer is null)
@@ -1166,7 +1166,7 @@ namespace SvgToXamlConverter
             {
                 sb.Append($"  <DrawingImage.Drawing>{NewLine}");
             }
-   
+
             sb.Append(ToXamlDrawingGroup(skPicture, key: null));
 
             if (UseCompatMode)
@@ -1185,7 +1185,7 @@ namespace SvgToXamlConverter
 
             return sb.ToString();
         }
-        
+
         public static string ToXamlStyles(List<string> paths, bool generateImage = false, bool generatePreview = true)
         {
             var results = new List<(string Path, string Key, string Xaml)>();
@@ -1218,7 +1218,7 @@ namespace SvgToXamlConverter
                     // ignored
                 }
             }
- 
+
             var sb = new StringBuilder();
 
             sb.Append($"<Styles xmlns=\"https://github.com/avaloniaui\"{NewLine}");
@@ -1239,7 +1239,7 @@ namespace SvgToXamlConverter
                     else
                     {
                         sb.Append($"        <Image>");
-                        
+
                         if (UseCompatMode)
                         {
                             sb.Append($"            <Image.Source>");
