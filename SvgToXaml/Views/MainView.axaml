@@ -263,6 +263,12 @@
                               Margin="0"
                               Padding="6"/>
                     <Separator Background="{DynamicResource SystemBaseHighColor}" Opacity="0.3" Height="0.55"/>
+                    <CheckBox IsChecked="{Binding UseResources}"
+                              Content="Use Resources"
+                              HorizontalAlignment="Stretch"
+                              HorizontalContentAlignment="Stretch"
+                              Margin="0"
+                              Padding="6"/>
                     <CheckBox IsChecked="{Binding UseCompatMode}"
                               Content="Use Compat Mode"
                               HorizontalAlignment="Stretch"

@@ -55,7 +55,13 @@ namespace svgxaml
                         return;
                     }
 
-                    var xaml = SvgConverter.ToXamlStyles(paths, generateImage: false);
+                    var converter = new SvgConverter()
+                    {
+                        UseResources = false,
+                        UseCompatMode = false,
+                        UseBrushTransform = false
+                    };
+                    var xaml = converter.ToXamlStyles(paths, generateImage: false);
 
                     if (args.Length == 1)
                     {
@@ -71,9 +77,16 @@ namespace svgxaml
                 }
                 else
                 {
+                    var converter = new SvgConverter()
+                    {
+                        UseResources = false,
+                        UseCompatMode = false,
+                        UseBrushTransform = false
+                    };
+
                     var svg = new SKSvg();
                     svg.Load(inputPath);
-                    var xaml = SvgConverter.ToXamlImage(svg.Model, key: null);
+                    var xaml = converter.ToXamlImage(svg.Model, key: null);
 
                     if (args.Length == 1)
                     {
