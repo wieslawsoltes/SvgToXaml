@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using ShimSkiaSharp;
 
 namespace SvgToXamlConverter
 {
@@ -631,7 +630,7 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
-        private void ToXamlGeometryDrawing(SkiaSharp.SKPath path, ShimSkiaSharp.SKPaint skPaint, StringBuilder sb, Resources? resources = null)
+        private void ToXamlGeometryDrawing(SkiaSharp.SKPath path, ShimSkiaSharp.SKPaint skPaint, StringBuilder sb, Resources? resources = null, bool reuseExistingResources = false)
         {
             sb.Append($"<GeometryDrawing");
 
@@ -653,13 +652,37 @@ namespace SvgToXamlConverter
 
             if (isFilled && skPaint.Shader is { } && resources is { })
             {
-                var resourceKey = $"Brush{resources.BrushCounter++}";
-                var brushResource = ToBrush(skPaint.Shader, path.Bounds, resourceKey);
-                if (!string.IsNullOrEmpty(brushResource))
-                {
-                    sb.Append($" Brush=\"{{DynamicResource {resourceKey}}}\"");
+                bool haveBrush = false;
 
-                    resources.Brushes.Add(resourceKey, (skPaint, brushResource));
+                if (reuseExistingResources)
+                {
+                    var existingBrush = resources.Brushes.FirstOrDefault(x =>
+                    {
+                        if (x.Value.Paint.Shader is { } 
+                            && x.Value.Paint.Shader.Equals(skPaint.Shader))
+                        {
+                            return true;
+                        }
+
+                        return false;
+                    });
+
+                    if (!string.IsNullOrEmpty(existingBrush.Key))
+                    {
+                        sb.Append($" Brush=\"{{DynamicResource {existingBrush.Key}}}\"");
+                        haveBrush = true;
+                    }
+                }
+
+                if (!haveBrush)
+                {
+                    var resourceKey = $"Brush{resources.BrushCounter++}";
+                    var brushResource = ToBrush(skPaint.Shader, path.Bounds, resourceKey);
+                    if (!string.IsNullOrEmpty(brushResource))
+                    {
+                        sb.Append($" Brush=\"{{DynamicResource {resourceKey}}}\"");
+                        resources.Brushes.Add(resourceKey, (skPaint, brushResource));
+                    }
                 }
             }
 
@@ -670,13 +693,43 @@ namespace SvgToXamlConverter
 
             if (isStroked && skPaint.Shader is { } && resources is { })
             {
-                var resourceKey = $"Pen{resources.PenCounter++}";
-                var penResource = ToPen(skPaint, path.Bounds, resourceKey);
-                if (!string.IsNullOrEmpty(penResource))
-                {
-                    sb.Append($" Pen=\"{{DynamicResource {resourceKey}}}\"");
+                bool havePen = false;
 
-                    resources.Pens.Add(resourceKey, (skPaint, penResource));
+                if (reuseExistingResources)
+                {
+                    var existingPen = resources.Pens.FirstOrDefault(x =>
+                    {
+                        if (x.Value.Paint.Shader is { } 
+                            && x.Value.Paint.Shader.Equals(skPaint.Shader)
+                            && x.Value.Paint.StrokeWidth.Equals(skPaint.StrokeWidth)
+                            && x.Value.Paint.StrokeCap.Equals(skPaint.StrokeCap)
+                            && x.Value.Paint.PathEffect == skPaint.PathEffect
+                            && x.Value.Paint.StrokeJoin.Equals(skPaint.StrokeJoin)
+                            && x.Value.Paint.StrokeMiter.Equals(skPaint.StrokeMiter))
+                        {
+                            return true;
+                        }
+
+                        return false;
+                    });
+
+                    if (!string.IsNullOrEmpty(existingPen.Key))
+                    {
+                        sb.Append($" Pen=\"{{DynamicResource {existingPen.Key}}}\"");
+                        havePen = true;
+                    }
+                }
+
+                if (!havePen)
+                {
+                    var resourceKey = $"Pen{resources.PenCounter++}";
+                    var penResource = ToPen(skPaint, path.Bounds, resourceKey);
+                    if (!string.IsNullOrEmpty(penResource))
+                    {
+                        sb.Append($" Pen=\"{{DynamicResource {resourceKey}}}\"");
+
+                        resources.Pens.Add(resourceKey, (skPaint, penResource));
+                    }
                 }
             }
 
@@ -711,7 +764,7 @@ namespace SvgToXamlConverter
             }
         }
 
-        public string ToXamlDrawingGroup(ShimSkiaSharp.SKPicture? skPicture, Resources? resources = null, string? key = null)
+        public string ToXamlDrawingGroup(ShimSkiaSharp.SKPicture? skPicture, Resources? resources = null, bool reuseExistingResources = false, string? key = null)
         {
             if (skPicture?.Commands is null)
             {
@@ -893,7 +946,7 @@ namespace SvgToXamlConverter
                         var path = Svg.Skia.SkiaModelExtensions.ToSKPath(skPath);
                         if (!path.IsEmpty)
                         {
-                            ToXamlGeometryDrawing(path, skPaint, sb, resources);
+                            ToXamlGeometryDrawing(path, skPaint, sb, resources, reuseExistingResources);
                         }
 
                         break;
@@ -916,7 +969,7 @@ namespace SvgToXamlConverter
                                 path.Transform(SkiaSharp.SKMatrix.CreateTranslation(-path.Bounds.Width, 0f));
                             }
 
-                            ToXamlGeometryDrawing(path, skPaint, sb, resources);
+                            ToXamlGeometryDrawing(path, skPaint, sb, resources, reuseExistingResources);
                         }
 
                         break;
@@ -1211,13 +1264,13 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
-        public string ToXamlImage(SKPicture? skPicture, Resources? resources = null, string? key = null, bool writeResources = true)
+        public string ToXamlImage(ShimSkiaSharp.SKPicture? skPicture, Resources? resources = null, bool reuseExistingResources = false, string? key = null, bool writeResources = true)
         {
             var sb = new StringBuilder();
 
-            var drawingGroup= ToXamlDrawingGroup(skPicture, resources);
+            var drawingGroup= ToXamlDrawingGroup(skPicture, resources, reuseExistingResources);
 
-            if (resources is { } && (resources.Brushes.Count > 0 || resources.Pens.Count > 0))
+            if (resources is { } && (resources.Brushes.Count > 0 || resources.Pens.Count > 0) && writeResources)
             {
                 sb.Append($"<Image{ToKey(key)}");
                 sb.Append(UseCompatMode
@@ -1232,7 +1285,7 @@ namespace SvgToXamlConverter
                 sb.Append($">{NewLine}");
             }
 
-            if (resources is { } && (resources.Brushes.Count > 0 || resources.Pens.Count > 0))
+            if (resources is { } && (resources.Brushes.Count > 0 || resources.Pens.Count > 0) && writeResources)
             {
                 sb.Append($"<Image.Resources>{NewLine}");
 
@@ -1280,7 +1333,7 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
-        public string ToXamlStyles(List<string> paths, Resources? resources = null, bool generateImage = false, bool generatePreview = true)
+        public string ToXamlStyles(List<string> paths, Resources? resources = null, bool reuseExistingResources = false, bool generateImage = false, bool generatePreview = true)
         {
             var results = new List<(string Path, string Key, string Xaml)>();
 
@@ -1298,12 +1351,12 @@ namespace SvgToXamlConverter
                     var key = $"_{CreateKey(path)}";
                     if (generateImage)
                     {
-                        var xaml = ToXamlImage(svg.Model, resources, key, writeResources: false);
+                        var xaml = ToXamlImage(svg.Model, resources, reuseExistingResources, key, writeResources: false);
                         results.Add((path, key, xaml));
                     }
                     else
                     {
-                        var xaml = ToXamlDrawingGroup(svg.Model, resources, key);
+                        var xaml = ToXamlDrawingGroup(svg.Model, resources, reuseExistingResources, key);
                         results.Add((path, key, xaml));
                     }
                 }

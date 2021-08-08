@@ -269,6 +269,12 @@
                               HorizontalContentAlignment="Stretch"
                               Margin="0"
                               Padding="6"/>
+                    <CheckBox IsChecked="{Binding ReuseExistingResources}"
+                              Content="Reuse Existing Resources"
+                              HorizontalAlignment="Stretch"
+                              HorizontalContentAlignment="Stretch"
+                              Margin="0"
+                              Padding="6"/>
                     <CheckBox IsChecked="{Binding UseCompatMode}"
                               Content="Use Compat Mode"
                               HorizontalAlignment="Stretch"
