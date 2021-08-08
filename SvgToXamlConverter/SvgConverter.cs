@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using ShimSkiaSharp;
 
 namespace SvgToXamlConverter
 {
@@ -1210,7 +1211,7 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
-        public string ToXamlImage(ShimSkiaSharp.SKPicture? skPicture, Resources? resources = null, string? key = null)
+        public string ToXamlImage(SKPicture? skPicture, Resources? resources = null, string? key = null, bool writeResources = true)
         {
             var sb = new StringBuilder();
 
@@ -1297,7 +1298,7 @@ namespace SvgToXamlConverter
                     var key = $"_{CreateKey(path)}";
                     if (generateImage)
                     {
-                        var xaml = ToXamlImage(svg.Model, resources, key);
+                        var xaml = ToXamlImage(svg.Model, resources, key, writeResources: false);
                         results.Add((path, key, xaml));
                     }
                     else
@@ -1314,10 +1315,18 @@ namespace SvgToXamlConverter
 
             var sb = new StringBuilder();
 
-            sb.Append($"<Styles xmlns=\"https://github.com/avaloniaui\"{NewLine}");
-            sb.Append($"        xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">{NewLine}");
+            if (UseCompatMode)
+            {
+                sb.Append($"<ResourceDictionary xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"{NewLine}");
+                sb.Append($"                    xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">{NewLine}");
+            }
+            else
+            {
+                sb.Append($"<Styles xmlns=\"https://github.com/avaloniaui\"{NewLine}");
+                sb.Append($"        xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">{NewLine}");
+            }
 
-            if (generatePreview)
+            if (generatePreview && !UseCompatMode)
             {
                 sb.Append($"  <Design.PreviewWith>");
                 sb.Append($"    <ScrollViewer HorizontalScrollBarVisibility=\"Auto\" VerticalScrollBarVisibility=\"Auto\">");
@@ -1354,8 +1363,24 @@ namespace SvgToXamlConverter
                 sb.Append($"  </Design.PreviewWith>");
             }
 
-            sb.Append($"  <Style>{NewLine}");
-            sb.Append($"    <Style.Resources>{NewLine}");
+            if (!UseCompatMode)
+            {
+                sb.Append($"  <Style>{NewLine}");
+                sb.Append($"    <Style.Resources>{NewLine}");
+            }
+
+            if (resources is { } && (resources.Brushes.Count > 0 || resources.Pens.Count > 0))
+            {
+                foreach (var resource in resources.Brushes)
+                {
+                    sb.Append(resource.Value.Resource);
+                }
+
+                foreach (var resource in resources.Pens)
+                {
+                    sb.Append(resource.Value.Resource);
+                }
+            }
 
             foreach (var result in results)
             {
@@ -1364,9 +1389,16 @@ namespace SvgToXamlConverter
                 sb.Append(NewLine);
             }
 
-            sb.Append($"    </Style.Resources>{NewLine}");
-            sb.Append($"  </Style>{NewLine}");
-            sb.Append($"</Styles>");
+            if (UseCompatMode)
+            {
+                sb.Append($"</ResourceDictionary>");
+            }
+            else
+            {
+                sb.Append($"    </Style.Resources>{NewLine}");
+                sb.Append($"  </Style>{NewLine}");
+                sb.Append($"</Styles>");
+            }
 
             return sb.ToString();
         }
