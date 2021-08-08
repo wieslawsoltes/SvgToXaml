@@ -302,7 +302,7 @@ namespace SvgToXaml.ViewModels
                         UseCompatMode = _useCompatMode,
                         UseBrushTransform = _useBrushTransform
                     };
-                    return converter.ToXamlImage(skSvg.Model, _useResources ? new Resources() : null);
+                    return converter.ToXamlImage(skSvg.Model, _useResources ? new Resources() : null, writeResources: true);
                 }
                 else
                 {
@@ -384,7 +384,7 @@ namespace SvgToXaml.ViewModels
                             UseCompatMode = _useCompatMode,
                             UseBrushTransform = _useBrushTransform
                         };
-                        return converter.ToXamlImage(fileItemViewModel.Svg.Model, _useResources ? new Resources() : null);
+                        return converter.ToXamlImage(fileItemViewModel.Svg.Model, _useResources ? new Resources() : null, writeResources: true);
                     }
                     else
                     {
