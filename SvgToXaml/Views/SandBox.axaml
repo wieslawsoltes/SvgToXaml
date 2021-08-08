@@ -4,9 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="360"
              x:Class="SvgToXaml.Views.SandBox">
-  <UserControl.Resources>
-
-  </UserControl.Resources>
   <Viewbox>
     <Image>
       <DrawingImage>
