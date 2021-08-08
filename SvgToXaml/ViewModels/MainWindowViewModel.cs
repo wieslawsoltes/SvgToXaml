@@ -10,7 +10,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Avalonia.Styling;
 using Avalonia.Threading;
 using ReactiveUI;
 using Svg.Skia;
@@ -184,18 +183,7 @@ namespace SvgToXaml.ViewModels
             var paths = Items?.Select(x => x.Path).ToList();
             if (paths is { })
             {
-                var converter = new SvgConverter()
-                {
-                    UseCompatMode = _useCompatMode,
-                    UseBrushTransform = _useBrushTransform
-                };
-                var xaml = converter.ToXamlStyles(
-                    paths,
-                    resources: _useResources ? new Resources() : null,
-                    reuseExistingResources: _reuseExistingResources,
-                    generateImage: _enableGenerateImage,
-                    generatePreview: _enableGeneratePreview);
-
+                var xaml = await ToXamlStyles(paths);
                 await SetClipboard(xaml);
             }
         }
@@ -219,7 +207,7 @@ namespace SvgToXaml.ViewModels
 
                 try
                 {
-                    await Task.Run(() => File.WriteAllText(result, SvgConverter.Format(xaml)));
+                    await Task.Run(() => File.WriteAllText(result, xaml));
                 }
                 catch
                 {
@@ -246,22 +234,10 @@ namespace SvgToXaml.ViewModels
                 var paths = Items?.Select(x => x.Path).ToList();
                 if (paths is { })
                 {
-                    var converter = new SvgConverter()
-                    {
-                        UseCompatMode = _useCompatMode,
-                        UseBrushTransform = _useBrushTransform
-                    };
-
-                    var xaml = converter.ToXamlStyles(
-                        paths,
-                        resources: _useResources ? new Resources() : null,
-                        reuseExistingResources: _reuseExistingResources,
-                        generateImage: _enableGenerateImage,
-                        generatePreview: _enableGeneratePreview);
-
                     try
                     {
-                        await Task.Run(() => File.WriteAllText(result, SvgConverter.Format(xaml)));
+                        var xaml = await ToXamlStyles(paths);
+                        await Task.Run(() => File.WriteAllText(result, xaml));
                     }
                     catch
                     {
@@ -303,7 +279,7 @@ namespace SvgToXaml.ViewModels
                 // ignored
             }
 
-            var xaml = await Task.Run(() =>
+            var text = await Task.Run(() =>
             {
                 if (_enableGenerateImage)
                 {
@@ -312,7 +288,8 @@ namespace SvgToXaml.ViewModels
                         UseCompatMode = _useCompatMode,
                         UseBrushTransform = _useBrushTransform
                     };
-                    return converter.ToXamlImage(skSvg.Model, _useResources ? new Resources() : null, _reuseExistingResources, writeResources: true);
+                    var xaml = converter.ToXamlImage(skSvg.Model, _useResources ? new Resources() : null, _reuseExistingResources, writeResources: true);
+                    return converter.Format(xaml);
                 }
                 else
                 {
@@ -322,29 +299,26 @@ namespace SvgToXaml.ViewModels
                         UseBrushTransform = _useBrushTransform
                     };
 
-                    return converter.ToXamlDrawingGroup(skSvg.Model, _useResources ? new Resources() : null, _reuseExistingResources);
+                    var xaml = converter.ToXamlDrawingGroup(skSvg.Model, _useResources ? new Resources() : null, _reuseExistingResources);
+                    return converter.Format(xaml);
                 }
             });
 
-            await SetClipboard(xaml);
+            await SetClipboard(text);
         }
 
-        private async Task SetClipboard(string? xaml, bool format = true)
+        private async Task SetClipboard(string? xaml)
         {
             if (xaml is not { })
             {
                 return;
             }
 
-            await Dispatcher.UIThread.InvokeAsync(() =>
+            await Dispatcher.UIThread.InvokeAsync(async () =>
             {
                 try
                 {
-                    var text = format ? SvgConverter.Format(xaml) : xaml;
-                    if (text is { })
-                    {
-                        Application.Current.Clipboard.SetTextAsync(text);
-                    }
+                    await Application.Current.Clipboard.SetTextAsync(xaml);
                 }
                 catch
                 {
@@ -394,7 +368,8 @@ namespace SvgToXaml.ViewModels
                             UseCompatMode = _useCompatMode,
                             UseBrushTransform = _useBrushTransform
                         };
-                        return converter.ToXamlImage(fileItemViewModel.Svg.Model, _useResources ? new Resources() : null, _reuseExistingResources, writeResources: true);
+                        var xaml = converter.ToXamlImage(fileItemViewModel.Svg.Model, _useResources ? new Resources() : null, _reuseExistingResources, writeResources: true);
+                        return converter.Format(xaml);
                     }
                     else
                     {
@@ -403,11 +378,32 @@ namespace SvgToXaml.ViewModels
                             UseCompatMode = _useCompatMode,
                             UseBrushTransform = _useBrushTransform
                         };
-                        return converter.ToXamlDrawingGroup(fileItemViewModel.Svg.Model, _useResources ? new Resources() : null, _reuseExistingResources);
+                        var xaml = converter.ToXamlDrawingGroup(fileItemViewModel.Svg.Model, _useResources ? new Resources() : null, _reuseExistingResources);
+                        return converter.Format(xaml);
                     }
                 }
 
                 return "";
+            });
+        }
+
+        private async Task<string> ToXamlStyles(List<string> paths)
+        {
+            return await Task.Run(() =>
+            {
+                var converter = new SvgConverter()
+                {
+                    UseCompatMode = _useCompatMode, UseBrushTransform = _useBrushTransform
+                };
+
+                var xaml = converter.ToXamlStyles(
+                    paths,
+                    resources: _useResources ? new Resources() : null,
+                    reuseExistingResources: _reuseExistingResources,
+                    generateImage: _enableGenerateImage,
+                    generatePreview: _enableGeneratePreview);
+
+                return converter.Format(xaml);
             });
         }
 
@@ -466,7 +462,7 @@ namespace SvgToXaml.ViewModels
                         UseBrushTransform = _useBrushTransform
                     };
 
-                    var xaml = SvgConverter.Format(converter.ToXamlDrawingGroup(item.Svg.Model, _useResources ? new Resources() : null, _reuseExistingResources));
+                    var xaml = converter.ToXamlDrawingGroup(item.Svg.Model, _useResources ? new Resources() : null, _reuseExistingResources);
 
                     var sb = new StringBuilder();
 

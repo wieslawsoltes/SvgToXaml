@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace SvgToXamlConverter
 {
@@ -1273,10 +1274,10 @@ namespace SvgToXamlConverter
             if (resources is { } && (resources.Brushes.Count > 0 || resources.Pens.Count > 0) && writeResources)
             {
                 sb.Append($"<Image{ToKey(key)}");
-                sb.Append(UseCompatMode
-                    ? $" xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\""
-                    : $" xmlns=\"https://github.com/avaloniaui\"");
-                sb.Append($" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\"");
+                //sb.Append(UseCompatMode
+                //    ? $" xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\""
+                //    : $" xmlns=\"https://github.com/avaloniaui\"");
+                //sb.Append($" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\"");
                 sb.Append($">{NewLine}");
             }
             else
@@ -1463,14 +1464,24 @@ namespace SvgToXamlConverter
             return $"_{key}";
         }
 
-        public static string? Format(string xml)
+        public string Format(string xml)
         {
             try
             {
+                var sb = new StringBuilder();
+                sb.Append($"<Root");
+                sb.Append(UseCompatMode
+                    ? $" xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\""
+                    : $" xmlns=\"https://github.com/avaloniaui\"");
+                sb.Append($" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\"");
+                sb.Append($">");
+                sb.Append(xml);
+                sb.Append($"</Root>");
+
                 using var ms = new MemoryStream();
                 using var writer = new XmlTextWriter(ms, Encoding.UTF8);
                 var document = new XmlDocument();
-                document.LoadXml(xml);
+                document.LoadXml(sb.ToString());
                 writer.Formatting = Formatting.Indented;
                 writer.Indentation = 2;
                 writer.IndentChar = ' ';
@@ -1479,14 +1490,18 @@ namespace SvgToXamlConverter
                 ms.Flush();
                 ms.Position = 0;
                 using var sReader = new StreamReader(ms);
-                return sReader.ReadToEnd();
+                var formatted = sReader.ReadToEnd();
+
+                var lines = formatted.Split(NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                var inner = lines.Skip(1).Take(lines.Length - 2).Select(x => x.Substring(2, x.Length - 2));
+                return string.Join(NewLine, inner);
             }
             catch
             {
                 // ignored
             }
 
-            return null;
+            return "";
         }
     }
 }
