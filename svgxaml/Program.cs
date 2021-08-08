@@ -57,11 +57,10 @@ namespace svgxaml
 
                     var converter = new SvgConverter()
                     {
-                        UseResources = false,
                         UseCompatMode = false,
                         UseBrushTransform = false
                     };
-                    var xaml = converter.ToXamlStyles(paths, generateImage: false);
+                    var xaml = converter.ToXamlStyles(paths);
 
                     if (args.Length == 1)
                     {
@@ -79,14 +78,13 @@ namespace svgxaml
                 {
                     var converter = new SvgConverter()
                     {
-                        UseResources = false,
                         UseCompatMode = false,
                         UseBrushTransform = false
                     };
 
-                    var svg = new SKSvg();
-                    svg.Load(inputPath);
-                    var xaml = converter.ToXamlImage(svg.Model, key: null);
+                    var skSvg = new SKSvg();
+                    skSvg.Load(inputPath);
+                    var xaml = converter.ToXamlImage(skSvg.Model);
 
                     if (args.Length == 1)
                     {

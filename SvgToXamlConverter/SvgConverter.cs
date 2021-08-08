@@ -8,10 +8,19 @@ using System.Xml;
 
 namespace SvgToXamlConverter
 {
+    public class Resources
+    {
+        public Dictionary<string, (ShimSkiaSharp.SKPaint Paint, string Resource)> Brushes  { get; set; } = new();
+
+        public Dictionary<string, (ShimSkiaSharp.SKPaint Paint, string Resource)> Pens  { get; set; } = new();
+
+        public int BrushCounter { get; set; }
+
+        public int PenCounter { get; set; }
+    }
+
     public class SvgConverter
     {
-        public bool UseResources { get; set; } = false;
-
         public bool UseCompatMode { get; set; } = false;
 
         public bool UseBrushTransform { get; set; } = false;
@@ -22,13 +31,21 @@ namespace SvgToXamlConverter
 
         private static readonly ShimSkiaSharp.SKColor s_transparentBlack = new(0, 0, 0, 255);
 
-        private Dictionary<string, (ShimSkiaSharp.SKPaint Paint, string Resource)> _resources = new();
+        private enum LayerType
+        {
+            UnknownPaint,
+            MaskGroup,
+            MaskBrush,
+            OpacityGroup,
+            FilterGroup
+        }
 
-        private int _brushResourceCounter = 0;
+        private string ToKey(string? key)
+        {
+            return key is null ? "" : $" x:Key=\"{key}\"";
+        }
 
-        private int _penResourceCounter = 0;
-        
-        public string ToGradientSpreadMethod(ShimSkiaSharp.SKShaderTileMode shaderTileMode)
+        private string ToGradientSpreadMethod(ShimSkiaSharp.SKShaderTileMode shaderTileMode)
         {
             return shaderTileMode switch
             {
@@ -39,7 +56,7 @@ namespace SvgToXamlConverter
             };
         }
 
-        public string ToTileMode(ShimSkiaSharp.SKShaderTileMode shaderTileMode)
+        private string ToTileMode(ShimSkiaSharp.SKShaderTileMode shaderTileMode)
         {
             return shaderTileMode switch
             {
@@ -50,7 +67,7 @@ namespace SvgToXamlConverter
             };
         }
 
-        public string ToPenLineCap(ShimSkiaSharp.SKStrokeCap strokeCap)
+        private string ToPenLineCap(ShimSkiaSharp.SKStrokeCap strokeCap)
         {
             return strokeCap switch
             {
@@ -61,7 +78,7 @@ namespace SvgToXamlConverter
             };
         }
 
-        public string ToPenLineJoin(ShimSkiaSharp.SKStrokeJoin strokeJoin)
+        private string ToPenLineJoin(ShimSkiaSharp.SKStrokeJoin strokeJoin)
         {
             return strokeJoin switch
             {
@@ -72,17 +89,17 @@ namespace SvgToXamlConverter
             };
         }
 
-        public string ToString(double value)
+        private string ToString(double value)
         {
             return value.ToString(CultureInfo.InvariantCulture);
         }
 
-        public string ToString(float value)
+        private string ToString(float value)
         {
             return value.ToString(CultureInfo.InvariantCulture);
         }
 
-        public string ToHexColor(ShimSkiaSharp.SKColor skColor)
+        private string ToHexColor(ShimSkiaSharp.SKColor skColor)
         {
             var sb = new StringBuilder();
             sb.Append('#');
@@ -93,7 +110,7 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
-        public string ToPoint(SkiaSharp.SKPoint skPoint)
+        private string ToPoint(SkiaSharp.SKPoint skPoint)
         {
             var sb = new StringBuilder();
             sb.Append(ToString(skPoint.X));
@@ -102,7 +119,7 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
-        public string ToRect(ShimSkiaSharp.SKRect sKRect)
+        private string ToRect(ShimSkiaSharp.SKRect sKRect)
         {
             var sb = new StringBuilder();
             sb.Append(ToString(sKRect.Left));
@@ -115,7 +132,7 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
-        public string ToMatrix(SkiaSharp.SKMatrix skMatrix)
+        private string ToMatrix(SkiaSharp.SKMatrix skMatrix)
         {
             var sb = new StringBuilder();
             sb.Append(ToString(skMatrix.ScaleX));
@@ -132,7 +149,7 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
-        public string ToSvgPathData(SkiaSharp.SKPath path)
+        private string ToSvgPathData(SkiaSharp.SKPath path)
         {
             if (path.FillType == SkiaSharp.SKPathFillType.EvenOdd)
             {
@@ -166,7 +183,7 @@ namespace SvgToXamlConverter
                 matrix.Persp2);
         }
 
-        public string ToBrush(ShimSkiaSharp.ColorShader colorShader, SkiaSharp.SKRect skBounds, string? key = null)
+        private string ToBrush(ShimSkiaSharp.ColorShader colorShader, SkiaSharp.SKRect skBounds, string? key = null)
         {
             var sb = new StringBuilder();
             sb.Append($"<SolidColorBrush{ToKey(key)}");
@@ -175,7 +192,7 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
-        public string ToBrush(ShimSkiaSharp.LinearGradientShader linearGradientShader, SkiaSharp.SKRect skBounds, string? key = null)
+        private string ToBrush(ShimSkiaSharp.LinearGradientShader linearGradientShader, SkiaSharp.SKRect skBounds, string? key = null)
         {
             var sb = new StringBuilder();
 
@@ -268,7 +285,7 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
-        public string ToBrush(ShimSkiaSharp.TwoPointConicalGradientShader twoPointConicalGradientShader, SkiaSharp.SKRect skBounds, string? key = null)
+        private string ToBrush(ShimSkiaSharp.TwoPointConicalGradientShader twoPointConicalGradientShader, SkiaSharp.SKRect skBounds, string? key = null)
         {
             var sb = new StringBuilder();
 
@@ -388,7 +405,7 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
-        public string ToBrush(ShimSkiaSharp.PictureShader pictureShader, SkiaSharp.SKRect skBounds, string? key = null)
+        private string ToBrush(ShimSkiaSharp.PictureShader pictureShader, SkiaSharp.SKRect skBounds, string? key = null)
         {
             if (pictureShader?.Src is null)
             {
@@ -471,7 +488,7 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
-        public string ToBrush(ShimSkiaSharp.SKShader skShader, SkiaSharp.SKRect skBounds, string? key = null)
+        private string ToBrush(ShimSkiaSharp.SKShader skShader, SkiaSharp.SKRect skBounds, string? key = null)
         {
             return skShader switch
             {
@@ -483,7 +500,7 @@ namespace SvgToXamlConverter
             };
         }
 
-        public string ToPen(ShimSkiaSharp.SKPaint skPaint, SkiaSharp.SKRect skBounds, string? key = null)
+        private string ToPen(ShimSkiaSharp.SKPaint skPaint, SkiaSharp.SKRect skBounds, string? key = null)
         {
             if (skPaint.Shader is null)
             {
@@ -613,60 +630,56 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
-        public void ToXamlGeometryDrawing(SkiaSharp.SKPath path, ShimSkiaSharp.SKPaint skPaint, StringBuilder sb)
+        private void ToXamlGeometryDrawing(SkiaSharp.SKPath path, ShimSkiaSharp.SKPaint skPaint, StringBuilder sb, Resources? resources = null)
         {
             sb.Append($"<GeometryDrawing");
 
             var isFilled = skPaint.Style is ShimSkiaSharp.SKPaintStyle.StrokeAndFill or ShimSkiaSharp.SKPaintStyle.Fill;
             var isStroked = skPaint.Style is ShimSkiaSharp.SKPaintStyle.StrokeAndFill or ShimSkiaSharp.SKPaintStyle.Stroke;
 
-            if (isFilled && skPaint.Shader is ShimSkiaSharp.ColorShader colorShader && !UseResources)
+            if (isFilled && skPaint.Shader is ShimSkiaSharp.ColorShader colorShader && resources is null)
             {
                 sb.Append($" Brush=\"{ToHexColor(colorShader.Color)}\"");
             }
 
-            sb.Append($" Geometry=\"{ToSvgPathData(path)}\"");
-
             var brush = default(string);
             var pen = default(string);
 
-            if (isFilled && skPaint.Shader is not ShimSkiaSharp.ColorShader && skPaint.Shader is { })
+            if (isFilled && skPaint.Shader is { } && resources is null && skPaint.Shader is not ShimSkiaSharp.ColorShader)
             {
-                if (!UseResources)
-                {
-                    brush = ToBrush(skPaint.Shader, path.Bounds);
-                }
-                else
-                {
-                    var resourceKey = $"Brush{_brushResourceCounter++}";
-                    var brushResource = ToBrush(skPaint.Shader, path.Bounds, resourceKey);
-                    if (!string.IsNullOrEmpty(brushResource))
-                    {
-                        sb.Append($" Brush=\"{{DynamicResource {resourceKey}}}\"");
+                brush = ToBrush(skPaint.Shader, path.Bounds);
+            }
 
-                        _resources.Add(resourceKey, (skPaint, brushResource));
-                    }
+            if (isFilled && skPaint.Shader is { } && resources is { })
+            {
+                var resourceKey = $"Brush{resources.BrushCounter++}";
+                var brushResource = ToBrush(skPaint.Shader, path.Bounds, resourceKey);
+                if (!string.IsNullOrEmpty(brushResource))
+                {
+                    sb.Append($" Brush=\"{{DynamicResource {resourceKey}}}\"");
+
+                    resources.Brushes.Add(resourceKey, (skPaint, brushResource));
                 }
             }
 
-            if (isStroked && skPaint.Shader is { })
+            if (isStroked && skPaint.Shader is { } && resources is null)
             {
-                if (!UseResources)
-                {
-                    pen = ToPen(skPaint, path.Bounds);
-                }
-                else
-                {
-                    var resourceKey = $"Pen{_penResourceCounter++}";
-                    var penResource = ToPen(skPaint, path.Bounds, resourceKey);
-                    if (!string.IsNullOrEmpty(penResource))
-                    {
-                        sb.Append($" Pen=\"{{DynamicResource {resourceKey}}}\"");
+                pen = ToPen(skPaint, path.Bounds);
+            }
 
-                        _resources.Add(resourceKey, (skPaint, penResource));
-                    }
+            if (isStroked && skPaint.Shader is { } && resources is { })
+            {
+                var resourceKey = $"Pen{resources.PenCounter++}";
+                var penResource = ToPen(skPaint, path.Bounds, resourceKey);
+                if (!string.IsNullOrEmpty(penResource))
+                {
+                    sb.Append($" Pen=\"{{DynamicResource {resourceKey}}}\"");
+
+                    resources.Pens.Add(resourceKey, (skPaint, penResource));
                 }
             }
+
+            sb.Append($" Geometry=\"{ToSvgPathData(path)}\"");
 
             if (!string.IsNullOrEmpty(brush) || !string.IsNullOrEmpty(pen))
             {
@@ -697,16 +710,7 @@ namespace SvgToXamlConverter
             }
         }
 
-        private enum LayerType
-        {
-            UnknownPaint,
-            MaskGroup,
-            MaskBrush,
-            OpacityGroup,
-            FilterGroup
-        }
-
-        public string ToXamlDrawingGroup(ShimSkiaSharp.SKPicture? skPicture, string? key = null)
+        public string ToXamlDrawingGroup(ShimSkiaSharp.SKPicture? skPicture, Resources? resources = null, string? key = null)
         {
             if (skPicture?.Commands is null)
             {
@@ -888,7 +892,7 @@ namespace SvgToXamlConverter
                         var path = Svg.Skia.SkiaModelExtensions.ToSKPath(skPath);
                         if (!path.IsEmpty)
                         {
-                            ToXamlGeometryDrawing(path, skPaint, sb);
+                            ToXamlGeometryDrawing(path, skPaint, sb, resources);
                         }
 
                         break;
@@ -911,7 +915,7 @@ namespace SvgToXamlConverter
                                 path.Transform(SkiaSharp.SKMatrix.CreateTranslation(-path.Bounds.Width, 0f));
                             }
 
-                            ToXamlGeometryDrawing(path, skPaint, sb);
+                            ToXamlGeometryDrawing(path, skPaint, sb, resources);
                         }
 
                         break;
@@ -1206,19 +1210,37 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
-        public string ToXamlImage(ShimSkiaSharp.SKPicture? skPicture, string? key = null)
+        public string ToXamlImage(ShimSkiaSharp.SKPicture? skPicture, Resources? resources = null, string? key = null)
         {
             var sb = new StringBuilder();
 
-            var drawingGroup= ToXamlDrawingGroup(skPicture, key: null);
+            var drawingGroup= ToXamlDrawingGroup(skPicture, resources);
 
-            sb.Append($"<Image{ToKey(key)}>{NewLine}");
+            if (resources is { } && (resources.Brushes.Count > 0 || resources.Pens.Count > 0))
+            {
+                sb.Append($"<Image{ToKey(key)}");
+                sb.Append(UseCompatMode
+                    ? $" xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\""
+                    : $" xmlns=\"https://github.com/avaloniaui\"");
+                sb.Append($" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\"");
+                sb.Append($">{NewLine}");
+            }
+            else
+            {
+                sb.Append($"<Image{ToKey(key)}");
+                sb.Append($">{NewLine}");
+            }
 
-            if (UseResources && _resources.Count > 0)
+            if (resources is { } && (resources.Brushes.Count > 0 || resources.Pens.Count > 0))
             {
                 sb.Append($"<Image.Resources>{NewLine}");
 
-                foreach (var resource in _resources)
+                foreach (var resource in resources.Brushes)
+                {
+                    sb.Append(resource.Value.Resource);
+                }
+
+                foreach (var resource in resources.Pens)
                 {
                     sb.Append(resource.Value.Resource);
                 }
@@ -1257,7 +1279,7 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
-        public string ToXamlStyles(List<string> paths, bool generateImage = false, bool generatePreview = true)
+        public string ToXamlStyles(List<string> paths, Resources? resources = null, bool generateImage = false, bool generatePreview = true)
         {
             var results = new List<(string Path, string Key, string Xaml)>();
 
@@ -1275,12 +1297,12 @@ namespace SvgToXamlConverter
                     var key = $"_{CreateKey(path)}";
                     if (generateImage)
                     {
-                        var xaml = ToXamlImage(svg.Model, key);
+                        var xaml = ToXamlImage(svg.Model, resources, key);
                         results.Add((path, key, xaml));
                     }
                     else
                     {
-                        var xaml = ToXamlDrawingGroup(svg.Model, key);
+                        var xaml = ToXamlDrawingGroup(svg.Model, resources, key);
                         results.Add((path, key, xaml));
                     }
                 }
@@ -1349,19 +1371,14 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
-        private string ToKey(string? key)
-        {
-            return (key is null ? "" : ($" x:Key=\"{key}\""));
-        }
-
-        public static string CreateKey(string path)
+        public virtual string CreateKey(string path)
         {
             string name = Path.GetFileNameWithoutExtension(path);
             string key = name.Replace("-", "_");
             return $"_{key}";
         }
 
-        public static string Format(string xml)
+        public static string? Format(string xml)
         {
             try
             {
@@ -1384,7 +1401,7 @@ namespace SvgToXamlConverter
                 // ignored
             }
 
-            return "";
+            return null;
         }
     }
 }
