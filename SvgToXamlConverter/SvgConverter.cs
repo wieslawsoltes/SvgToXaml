@@ -946,8 +946,10 @@ namespace SvgToXamlConverter
                         var path = Svg.Skia.SkiaModelExtensions.ToSKPath(skPath);
                         if (!path.IsEmpty)
                         {
-                            ToXamlGeometryDrawing(path, skPaint, sb, resources, reuseExistingResources);
+                            break;
                         }
+
+                        ToXamlGeometryDrawing(path, skPaint, sb, resources, reuseExistingResources);
 
                         break;
                     }
@@ -955,22 +957,24 @@ namespace SvgToXamlConverter
                     {
                         var paint = Svg.Skia.SkiaModelExtensions.ToSKPaint(skPaint);
                         var path = paint.GetTextPath(text, x, y);
-                        if (!path.IsEmpty)
+                        if (path.IsEmpty)
                         {
-                            Debug($"Text='{text}'");
-
-                            if (skPaint.TextAlign == ShimSkiaSharp.SKTextAlign.Center)
-                            {
-                                path.Transform(SkiaSharp.SKMatrix.CreateTranslation(-path.Bounds.Width / 2f, 0f));
-                            }
-
-                            if (skPaint.TextAlign == ShimSkiaSharp.SKTextAlign.Right)
-                            {
-                                path.Transform(SkiaSharp.SKMatrix.CreateTranslation(-path.Bounds.Width, 0f));
-                            }
-
-                            ToXamlGeometryDrawing(path, skPaint, sb, resources, reuseExistingResources);
+                            break;
                         }
+
+                        Debug($"Text='{text}'");
+
+                        if (skPaint.TextAlign == ShimSkiaSharp.SKTextAlign.Center)
+                        {
+                            path.Transform(SkiaSharp.SKMatrix.CreateTranslation(-path.Bounds.Width / 2f, 0f));
+                        }
+
+                        if (skPaint.TextAlign == ShimSkiaSharp.SKTextAlign.Right)
+                        {
+                            path.Transform(SkiaSharp.SKMatrix.CreateTranslation(-path.Bounds.Width, 0f));
+                        }
+
+                        ToXamlGeometryDrawing(path, skPaint, sb, resources, reuseExistingResources);
 
                         break;
                     }
