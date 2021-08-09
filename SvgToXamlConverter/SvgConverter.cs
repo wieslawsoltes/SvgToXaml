@@ -478,7 +478,7 @@ namespace SvgToXamlConverter
             if (pictureShader?.Src is not null)
             {
                 sb.Append($"  <VisualBrush.Visual>{NewLine}");
-                sb.Append(ToXamlImage(pictureShader.Src, key: null));
+                sb.Append(ToXamlImage(pictureShader.Src));
                 sb.Append($"{NewLine}");
                 sb.Append($"  </VisualBrush.Visual>{NewLine}");
             }
@@ -1273,10 +1273,10 @@ namespace SvgToXamlConverter
             if (resources is { } && (resources.Brushes.Count > 0 || resources.Pens.Count > 0) && writeResources)
             {
                 sb.Append($"<Image{ToKey(key)}");
-                //sb.Append(UseCompatMode
-                //    ? $" xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\""
-                //    : $" xmlns=\"https://github.com/avaloniaui\"");
-                //sb.Append($" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\"");
+                // sb.Append(UseCompatMode
+                //     ? $" xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\""
+                //     : $" xmlns=\"https://github.com/avaloniaui\"");
+                // sb.Append($" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\"");
                 sb.Append($">{NewLine}");
             }
             else
