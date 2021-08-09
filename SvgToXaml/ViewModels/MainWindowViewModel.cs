@@ -288,6 +288,7 @@ namespace SvgToXaml.ViewModels
                         UseCompatMode = _useCompatMode,
                         UseBrushTransform = _useBrushTransform
                     };
+
                     var xaml = converter.ToXamlImage(skSvg.Model, _useResources ? new Resources() : null, _reuseExistingResources, writeResources: true);
                     return converter.Format(xaml);
                 }
@@ -368,6 +369,7 @@ namespace SvgToXaml.ViewModels
                             UseCompatMode = _useCompatMode,
                             UseBrushTransform = _useBrushTransform
                         };
+
                         var xaml = converter.ToXamlImage(fileItemViewModel.Svg.Model, _useResources ? new Resources() : null, _reuseExistingResources, writeResources: true);
                         return converter.Format(xaml);
                     }
@@ -378,6 +380,7 @@ namespace SvgToXaml.ViewModels
                             UseCompatMode = _useCompatMode,
                             UseBrushTransform = _useBrushTransform
                         };
+
                         var xaml = converter.ToXamlDrawingGroup(fileItemViewModel.Svg.Model, _useResources ? new Resources() : null, _reuseExistingResources);
                         return converter.Format(xaml);
                     }
