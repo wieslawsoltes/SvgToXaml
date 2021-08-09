@@ -60,6 +60,7 @@ namespace svgxaml
                         UseCompatMode = false,
                         UseBrushTransform = false
                     };
+
                     var xaml = converter.ToXamlStyles(paths);
 
                     if (args.Length == 1)
@@ -84,6 +85,7 @@ namespace svgxaml
 
                     var skSvg = new SKSvg();
                     skSvg.Load(inputPath);
+
                     var xaml = converter.ToXamlImage(skSvg.Model);
 
                     if (args.Length == 1)
