@@ -1264,6 +1264,23 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
+        private string ToResources(Resources resources)
+        {
+            var sb = new StringBuilder();
+
+            foreach (var resource in resources.Brushes)
+            {
+                sb.Append(resource.Value.Resource);
+            }
+
+            foreach (var resource in resources.Pens)
+            {
+                sb.Append(resource.Value.Resource);
+            }
+
+            return sb.ToString();
+        }
+
         public string ToXamlImage(ShimSkiaSharp.SKPicture? skPicture, Resources? resources = null, bool reuseExistingResources = false, string? key = null, bool writeResources = true)
         {
             var sb = new StringBuilder();
@@ -1288,17 +1305,7 @@ namespace SvgToXamlConverter
             if (resources is { } && (resources.Brushes.Count > 0 || resources.Pens.Count > 0) && writeResources)
             {
                 sb.Append($"<Image.Resources>{NewLine}");
-
-                foreach (var resource in resources.Brushes)
-                {
-                    sb.Append(resource.Value.Resource);
-                }
-
-                foreach (var resource in resources.Pens)
-                {
-                    sb.Append(resource.Value.Resource);
-                }
-
+                sb.Append(ToResources(resources));
                 sb.Append($"</Image.Resources>{NewLine}");
             }
 
@@ -1424,15 +1431,7 @@ namespace SvgToXamlConverter
 
             if (resources is { } && (resources.Brushes.Count > 0 || resources.Pens.Count > 0))
             {
-                foreach (var resource in resources.Brushes)
-                {
-                    sb.Append(resource.Value.Resource);
-                }
-
-                foreach (var resource in resources.Pens)
-                {
-                    sb.Append(resource.Value.Resource);
-                }
+                sb.Append(ToResources(resources));
             }
 
             foreach (var result in results)
