@@ -944,7 +944,7 @@ namespace SvgToXamlConverter
                     case ShimSkiaSharp.DrawPathCanvasCommand(var skPath, var skPaint):
                     {
                         var path = Svg.Skia.SkiaModelExtensions.ToSKPath(skPath);
-                        if (!path.IsEmpty)
+                        if (path.IsEmpty)
                         {
                             break;
                         }
