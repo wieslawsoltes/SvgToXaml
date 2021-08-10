@@ -28,9 +28,9 @@
       <ExperimentalAcrylicBorder DockPanel.Dock="Left" IsHitTestVisible="False">
         <ExperimentalAcrylicBorder.Material>
           <ExperimentalAcrylicMaterial BackgroundSource="Digger"
-                                       TintColor="LightGray"
+                                       TintColor="{DynamicResource SystemAltLowColor}"
                                        TintOpacity="1"
-                                       FallbackColor="LightGray"
+                                       FallbackColor="{DynamicResource SystemAltLowColor}"
                                        MaterialOpacity="0.6" />
         </ExperimentalAcrylicBorder.Material>
       </ExperimentalAcrylicBorder>
@@ -48,7 +48,7 @@
         </Panel>
         <Separator DockPanel.Dock="Top" 
                    Margin="12,0,12,0"
-                   Background="{DynamicResource SystemBaseHighColor}" 
+                   Background="{DynamicResource SystemChromeAltLowColor}" 
                    Opacity="0.3" 
                    Height="0.55"/>
         <!-- Items List Actions -->
@@ -87,7 +87,7 @@
         <!-- Separator -->
         <Separator DockPanel.Dock="Bottom" 
                    Margin="12,0,12,0"
-                   Background="{DynamicResource SystemBaseHighColor}" 
+                   Background="{DynamicResource SystemChromeAltLowColor}" 
                    Opacity="0.3" 
                    Height="0.55"/>
         <!-- Items List -->
@@ -151,15 +151,15 @@
     <!-- Pane Splitter -->
     <GridSplitter Grid.Column="1"
                   Margin="0,0,0,0"
-                  Background="White" />
+                  Background="{DynamicResource SystemChromeMediumColor}" />
     <!-- Right Pane -->
     <DockPanel Grid.Column="2"
                ClipToBounds="False">
-      <Panel Background="White" 
+      <Panel Background="{DynamicResource SystemChromeMediumColor}" 
              IsHitTestVisible="False"
              Height="36"
              DockPanel.Dock="Top"/>
-      <Panel Background="White"
+      <Panel Background="{DynamicResource SystemChromeMediumColor}"
              ClipToBounds="False">
         <DockPanel Margin="6,0,6,6"
                    VerticalAlignment="Stretch"
@@ -262,7 +262,7 @@
                               HorizontalContentAlignment="Stretch"
                               Margin="0"
                               Padding="6"/>
-                    <Separator Background="{DynamicResource SystemBaseHighColor}" Opacity="0.3" Height="0.55"/>
+                    <Separator Background="{DynamicResource SystemChromeAltLowColor}" Opacity="0.3" Height="0.55"/>
                     <CheckBox IsChecked="{Binding UseResources}"
                               Content="Use Resources"
                               HorizontalAlignment="Stretch"
@@ -296,7 +296,7 @@
             </Button>
           </DockPanel>
           <!-- Picture Contents -->
-          <Panel Background="Transparent" Margin="0,0,6,6">
+          <Panel Margin="0,0,6,6">
             <Panel.ContextFlyout>
               <MenuFlyout Placement="Bottom">
                 <MenuItem Header="Copy Selected"
@@ -313,6 +313,16 @@
                           CommandParameter="XAML" />
               </MenuFlyout>
             </Panel.ContextFlyout>
+            <Border BorderThickness="0" CornerRadius="0" Background="DarkGray" />
+            <Border BorderThickness="0" CornerRadius="0">
+              <Border.Background>
+                <VisualBrush TileMode="Tile" SourceRect="0,0,20,20" DestinationRect="0,0,20,20">
+                    <VisualBrush.Visual>
+                      <Path Data="M 0,0 L 0,10 L 10,10 L 10,0 Z M 10,10 L 10,20 L 20,20 L 20,10 Z" Fill="LightGray" />
+                    </VisualBrush.Visual>
+                  </VisualBrush>
+              </Border.Background>
+            </Border>
             <Viewbox>
               <SKPictureControl Picture="{Binding SelectedItem.Picture, FallbackValue={x:Null}}" />
             </Viewbox>
