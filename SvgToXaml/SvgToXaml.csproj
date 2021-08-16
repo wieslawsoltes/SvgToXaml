@@ -16,11 +16,11 @@
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.999-cibuild0015296-beta" />
     <!--<PackageReference Include="Avalonia.Direct2D1" Version="0.10.999-cibuild0015296-beta" />-->
     <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="0.10.999-cibuild0015296-beta" />
-    <PackageReference Include="Avalonia.Controls.Skia" Version="0.10.6.2" />
+    <PackageReference Include="Avalonia.Controls.Skia" Version="0.10.6.3" />
     <PackageReference Include="Avalonia.Xaml.Behaviors" Version="0.10.6.10" />
-    <PackageReference Include="Svg.Skia" Version="0.5.6.2" />
-    <PackageReference Include="SkiaSharp" Version="2.88.0-preview.61" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.0-preview.61" />
+    <PackageReference Include="Svg.Skia" Version="0.5.6.3" />
+    <PackageReference Include="SkiaSharp" Version="2.88.0-preview.120" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.0-preview.120" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\SvgToXamlConverter\SvgConverter.cs">
