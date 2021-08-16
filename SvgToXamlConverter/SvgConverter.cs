@@ -285,6 +285,121 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
+        private string ToBrush(ShimSkiaSharp.RadialGradientShader radialGradientShader, SkiaSharp.SKRect skBounds, string? key = null)
+        {
+            var sb = new StringBuilder();
+
+            var radius = radialGradientShader.Radius;
+
+            var center = Svg.Skia.SkiaModelExtensions.ToSKPoint(radialGradientShader.Center);
+            var gradientOrigin = Svg.Skia.SkiaModelExtensions.ToSKPoint(radialGradientShader.Center);
+
+            if (!UseBrushTransform)
+            {
+                if (radialGradientShader.LocalMatrix is { })
+                {
+                    var localMatrix =
+                        Svg.Skia.SkiaModelExtensions.ToSKMatrix(radialGradientShader.LocalMatrix.Value);
+
+                    localMatrix.TransX = Math.Max(0f, localMatrix.TransX - skBounds.Location.X);
+                    localMatrix.TransY = Math.Max(0f, localMatrix.TransY - skBounds.Location.Y);
+
+                    center = localMatrix.MapPoint(center);
+                    gradientOrigin = localMatrix.MapPoint(gradientOrigin);
+
+                    var radiusMapped = localMatrix.MapVector(new SkiaSharp.SKPoint(radius, 0));
+                    radius = radiusMapped.X;
+                }
+                else
+                {
+                    center.X = Math.Max(0f, center.X - skBounds.Location.X);
+                    center.Y = Math.Max(0f, center.Y - skBounds.Location.Y);
+                    gradientOrigin.X = Math.Max(0f, gradientOrigin.X - skBounds.Location.X);
+                    gradientOrigin.Y = Math.Max(0f, gradientOrigin.Y - skBounds.Location.Y);
+                }
+            }
+            else
+            {
+                if (!UseCompatMode)
+                {
+                    if (radialGradientShader.LocalMatrix is null)
+                    {
+                        center.X = Math.Max(0f, center.X - skBounds.Location.X);
+                        center.Y = Math.Max(0f, center.Y - skBounds.Location.Y);
+                        gradientOrigin.X = Math.Max(0f, gradientOrigin.X - skBounds.Location.X);
+                        gradientOrigin.Y = Math.Max(0f, gradientOrigin.Y - skBounds.Location.Y);
+                    }
+                }
+            }
+
+            if (!UseCompatMode)
+            {
+                radius = radius / skBounds.Width;
+            }
+
+            sb.Append($"<RadialGradientBrush{ToKey(key)}");
+
+            sb.Append($" Center=\"{ToPoint(center)}\"");
+            sb.Append($" GradientOrigin=\"{ToPoint(gradientOrigin)}\"");
+
+            if (UseCompatMode)
+            {
+                sb.Append($" RadiusX=\"{ToString(radius)}\"");
+                sb.Append($" RadiusY=\"{ToString(radius)}\"");
+            }
+            else
+            {
+                sb.Append($" Radius=\"{ToString(radius)}\"");
+            }
+
+            if (UseCompatMode)
+            {
+                sb.Append($" MappingMode=\"Absolute\"");
+            }
+
+            if (radialGradientShader.Mode != ShimSkiaSharp.SKShaderTileMode.Clamp)
+            {
+                sb.Append($" SpreadMethod=\"{ToGradientSpreadMethod(radialGradientShader.Mode)}\"");
+            }
+
+            sb.Append($">{NewLine}");
+
+            if (UseBrushTransform)
+            {
+                if (radialGradientShader.LocalMatrix is { })
+                {
+                    // TODO: Missing Transform property on RadialGradientBrush
+                    var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(radialGradientShader.LocalMatrix.Value);
+
+                    if (!UseCompatMode)
+                    {
+                        localMatrix = AdjustMatrixLocation(localMatrix, skBounds.Location.X, skBounds.Location.Y);
+                    }
+
+                    sb.Append($"  <RadialGradientBrush.Transform>{NewLine}");
+                    sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{NewLine}");
+                    sb.Append($"  </RadialGradientBrush.Transform>{NewLine}");
+                }
+            }
+
+            sb.Append($"  <RadialGradientBrush.GradientStops>{NewLine}");
+
+            if (radialGradientShader.Colors is { } && radialGradientShader.ColorPos is { })
+            {
+                for (var i = 0; i < radialGradientShader.Colors.Length; i++)
+                {
+                    var color = ToHexColor(radialGradientShader.Colors[i]);
+                    var offset = ToString(radialGradientShader.ColorPos[i]);
+                    sb.Append($"    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{NewLine}");
+                }
+            }
+
+            sb.Append($"  </RadialGradientBrush.GradientStops>{NewLine}");
+            sb.Append($"</RadialGradientBrush>{NewLine}");
+
+            return sb.ToString();
+        }
+
         private string ToBrush(ShimSkiaSharp.TwoPointConicalGradientShader twoPointConicalGradientShader, SkiaSharp.SKRect skBounds, string? key = null)
         {
             var sb = new StringBuilder();
@@ -296,8 +411,8 @@ namespace SvgToXamlConverter
             // TODO: but we need to pass it as 'endRadius' to 'SKShader.CreateTwoPointConicalGradient'
             var endRadius = twoPointConicalGradientShader.EndRadius;
 
-            var center = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.Start);
-            var gradientOrigin = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.End);
+            var center = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.End);
+            var gradientOrigin = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.Start);
 
             if (!UseBrushTransform)
             {
@@ -312,8 +427,8 @@ namespace SvgToXamlConverter
                     center = localMatrix.MapPoint(center);
                     gradientOrigin = localMatrix.MapPoint(gradientOrigin);
 
-                    var radius = localMatrix.MapVector(new SkiaSharp.SKPoint(endRadius, 0));
-                    endRadius = radius.X;
+                    var radiusMapped = localMatrix.MapVector(new SkiaSharp.SKPoint(endRadius, 0));
+                    endRadius = radiusMapped.X;
                 }
                 else
                 {
@@ -494,6 +609,7 @@ namespace SvgToXamlConverter
             {
                 ShimSkiaSharp.ColorShader colorShader => ToBrush(colorShader, skBounds, key),
                 ShimSkiaSharp.LinearGradientShader linearGradientShader => ToBrush(linearGradientShader, skBounds, key),
+                ShimSkiaSharp.RadialGradientShader radialGradientShader => ToBrush(radialGradientShader, skBounds, key),
                 ShimSkiaSharp.TwoPointConicalGradientShader twoPointConicalGradientShader => ToBrush(twoPointConicalGradientShader, skBounds, key),
                 ShimSkiaSharp.PictureShader pictureShader => ToBrush(pictureShader, skBounds, key),
                 _ => ""
