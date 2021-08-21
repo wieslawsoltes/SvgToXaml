@@ -18,7 +18,7 @@
     <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="0.10.7" />
     <PackageReference Include="Avalonia.Controls.Skia" Version="0.10.7" />
     <PackageReference Include="Avalonia.Xaml.Behaviors" Version="0.10.7" />
-    <PackageReference Include="Svg.Skia" Version="0.5.7" />
+    <PackageReference Include="Svg.Skia" Version="0.5.7.1" />
     <PackageReference Include="SkiaSharp" Version="2.88.0-preview.120" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.0-preview.120" />
   </ItemGroup>
