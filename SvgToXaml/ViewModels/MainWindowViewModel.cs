@@ -95,11 +95,11 @@ namespace SvgToXaml.ViewModels
         {
             _items = new ObservableCollection<FileItemViewModel>();
 
-            _enableGenerateImage = false;
+            _enableGenerateImage = true;
             _enableGeneratePreview = true;
 
-            _useResources = false;
-            _reuseExistingResources = false;
+            _useResources = true;
+            _reuseExistingResources = true;
             _useCompatMode = false;
             _useBrushTransform = false;
         
