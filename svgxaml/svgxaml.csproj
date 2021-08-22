@@ -40,5 +40,8 @@
     <Compile Include="..\SvgToXamlConverter\SvgConverter.cs">
       <Link>SvgConverter.cs</Link>
     </Compile>
+    <Compile Include="..\SvgToXamlConverter\XamlConverter.cs">
+      <Link>XamlConverter.cs</Link>
+    </Compile>
   </ItemGroup>
 </Project>

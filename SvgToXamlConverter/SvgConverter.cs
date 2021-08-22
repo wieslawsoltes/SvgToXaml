@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -40,135 +39,6 @@ namespace SvgToXamlConverter
             FilterGroup
         }
 
-        private string ToKey(string? key)
-        {
-            return key is null ? "" : $" x:Key=\"{key}\"";
-        }
-
-        private string ToGradientSpreadMethod(ShimSkiaSharp.SKShaderTileMode shaderTileMode)
-        {
-            return shaderTileMode switch
-            {
-                ShimSkiaSharp.SKShaderTileMode.Clamp => "Pad",
-                ShimSkiaSharp.SKShaderTileMode.Repeat => "Repeat",
-                ShimSkiaSharp.SKShaderTileMode.Mirror => "Reflect",
-                _ => "Pad"
-            };
-        }
-
-        private string ToTileMode(ShimSkiaSharp.SKShaderTileMode shaderTileMode)
-        {
-            return shaderTileMode switch
-            {
-                ShimSkiaSharp.SKShaderTileMode.Clamp => "None",
-                ShimSkiaSharp.SKShaderTileMode.Repeat => "Tile",
-                ShimSkiaSharp.SKShaderTileMode.Mirror => "FlipXY",
-                _ => "None"
-            };
-        }
-
-        private string ToPenLineCap(ShimSkiaSharp.SKStrokeCap strokeCap)
-        {
-            return strokeCap switch
-            {
-                ShimSkiaSharp.SKStrokeCap.Butt => "Flat",
-                ShimSkiaSharp.SKStrokeCap.Round => "Round",
-                ShimSkiaSharp.SKStrokeCap.Square => "Square",
-                _ => "Flat"
-            };
-        }
-
-        private string ToPenLineJoin(ShimSkiaSharp.SKStrokeJoin strokeJoin)
-        {
-            return strokeJoin switch
-            {
-                ShimSkiaSharp.SKStrokeJoin.Miter => "Miter",
-                ShimSkiaSharp.SKStrokeJoin.Round => "Round",
-                ShimSkiaSharp.SKStrokeJoin.Bevel => "Bevel",
-                _ => UseCompatMode ? "Miter" : "Bevel"
-            };
-        }
-
-        private string ToString(double value)
-        {
-            return value.ToString(CultureInfo.InvariantCulture);
-        }
-
-        private string ToString(float value)
-        {
-            return value.ToString(CultureInfo.InvariantCulture);
-        }
-
-        private string ToHexColor(ShimSkiaSharp.SKColor skColor)
-        {
-            var sb = new StringBuilder();
-            sb.Append('#');
-            sb.AppendFormat("{0:X2}", skColor.Alpha);
-            sb.AppendFormat("{0:X2}", skColor.Red);
-            sb.AppendFormat("{0:X2}", skColor.Green);
-            sb.AppendFormat("{0:X2}", skColor.Blue);
-            return sb.ToString();
-        }
-
-        private string ToPoint(SkiaSharp.SKPoint skPoint)
-        {
-            var sb = new StringBuilder();
-            sb.Append(ToString(skPoint.X));
-            sb.Append(',');
-            sb.Append(ToString(skPoint.Y));
-            return sb.ToString();
-        }
-
-        private string ToRect(ShimSkiaSharp.SKRect sKRect)
-        {
-            var sb = new StringBuilder();
-            sb.Append(ToString(sKRect.Left));
-            sb.Append(',');
-            sb.Append(ToString(sKRect.Top));
-            sb.Append(',');
-            sb.Append(ToString(sKRect.Width));
-            sb.Append(',');
-            sb.Append(ToString(sKRect.Height));
-            return sb.ToString();
-        }
-
-        private string ToMatrix(SkiaSharp.SKMatrix skMatrix)
-        {
-            var sb = new StringBuilder();
-            sb.Append(ToString(skMatrix.ScaleX));
-            sb.Append(',');
-            sb.Append(ToString(skMatrix.SkewY));
-            sb.Append(',');
-            sb.Append(ToString(skMatrix.SkewX));
-            sb.Append(',');
-            sb.Append(ToString(skMatrix.ScaleY));
-            sb.Append(',');
-            sb.Append(ToString(skMatrix.TransX));
-            sb.Append(',');
-            sb.Append(ToString(skMatrix.TransY));
-            return sb.ToString();
-        }
-
-        private string ToSvgPathData(SkiaSharp.SKPath path)
-        {
-            if (path.FillType == SkiaSharp.SKPathFillType.EvenOdd)
-            {
-                // EvenOdd
-                var sb = new StringBuilder();
-                sb.Append("F0 ");
-                sb.Append(path.ToSvgPathData());
-                return sb.ToString();
-            }
-            else
-            {
-                // Nonzero 
-                var sb = new StringBuilder();
-                sb.Append("F1 ");
-                sb.Append(path.ToSvgPathData());
-                return sb.ToString();
-            }
-        }
-
         private SkiaSharp.SKMatrix AdjustMatrixLocation(SkiaSharp.SKMatrix matrix, float x, float y)
         {
             return new SkiaSharp.SKMatrix(
@@ -186,8 +56,8 @@ namespace SvgToXamlConverter
         private string ToBrush(ShimSkiaSharp.ColorShader colorShader, SkiaSharp.SKRect skBounds, string? key = null)
         {
             var sb = new StringBuilder();
-            sb.Append($"<SolidColorBrush{ToKey(key)}");
-            sb.Append($" Color=\"{ToHexColor(colorShader.Color)}\"");
+            sb.Append($"<SolidColorBrush{XamlConverter.ToKey(key)}");
+            sb.Append($" Color=\"{XamlConverter.ToHexColor(colorShader.Color)}\"");
             sb.Append($"/>{NewLine}");
             return sb.ToString();
         }
@@ -232,14 +102,14 @@ namespace SvgToXamlConverter
                 }
             }
 
-            sb.Append($"<LinearGradientBrush{ToKey(key)}");
+            sb.Append($"<LinearGradientBrush{XamlConverter.ToKey(key)}");
 
-            sb.Append($" StartPoint=\"{ToPoint(start)}\"");
-            sb.Append($" EndPoint=\"{ToPoint(end)}\"");
+            sb.Append($" StartPoint=\"{XamlConverter.ToPoint(start)}\"");
+            sb.Append($" EndPoint=\"{XamlConverter.ToPoint(end)}\"");
 
             if (linearGradientShader.Mode != ShimSkiaSharp.SKShaderTileMode.Clamp)
             {
-                sb.Append($" SpreadMethod=\"{ToGradientSpreadMethod(linearGradientShader.Mode)}\"");
+                sb.Append($" SpreadMethod=\"{XamlConverter.ToGradientSpreadMethod(linearGradientShader.Mode)}\"");
             }
 
             if (UseCompatMode)
@@ -262,7 +132,7 @@ namespace SvgToXamlConverter
                     }
 
                     sb.Append($"  <LinearGradientBrush.Transform>{NewLine}");
-                    sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{NewLine}");
+                    sb.Append($"    <MatrixTransform Matrix=\"{XamlConverter.ToMatrix(localMatrix)}\"/>{NewLine}");
                     sb.Append($"  </LinearGradientBrush.Transform>{NewLine}");
                 }
             }
@@ -273,8 +143,8 @@ namespace SvgToXamlConverter
             {
                 for (var i = 0; i < linearGradientShader.Colors.Length; i++)
                 {
-                    var color = ToHexColor(linearGradientShader.Colors[i]);
-                    var offset = ToString(linearGradientShader.ColorPos[i]);
+                    var color = XamlConverter.ToHexColor(linearGradientShader.Colors[i]);
+                    var offset = XamlConverter.ToString(linearGradientShader.ColorPos[i]);
                     sb.Append($"    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{NewLine}");
                 }
             }
@@ -337,19 +207,19 @@ namespace SvgToXamlConverter
                 radius = radius / skBounds.Width;
             }
 
-            sb.Append($"<RadialGradientBrush{ToKey(key)}");
+            sb.Append($"<RadialGradientBrush{XamlConverter.ToKey(key)}");
 
-            sb.Append($" Center=\"{ToPoint(center)}\"");
-            sb.Append($" GradientOrigin=\"{ToPoint(gradientOrigin)}\"");
+            sb.Append($" Center=\"{XamlConverter.ToPoint(center)}\"");
+            sb.Append($" GradientOrigin=\"{XamlConverter.ToPoint(gradientOrigin)}\"");
 
             if (UseCompatMode)
             {
-                sb.Append($" RadiusX=\"{ToString(radius)}\"");
-                sb.Append($" RadiusY=\"{ToString(radius)}\"");
+                sb.Append($" RadiusX=\"{XamlConverter.ToString(radius)}\"");
+                sb.Append($" RadiusY=\"{XamlConverter.ToString(radius)}\"");
             }
             else
             {
-                sb.Append($" Radius=\"{ToString(radius)}\"");
+                sb.Append($" Radius=\"{XamlConverter.ToString(radius)}\"");
             }
 
             if (UseCompatMode)
@@ -359,7 +229,7 @@ namespace SvgToXamlConverter
 
             if (radialGradientShader.Mode != ShimSkiaSharp.SKShaderTileMode.Clamp)
             {
-                sb.Append($" SpreadMethod=\"{ToGradientSpreadMethod(radialGradientShader.Mode)}\"");
+                sb.Append($" SpreadMethod=\"{XamlConverter.ToGradientSpreadMethod(radialGradientShader.Mode)}\"");
             }
 
             sb.Append($">{NewLine}");
@@ -377,7 +247,7 @@ namespace SvgToXamlConverter
                     }
 
                     sb.Append($"  <RadialGradientBrush.Transform>{NewLine}");
-                    sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{NewLine}");
+                    sb.Append($"    <MatrixTransform Matrix=\"{XamlConverter.ToMatrix(localMatrix)}\"/>{NewLine}");
                     sb.Append($"  </RadialGradientBrush.Transform>{NewLine}");
                 }
             }
@@ -388,8 +258,8 @@ namespace SvgToXamlConverter
             {
                 for (var i = 0; i < radialGradientShader.Colors.Length; i++)
                 {
-                    var color = ToHexColor(radialGradientShader.Colors[i]);
-                    var offset = ToString(radialGradientShader.ColorPos[i]);
+                    var color = XamlConverter.ToHexColor(radialGradientShader.Colors[i]);
+                    var offset = XamlConverter.ToString(radialGradientShader.ColorPos[i]);
                     sb.Append($"    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{NewLine}");
                 }
             }
@@ -457,19 +327,19 @@ namespace SvgToXamlConverter
                 endRadius = endRadius / skBounds.Width;
             }
 
-            sb.Append($"<RadialGradientBrush{ToKey(key)}");
+            sb.Append($"<RadialGradientBrush{XamlConverter.ToKey(key)}");
 
-            sb.Append($" Center=\"{ToPoint(center)}\"");
-            sb.Append($" GradientOrigin=\"{ToPoint(gradientOrigin)}\"");
+            sb.Append($" Center=\"{XamlConverter.ToPoint(center)}\"");
+            sb.Append($" GradientOrigin=\"{XamlConverter.ToPoint(gradientOrigin)}\"");
 
             if (UseCompatMode)
             {
-                sb.Append($" RadiusX=\"{ToString(endRadius)}\"");
-                sb.Append($" RadiusY=\"{ToString(endRadius)}\"");
+                sb.Append($" RadiusX=\"{XamlConverter.ToString(endRadius)}\"");
+                sb.Append($" RadiusY=\"{XamlConverter.ToString(endRadius)}\"");
             }
             else
             {
-                sb.Append($" Radius=\"{ToString(endRadius)}\"");
+                sb.Append($" Radius=\"{XamlConverter.ToString(endRadius)}\"");
             }
 
             if (UseCompatMode)
@@ -479,7 +349,7 @@ namespace SvgToXamlConverter
 
             if (twoPointConicalGradientShader.Mode != ShimSkiaSharp.SKShaderTileMode.Clamp)
             {
-                sb.Append($" SpreadMethod=\"{ToGradientSpreadMethod(twoPointConicalGradientShader.Mode)}\"");
+                sb.Append($" SpreadMethod=\"{XamlConverter.ToGradientSpreadMethod(twoPointConicalGradientShader.Mode)}\"");
             }
 
             sb.Append($">{NewLine}");
@@ -497,7 +367,7 @@ namespace SvgToXamlConverter
                     }
 
                     sb.Append($"  <RadialGradientBrush.Transform>{NewLine}");
-                    sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{NewLine}");
+                    sb.Append($"    <MatrixTransform Matrix=\"{XamlConverter.ToMatrix(localMatrix)}\"/>{NewLine}");
                     sb.Append($"  </RadialGradientBrush.Transform>{NewLine}");
                 }
             }
@@ -508,8 +378,8 @@ namespace SvgToXamlConverter
             {
                 for (var i = 0; i < twoPointConicalGradientShader.Colors.Length; i++)
                 {
-                    var color = ToHexColor(twoPointConicalGradientShader.Colors[i]);
-                    var offset = ToString(twoPointConicalGradientShader.ColorPos[i]);
+                    var color = XamlConverter.ToHexColor(twoPointConicalGradientShader.Colors[i]);
+                    var offset = XamlConverter.ToString(twoPointConicalGradientShader.ColorPos[i]);
                     sb.Append($"    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{NewLine}");
                 }
             }
@@ -538,7 +408,7 @@ namespace SvgToXamlConverter
                     if (!localMatrix.IsIdentity)
                     {
 #if DEBUG
-                        sb.Append($"<!-- TODO: Transform: {ToMatrix(localMatrix)} -->{NewLine}");
+                        sb.Append($"<!-- TODO: Transform: {XamlConverter.ToMatrix(localMatrix)} -->{NewLine}");
 #endif
                     }
                 }
@@ -552,22 +422,22 @@ namespace SvgToXamlConverter
             var destinationRect = pictureShader.Tile;
 
             // TODO: Use different visual then Image ?
-            sb.Append($"<VisualBrush{ToKey(key)}");
+            sb.Append($"<VisualBrush{XamlConverter.ToKey(key)}");
 
             if (pictureShader.TmX != ShimSkiaSharp.SKShaderTileMode.Clamp)
             {
-                sb.Append($" TileMode=\"{ToTileMode(pictureShader.TmX)}\"");
+                sb.Append($" TileMode=\"{XamlConverter.ToTileMode(pictureShader.TmX)}\"");
             }
 
             if (UseCompatMode)
             {
-                sb.Append($" Viewport=\"{ToRect(sourceRect)}\" ViewportUnits=\"Absolute\"");
-                sb.Append($" Viewbox=\"{ToRect(destinationRect)}\" ViewboxUnits=\"Absolute\"");
+                sb.Append($" Viewport=\"{XamlConverter.ToRect(sourceRect)}\" ViewportUnits=\"Absolute\"");
+                sb.Append($" Viewbox=\"{XamlConverter.ToRect(destinationRect)}\" ViewboxUnits=\"Absolute\"");
             }
             else
             {
-                sb.Append($" SourceRect=\"{ToRect(sourceRect)}\"");
-                sb.Append($" DestinationRect=\"{ToRect(destinationRect)}\"");
+                sb.Append($" SourceRect=\"{XamlConverter.ToRect(sourceRect)}\"");
+                sb.Append($" DestinationRect=\"{XamlConverter.ToRect(destinationRect)}\"");
             }
 
             sb.Append($">{NewLine}");
@@ -585,7 +455,7 @@ namespace SvgToXamlConverter
                     }
 
                     sb.Append($"  <VisualBrush.Transform>{NewLine}");
-                    sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{NewLine}");
+                    sb.Append($"    <MatrixTransform Matrix=\"{XamlConverter.ToMatrix(localMatrix)}\"/>{NewLine}");
                     sb.Append($"  </VisualBrush.Transform>{NewLine}");
                 }
             }
@@ -625,29 +495,29 @@ namespace SvgToXamlConverter
 
             var sb = new StringBuilder();
 
-            sb.Append($"<Pen{ToKey(key)}");
+            sb.Append($"<Pen{XamlConverter.ToKey(key)}");
 
             if (skPaint.Shader is ShimSkiaSharp.ColorShader colorShader)
             {
-                sb.Append($" Brush=\"{ToHexColor(colorShader.Color)}\"");
+                sb.Append($" Brush=\"{XamlConverter.ToHexColor(colorShader.Color)}\"");
             }
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (skPaint.StrokeWidth != 1.0)
             {
-                sb.Append($" Thickness=\"{ToString(skPaint.StrokeWidth)}\"");
+                sb.Append($" Thickness=\"{XamlConverter.ToString(skPaint.StrokeWidth)}\"");
             }
 
             if (skPaint.StrokeCap != ShimSkiaSharp.SKStrokeCap.Butt)
             {
                 if (UseCompatMode)
                 {
-                    sb.Append($" StartLineCap=\"{ToPenLineCap(skPaint.StrokeCap)}\"");
-                    sb.Append($" EndLineCap=\"{ToPenLineCap(skPaint.StrokeCap)}\"");
+                    sb.Append($" StartLineCap=\"{XamlConverter.ToPenLineCap(skPaint.StrokeCap)}\"");
+                    sb.Append($" EndLineCap=\"{XamlConverter.ToPenLineCap(skPaint.StrokeCap)}\"");
                 }
                 else
                 {
-                    sb.Append($" LineCap=\"{ToPenLineCap(skPaint.StrokeCap)}\"");
+                    sb.Append($" LineCap=\"{XamlConverter.ToPenLineCap(skPaint.StrokeCap)}\"");
                 }
             }
 
@@ -657,20 +527,20 @@ namespace SvgToXamlConverter
                 {
                     if (skPaint.StrokeCap != ShimSkiaSharp.SKStrokeCap.Square)
                     {
-                        sb.Append($" DashCap=\"{ToPenLineCap(skPaint.StrokeCap)}\"");
+                        sb.Append($" DashCap=\"{XamlConverter.ToPenLineCap(skPaint.StrokeCap)}\"");
                     }
                 }
 
                 if (skPaint.StrokeJoin != ShimSkiaSharp.SKStrokeJoin.Miter)
                 {
-                    sb.Append($" LineJoin=\"{ToPenLineJoin(skPaint.StrokeJoin)}\"");
+                    sb.Append($" LineJoin=\"{XamlConverter.ToPenLineJoin(skPaint.StrokeJoin)}\"");
                 }
             }
             else
             {
                 if (skPaint.StrokeJoin != ShimSkiaSharp.SKStrokeJoin.Bevel)
                 {
-                    sb.Append($" LineJoin=\"{ToPenLineJoin(skPaint.StrokeJoin)}\"");
+                    sb.Append($" LineJoin=\"{XamlConverter.ToPenLineJoin(skPaint.StrokeJoin)}\"");
                 }
             }
 
@@ -694,7 +564,7 @@ namespace SvgToXamlConverter
                 // ReSharper disable once CompareOfFloatsByEqualityOperator
                 if (miterLimit != 10.0)
                 {
-                    sb.Append($" MiterLimit=\"{ToString(miterLimit)}\"");
+                    sb.Append($" MiterLimit=\"{XamlConverter.ToString(miterLimit)}\"");
                 }
             }
             else
@@ -702,7 +572,7 @@ namespace SvgToXamlConverter
                 // ReSharper disable once CompareOfFloatsByEqualityOperator
                 if (skPaint.StrokeMiter != 10.0)
                 {
-                    sb.Append($" MiterLimit=\"{ToString(skPaint.StrokeMiter)}\"");
+                    sb.Append($" MiterLimit=\"{XamlConverter.ToString(skPaint.StrokeMiter)}\"");
                 }
             }
 
@@ -727,7 +597,7 @@ namespace SvgToXamlConverter
                 var offset = dashPathEffect.Phase / skPaint.StrokeWidth;
 
                 sb.Append($"  <Pen.DashStyle>{NewLine}");
-                sb.Append($"    <DashStyle Dashes=\"{string.Join(",", dashes.Select(ToString))}\" Offset=\"{ToString(offset)}\"/>{NewLine}");
+                sb.Append($"    <DashStyle Dashes=\"{string.Join(",", dashes.Select(XamlConverter.ToString))}\" Offset=\"{XamlConverter.ToString(offset)}\"/>{NewLine}");
                 sb.Append($"  </Pen.DashStyle>{NewLine}");
             }
 
@@ -755,7 +625,7 @@ namespace SvgToXamlConverter
 
             if (isFilled && skPaint.Shader is ShimSkiaSharp.ColorShader colorShader && resources is null)
             {
-                sb.Append($" Brush=\"{ToHexColor(colorShader.Color)}\"");
+                sb.Append($" Brush=\"{XamlConverter.ToHexColor(colorShader.Color)}\"");
             }
 
             var brush = default(string);
@@ -849,7 +719,7 @@ namespace SvgToXamlConverter
                 }
             }
 
-            sb.Append($" Geometry=\"{ToSvgPathData(path)}\"");
+            sb.Append($" Geometry=\"{XamlConverter.ToSvgPathData(path)}\"");
 
             if (!string.IsNullOrEmpty(brush) || !string.IsNullOrEmpty(pen))
             {
@@ -889,7 +759,7 @@ namespace SvgToXamlConverter
 
             var sb = new StringBuilder();
 
-            sb.Append($"<DrawingGroup{ToKey(key)}>{NewLine}");
+            sb.Append($"<DrawingGroup{XamlConverter.ToKey(key)}>{NewLine}");
 
             var totalMatrixStack = new Stack<SkiaSharp.SKMatrix?>();
             var currentTotalMatrix = default(SkiaSharp.SKMatrix?);
@@ -911,7 +781,7 @@ namespace SvgToXamlConverter
                             break;
                         }
 
-                        var clipGeometry = ToSvgPathData(path);
+                        var clipGeometry = XamlConverter.ToSvgPathData(path);
 
                         Debug($"StartClipPath({clipPathStack.Count})");
 
@@ -930,7 +800,7 @@ namespace SvgToXamlConverter
                         var path = new SkiaSharp.SKPath();
                         path.AddRect(rect);
 
-                        var clipGeometry = ToSvgPathData(path);
+                        var clipGeometry = XamlConverter.ToSvgPathData(path);
 
                         Debug($"StarClipPath({clipPathStack.Count})");
 
@@ -973,7 +843,7 @@ namespace SvgToXamlConverter
 
                         sb.Append($"<DrawingGroup>{NewLine}");
                         sb.Append($"  <DrawingGroup.Transform>{NewLine}");
-                        sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(matrix)}\"/>{NewLine}");
+                        sb.Append($"    <MatrixTransform Matrix=\"{XamlConverter.ToMatrix(matrix)}\"/>{NewLine}");
                         sb.Append($"  </DrawingGroup.Transform>{NewLine}");
 
                         currentTotalMatrix = matrix;
@@ -1293,7 +1163,7 @@ namespace SvgToXamlConverter
 
                         if (paint.Color is { } skColor)
                         {
-                            sb.Append($"<DrawingGroup Opacity=\"{ToString(skColor.Alpha / 255.0)}\">{NewLine}");
+                            sb.Append($"<DrawingGroup Opacity=\"{XamlConverter.ToString(skColor.Alpha / 255.0)}\">{NewLine}");
                             sb.Append(content);
                             sb.Append($"</DrawingGroup>{NewLine}");
                         }
@@ -1409,7 +1279,7 @@ namespace SvgToXamlConverter
 
             if (resources is { } && (resources.Brushes.Count > 0 || resources.Pens.Count > 0) && writeResources)
             {
-                sb.Append($"<Image{ToKey(key)}");
+                sb.Append($"<Image{XamlConverter.ToKey(key)}");
                 // sb.Append(UseCompatMode
                 //     ? $" xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\""
                 //     : $" xmlns=\"https://github.com/avaloniaui\"");
@@ -1418,7 +1288,7 @@ namespace SvgToXamlConverter
             }
             else
             {
-                sb.Append($"<Image{ToKey(key)}");
+                sb.Append($"<Image{XamlConverter.ToKey(key)}");
                 sb.Append($">{NewLine}");
             }
 
