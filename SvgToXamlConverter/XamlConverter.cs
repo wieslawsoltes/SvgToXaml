@@ -114,6 +114,23 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
+        public static string ToMatrix(ShimSkiaSharp.SKMatrix skMatrix)
+        {
+            var sb = new StringBuilder();
+            sb.Append(ToString(skMatrix.ScaleX));
+            sb.Append(',');
+            sb.Append(ToString(skMatrix.SkewY));
+            sb.Append(',');
+            sb.Append(ToString(skMatrix.SkewX));
+            sb.Append(',');
+            sb.Append(ToString(skMatrix.ScaleY));
+            sb.Append(',');
+            sb.Append(ToString(skMatrix.TransX));
+            sb.Append(',');
+            sb.Append(ToString(skMatrix.TransY));
+            return sb.ToString();
+        }
+
         public static string ToSvgPathData(SkiaSharp.SKPath path)
         {
             if (path.FillType == SkiaSharp.SKPathFillType.EvenOdd)
