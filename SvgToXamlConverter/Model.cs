@@ -26,6 +26,17 @@ namespace SvgToXamlConverter
         public abstract string Generate(GeneratorContext context);
     }
 
+    public record ResourceDictionary
+    {
+        public Dictionary<string, (ShimSkiaSharp.SKPaint Paint, Brush Brush)> Brushes  { get; set; } = new();
+
+        public Dictionary<string, (ShimSkiaSharp.SKPaint Paint, Pen Pen)> Pens  { get; set; } = new();
+
+        public int BrushCounter { get; set; }
+
+        public int PenCounter { get; set; }
+    }
+
     public record Point(double X, double Y);
 
     public abstract record Brush : Resource
