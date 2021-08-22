@@ -719,6 +719,149 @@ namespace SvgToXamlConverter
 
         public override string Generate(GeneratorContext context)
         {
+            /*
+            if (Geometry is null)
+            {
+                return "";
+            }
+ 
+            var sb = new StringBuilder();
+            
+            sb.Append($"<GeometryDrawing");
+
+            var isFilled = Brush is { };
+            var isStroked = Pen is { };
+
+            if (isFilled && Brush is SolidColorBrush solidColorBrush && context.Resources is null)
+            {
+                sb.Append($" Brush=\"{XamlConverter.ToHexColor(solidColorBrush.Color)}\"");
+            }
+
+            var brush = Brush;
+            var pen = Pen;
+
+            if (isFilled && Brush is { } && context.Resources is null && Brush is not SolidColorBrush)
+            {
+                brush = Brush;
+            }
+
+            if (isFilled && Brush is { } && context.Resources is { })
+            {
+                bool haveBrush = false;
+
+                if (context.ReuseExistingResources)
+                {
+                    var existingBrush = context.Resources.Brushes.FirstOrDefault(x =>
+                    {
+                        if (x.Value.Paint.Shader is { } && x.Value.Paint.Shader.Equals(Paint.Shader))
+                        {
+                            return true;
+                        }
+
+                        return false;
+                    });
+
+                    if (!string.IsNullOrEmpty(existingBrush.Key))
+                    {
+                        sb.Append($" Brush=\"{{DynamicResource {existingBrush.Key}}}\"");
+                        haveBrush = true;
+                    }
+                }
+
+                if (!haveBrush)
+                {
+                    var resourceKey = $"Brush{context.Resources.BrushCounter++}";
+                    var brushResource = ToBrush(Paint.Shader, Geometry.Bounds, resourceKey);
+                    if (!string.IsNullOrEmpty(brushResource))
+                    {
+                        sb.Append($" Brush=\"{{DynamicResource {resourceKey}}}\"");
+                        context.Resources.Brushes.Add(resourceKey, (Paint, brushResource));
+                    }
+                }
+            }
+
+            if (isStroked && Pen is { } && context.Resources is null)
+            {
+                pen = ToPen(Paint, Geometry.Bounds);
+            }
+
+            if (isStroked && Pen is { } && context.Resources is { })
+            {
+                bool havePen = false;
+
+                if (context.ReuseExistingResources)
+                {
+                    var existingPen = context.Resources.Pens.FirstOrDefault(x =>
+                    {
+                        if (x.Value.Paint.Shader is { } 
+                            && x.Value.Paint.Shader.Equals(Paint.Shader)
+                            && x.Value.Paint.StrokeWidth.Equals(Paint.StrokeWidth)
+                            && x.Value.Paint.StrokeCap.Equals(Paint.StrokeCap)
+                            && x.Value.Paint.PathEffect == Paint.PathEffect
+                            && x.Value.Paint.StrokeJoin.Equals(Paint.StrokeJoin)
+                            && x.Value.Paint.StrokeMiter.Equals(Paint.StrokeMiter))
+                        {
+                            return true;
+                        }
+
+                        return false;
+                    });
+
+                    if (!string.IsNullOrEmpty(existingPen.Key))
+                    {
+                        sb.Append($" Pen=\"{{DynamicResource {existingPen.Key}}}\"");
+                        havePen = true;
+                    }
+                }
+
+                if (!havePen)
+                {
+                    var resourceKey = $"Pen{context.Resources.PenCounter++}";
+                    var penResource = ToPen(Paint, Geometry.Bounds, resourceKey);
+                    if (!string.IsNullOrEmpty(penResource))
+                    {
+                        sb.Append($" Pen=\"{{DynamicResource {resourceKey}}}\"");
+
+                        context.Resources.Pens.Add(resourceKey, (Paint, penResource));
+                    }
+                }
+            }
+
+            if (Geometry is { })
+            {
+                sb.Append($" Geometry=\"{XamlConverter.ToSvgPathData(Geometry)}\"");
+            }
+
+            if (brush is { } || pen is { })
+            {
+                sb.Append($">{context.NewLine}");
+            }
+            else
+            {
+                sb.Append($"/>{context.NewLine}");
+            }
+
+            if (brush is { })
+            {
+                sb.Append($"  <GeometryDrawing.Brush>{context.NewLine}");
+                sb.Append($"{brush}");
+                sb.Append($"  </GeometryDrawing.Brush>{context.NewLine}");
+            }
+
+            if (pen is { })
+            {
+                sb.Append($"  <GeometryDrawing.Pen>{context.NewLine}");
+                sb.Append($"{pen}");
+                sb.Append($"  </GeometryDrawing.Pen>{context.NewLine}");
+            }
+
+            if (brush is { } || pen is { })
+            {
+                sb.Append($"</GeometryDrawing>{context.NewLine}");
+            }
+
+            return sb.ToString();
+            */
             throw new NotImplementedException();
         }
     }
