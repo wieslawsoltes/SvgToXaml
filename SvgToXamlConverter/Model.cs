@@ -711,6 +711,8 @@ namespace SvgToXamlConverter
     {
         public SkiaSharp.SKPath? Geometry { get; set; }
 
+        public ShimSkiaSharp.SKPaint? Paint { get; set; }
+
         public Brush? Brush { get; set; }
 
         public Pen? Pen { get; set; }
