@@ -12,6 +12,10 @@ namespace SvgToXamlConverter
         public bool UseCompatMode { get; set; } = false;
 
         public bool UseBrushTransform { get; set; } = false;
+
+        public bool ReuseExistingResources { get; set; } = false;
+
+        public ResourceDictionary? Resources { get; set; }
     }
 
     public interface IGenerator
