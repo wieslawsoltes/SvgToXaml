@@ -690,16 +690,6 @@ namespace SvgToXamlConverter
         }
     }
 
-    public record Geometry : Resource
-    {
-        public SkiaSharp.SKPath? Path { get; set; }
-
-        public override string Generate(GeneratorContext context)
-        {
-            return Path is null ? "" : XamlConverter.ToSvgPathData(Path);
-        }
-    }
-
     public abstract record Drawing : Resource;
 
     public record GeometryDrawing : Drawing
@@ -722,7 +712,7 @@ namespace SvgToXamlConverter
 
         public SkiaSharp.SKMatrix? Transform { get; set; }
 
-        public Geometry? ClipGeometry { get; set; }
+        public SkiaSharp.SKPath? ClipGeometry { get; set; }
 
         public Brush? OpacityMask { get; set; }
 
@@ -810,7 +800,7 @@ namespace SvgToXamlConverter
 
             if (ClipGeometry is { })
             {
-                var clipGeometry = ClipGeometry.Generate(context);
+                var clipGeometry = XamlConverter.ToSvgPathData(ClipGeometry);
 
                 sb.Append($"  <DrawingGroup.ClipGeometry>{context.NewLine}");
                 sb.Append($"    <StreamGeometry>{clipGeometry}</StreamGeometry>{context.NewLine}");
