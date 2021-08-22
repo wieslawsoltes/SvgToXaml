@@ -55,339 +55,147 @@ namespace SvgToXamlConverter
 
         private string ToBrush(ShimSkiaSharp.ColorShader colorShader, SkiaSharp.SKRect skBounds, string? key = null)
         {
-            var sb = new StringBuilder();
-            sb.Append($"<SolidColorBrush{XamlConverter.ToKey(key)}");
-            sb.Append($" Color=\"{XamlConverter.ToHexColor(colorShader.Color)}\"");
-            sb.Append($"/>{NewLine}");
-            return sb.ToString();
+            var brush = new SolidColorBrush
+            {
+                Key = key,
+                Bounds = skBounds,
+                LocalMatrix = null,
+                Color = colorShader.Color
+            };
+
+            var context = new GeneratorContext
+            {
+                NewLine = NewLine,
+                UseCompatMode = UseCompatMode,
+                UseBrushTransform = UseBrushTransform
+            };
+ 
+            return brush.Generate(context);
         }
 
         private string ToBrush(ShimSkiaSharp.LinearGradientShader linearGradientShader, SkiaSharp.SKRect skBounds, string? key = null)
         {
-            var sb = new StringBuilder();
+            var brush = ToBrushModel(linearGradientShader, skBounds, key);
 
-            var start = Svg.Skia.SkiaModelExtensions.ToSKPoint(linearGradientShader.Start);
-            var end = Svg.Skia.SkiaModelExtensions.ToSKPoint(linearGradientShader.End);
-
-            if (!UseBrushTransform)
+            var context = new GeneratorContext()
             {
-                if (linearGradientShader.LocalMatrix is { })
-                {
-                    var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(linearGradientShader.LocalMatrix.Value);
-                    localMatrix.TransX = Math.Max(0f, localMatrix.TransX - skBounds.Location.X);
-                    localMatrix.TransY = Math.Max(0f, localMatrix.TransY - skBounds.Location.Y);
+                NewLine = NewLine,
+                UseCompatMode = UseCompatMode,
+                UseBrushTransform = UseBrushTransform
+            };
+ 
+            return brush.Generate(context);
+        }
 
-                    start = localMatrix.MapPoint(start);
-                    end = localMatrix.MapPoint(end);
-                }
-                else
-                {
-                    start.X = Math.Max(0f, start.X - skBounds.Location.X);
-                    start.Y = Math.Max(0f, start.Y - skBounds.Location.Y);
-                    end.X = Math.Max(0f, end.X - skBounds.Location.X);
-                    end.Y = Math.Max(0f, end.Y - skBounds.Location.Y);
-                }
-            }
-            else
+        private LinearGradientBrush ToBrushModel(ShimSkiaSharp.LinearGradientShader linearGradientShader, SkiaSharp.SKRect skBounds, string? key)
+        {
+            var brush = new LinearGradientBrush
             {
-                if (!UseCompatMode)
-                {
-                    if (linearGradientShader.LocalMatrix is null)
-                    {
-                        start.X = Math.Max(0f, start.X - skBounds.Location.X);
-                        start.Y = Math.Max(0f, start.Y - skBounds.Location.Y);
-                        end.X = Math.Max(0f, end.X - skBounds.Location.X);
-                        end.Y = Math.Max(0f, end.Y - skBounds.Location.Y);
-                    }
-                }
-            }
-
-            sb.Append($"<LinearGradientBrush{XamlConverter.ToKey(key)}");
-
-            sb.Append($" StartPoint=\"{XamlConverter.ToPoint(start)}\"");
-            sb.Append($" EndPoint=\"{XamlConverter.ToPoint(end)}\"");
-
-            if (linearGradientShader.Mode != ShimSkiaSharp.SKShaderTileMode.Clamp)
-            {
-                sb.Append($" SpreadMethod=\"{XamlConverter.ToGradientSpreadMethod(linearGradientShader.Mode)}\"");
-            }
-
-            if (UseCompatMode)
-            {
-                sb.Append($" MappingMode=\"Absolute\"");
-            }
-
-            sb.Append($">{NewLine}");
-
-            if (UseBrushTransform)
-            {
-                if (linearGradientShader.LocalMatrix is { })
-                {
-                    // TODO: Missing Transform property on LinearGradientBrush
-                    var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(linearGradientShader.LocalMatrix.Value);
-
-                    if (!UseCompatMode)
-                    {
-                        localMatrix = AdjustMatrixLocation(localMatrix, skBounds.Location.X, skBounds.Location.Y);
-                    }
-
-                    sb.Append($"  <LinearGradientBrush.Transform>{NewLine}");
-                    sb.Append($"    <MatrixTransform Matrix=\"{XamlConverter.ToMatrix(localMatrix)}\"/>{NewLine}");
-                    sb.Append($"  </LinearGradientBrush.Transform>{NewLine}");
-                }
-            }
-
-            sb.Append($"  <LinearGradientBrush.GradientStops>{NewLine}");
+                Key = key,
+                Bounds = skBounds,
+                LocalMatrix = linearGradientShader.LocalMatrix is null
+                    ? null
+                    : Svg.Skia.SkiaModelExtensions.ToSKMatrix(linearGradientShader.LocalMatrix.Value),
+                Start = Svg.Skia.SkiaModelExtensions.ToSKPoint(linearGradientShader.Start),
+                End = Svg.Skia.SkiaModelExtensions.ToSKPoint(linearGradientShader.End),
+                Mode = linearGradientShader.Mode
+            };
 
             if (linearGradientShader.Colors is { } && linearGradientShader.ColorPos is { })
             {
                 for (var i = 0; i < linearGradientShader.Colors.Length; i++)
                 {
-                    var color = XamlConverter.ToHexColor(linearGradientShader.Colors[i]);
-                    var offset = XamlConverter.ToString(linearGradientShader.ColorPos[i]);
-                    sb.Append($"    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{NewLine}");
+                    var color = linearGradientShader.Colors[i];
+                    var offset = linearGradientShader.ColorPos[i];
+                    brush.GradientStops.Add(new GradientStop { Color = color, Offset = offset });
                 }
             }
 
-            sb.Append($"  </LinearGradientBrush.GradientStops>{NewLine}");
-            sb.Append($"</LinearGradientBrush>{NewLine}");
-
-            return sb.ToString();
+            return brush;
         }
 
         private string ToBrush(ShimSkiaSharp.RadialGradientShader radialGradientShader, SkiaSharp.SKRect skBounds, string? key = null)
         {
-            var sb = new StringBuilder();
+            var brush = ToBrushModel(radialGradientShader, skBounds, key);
 
-            var radius = radialGradientShader.Radius;
-
-            var center = Svg.Skia.SkiaModelExtensions.ToSKPoint(radialGradientShader.Center);
-            var gradientOrigin = Svg.Skia.SkiaModelExtensions.ToSKPoint(radialGradientShader.Center);
-
-            if (!UseBrushTransform)
+            var context = new GeneratorContext
             {
-                if (radialGradientShader.LocalMatrix is { })
-                {
-                    var localMatrix =
-                        Svg.Skia.SkiaModelExtensions.ToSKMatrix(radialGradientShader.LocalMatrix.Value);
+                NewLine = NewLine,
+                UseCompatMode = UseCompatMode,
+                UseBrushTransform = UseBrushTransform
+            };
+ 
+            return brush.Generate(context);
+        }
 
-                    localMatrix.TransX = Math.Max(0f, localMatrix.TransX - skBounds.Location.X);
-                    localMatrix.TransY = Math.Max(0f, localMatrix.TransY - skBounds.Location.Y);
-
-                    center = localMatrix.MapPoint(center);
-                    gradientOrigin = localMatrix.MapPoint(gradientOrigin);
-
-                    var radiusMapped = localMatrix.MapVector(new SkiaSharp.SKPoint(radius, 0));
-                    radius = radiusMapped.X;
-                }
-                else
-                {
-                    center.X = Math.Max(0f, center.X - skBounds.Location.X);
-                    center.Y = Math.Max(0f, center.Y - skBounds.Location.Y);
-                    gradientOrigin.X = Math.Max(0f, gradientOrigin.X - skBounds.Location.X);
-                    gradientOrigin.Y = Math.Max(0f, gradientOrigin.Y - skBounds.Location.Y);
-                }
-            }
-            else
+        private Brush ToBrushModel(ShimSkiaSharp.RadialGradientShader radialGradientShader, SkiaSharp.SKRect skBounds, string? key)
+        {
+            var brush = new RadialGradientBrush
             {
-                if (!UseCompatMode)
-                {
-                    if (radialGradientShader.LocalMatrix is null)
-                    {
-                        center.X = Math.Max(0f, center.X - skBounds.Location.X);
-                        center.Y = Math.Max(0f, center.Y - skBounds.Location.Y);
-                        gradientOrigin.X = Math.Max(0f, gradientOrigin.X - skBounds.Location.X);
-                        gradientOrigin.Y = Math.Max(0f, gradientOrigin.Y - skBounds.Location.Y);
-                    }
-                }
-            }
-
-            if (!UseCompatMode)
-            {
-                radius = radius / skBounds.Width;
-            }
-
-            sb.Append($"<RadialGradientBrush{XamlConverter.ToKey(key)}");
-
-            sb.Append($" Center=\"{XamlConverter.ToPoint(center)}\"");
-            sb.Append($" GradientOrigin=\"{XamlConverter.ToPoint(gradientOrigin)}\"");
-
-            if (UseCompatMode)
-            {
-                sb.Append($" RadiusX=\"{XamlConverter.ToString(radius)}\"");
-                sb.Append($" RadiusY=\"{XamlConverter.ToString(radius)}\"");
-            }
-            else
-            {
-                sb.Append($" Radius=\"{XamlConverter.ToString(radius)}\"");
-            }
-
-            if (UseCompatMode)
-            {
-                sb.Append($" MappingMode=\"Absolute\"");
-            }
-
-            if (radialGradientShader.Mode != ShimSkiaSharp.SKShaderTileMode.Clamp)
-            {
-                sb.Append($" SpreadMethod=\"{XamlConverter.ToGradientSpreadMethod(radialGradientShader.Mode)}\"");
-            }
-
-            sb.Append($">{NewLine}");
-
-            if (UseBrushTransform)
-            {
-                if (radialGradientShader.LocalMatrix is { })
-                {
-                    // TODO: Missing Transform property on RadialGradientBrush
-                    var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(radialGradientShader.LocalMatrix.Value);
-
-                    if (!UseCompatMode)
-                    {
-                        localMatrix = AdjustMatrixLocation(localMatrix, skBounds.Location.X, skBounds.Location.Y);
-                    }
-
-                    sb.Append($"  <RadialGradientBrush.Transform>{NewLine}");
-                    sb.Append($"    <MatrixTransform Matrix=\"{XamlConverter.ToMatrix(localMatrix)}\"/>{NewLine}");
-                    sb.Append($"  </RadialGradientBrush.Transform>{NewLine}");
-                }
-            }
-
-            sb.Append($"  <RadialGradientBrush.GradientStops>{NewLine}");
+                Key = key,
+                Bounds = skBounds,
+                LocalMatrix = radialGradientShader.LocalMatrix is null
+                    ? null
+                    : Svg.Skia.SkiaModelExtensions.ToSKMatrix(radialGradientShader.LocalMatrix.Value),
+                Center = Svg.Skia.SkiaModelExtensions.ToSKPoint(radialGradientShader.Center),
+                Radius = radialGradientShader.Radius,
+                Mode = radialGradientShader.Mode
+            };
 
             if (radialGradientShader.Colors is { } && radialGradientShader.ColorPos is { })
             {
                 for (var i = 0; i < radialGradientShader.Colors.Length; i++)
                 {
-                    var color = XamlConverter.ToHexColor(radialGradientShader.Colors[i]);
-                    var offset = XamlConverter.ToString(radialGradientShader.ColorPos[i]);
-                    sb.Append($"    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{NewLine}");
+                    var color = radialGradientShader.Colors[i];
+                    var offset = radialGradientShader.ColorPos[i];
+                    brush.GradientStops.Add(new GradientStop { Color = color, Offset = offset });
                 }
             }
 
-            sb.Append($"  </RadialGradientBrush.GradientStops>{NewLine}");
-            sb.Append($"</RadialGradientBrush>{NewLine}");
-
-            return sb.ToString();
+            return brush;
         }
 
         private string ToBrush(ShimSkiaSharp.TwoPointConicalGradientShader twoPointConicalGradientShader, SkiaSharp.SKRect skBounds, string? key = null)
         {
-            var sb = new StringBuilder();
+            var brush = ToBrushModel(twoPointConicalGradientShader, skBounds, key);
 
-            // NOTE: twoPointConicalGradientShader.StartRadius is always 0.0
-            var startRadius = twoPointConicalGradientShader.StartRadius;
-
-            // TODO: Avalonia is passing 'radius' to 'SKShader.CreateTwoPointConicalGradient' as 'startRadius'
-            // TODO: but we need to pass it as 'endRadius' to 'SKShader.CreateTwoPointConicalGradient'
-            var endRadius = twoPointConicalGradientShader.EndRadius;
-
-            var center = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.End);
-            var gradientOrigin = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.Start);
-
-            if (!UseBrushTransform)
+            var context = new GeneratorContext()
             {
-                if (twoPointConicalGradientShader.LocalMatrix is { })
-                {
-                    var localMatrix =
-                        Svg.Skia.SkiaModelExtensions.ToSKMatrix(twoPointConicalGradientShader.LocalMatrix.Value);
+                NewLine = NewLine,
+                UseCompatMode = UseCompatMode,
+                UseBrushTransform = UseBrushTransform
+            };
+ 
+            return brush.Generate(context);
+        }
 
-                    localMatrix.TransX = Math.Max(0f, localMatrix.TransX - skBounds.Location.X);
-                    localMatrix.TransY = Math.Max(0f, localMatrix.TransY - skBounds.Location.Y);
-
-                    center = localMatrix.MapPoint(center);
-                    gradientOrigin = localMatrix.MapPoint(gradientOrigin);
-
-                    var radiusMapped = localMatrix.MapVector(new SkiaSharp.SKPoint(endRadius, 0));
-                    endRadius = radiusMapped.X;
-                }
-                else
-                {
-                    center.X = Math.Max(0f, center.X - skBounds.Location.X);
-                    center.Y = Math.Max(0f, center.Y - skBounds.Location.Y);
-                    gradientOrigin.X = Math.Max(0f, gradientOrigin.X - skBounds.Location.X);
-                    gradientOrigin.Y = Math.Max(0f, gradientOrigin.Y - skBounds.Location.Y);
-                }
-            }
-            else
+        private Brush ToBrushModel(ShimSkiaSharp.TwoPointConicalGradientShader twoPointConicalGradientShader, SkiaSharp.SKRect skBounds, string? key)
+        {
+            var brush = new TwoPointConicalGradientBrush()
             {
-                if (!UseCompatMode)
-                {
-                    if (twoPointConicalGradientShader.LocalMatrix is null)
-                    {
-                        center.X = Math.Max(0f, center.X - skBounds.Location.X);
-                        center.Y = Math.Max(0f, center.Y - skBounds.Location.Y);
-                        gradientOrigin.X = Math.Max(0f, gradientOrigin.X - skBounds.Location.X);
-                        gradientOrigin.Y = Math.Max(0f, gradientOrigin.Y - skBounds.Location.Y);
-                    }
-                }
-            }
-
-            if (!UseCompatMode)
-            {
-                endRadius = endRadius / skBounds.Width;
-            }
-
-            sb.Append($"<RadialGradientBrush{XamlConverter.ToKey(key)}");
-
-            sb.Append($" Center=\"{XamlConverter.ToPoint(center)}\"");
-            sb.Append($" GradientOrigin=\"{XamlConverter.ToPoint(gradientOrigin)}\"");
-
-            if (UseCompatMode)
-            {
-                sb.Append($" RadiusX=\"{XamlConverter.ToString(endRadius)}\"");
-                sb.Append($" RadiusY=\"{XamlConverter.ToString(endRadius)}\"");
-            }
-            else
-            {
-                sb.Append($" Radius=\"{XamlConverter.ToString(endRadius)}\"");
-            }
-
-            if (UseCompatMode)
-            {
-                sb.Append($" MappingMode=\"Absolute\"");
-            }
-
-            if (twoPointConicalGradientShader.Mode != ShimSkiaSharp.SKShaderTileMode.Clamp)
-            {
-                sb.Append($" SpreadMethod=\"{XamlConverter.ToGradientSpreadMethod(twoPointConicalGradientShader.Mode)}\"");
-            }
-
-            sb.Append($">{NewLine}");
-
-            if (UseBrushTransform)
-            {
-                if (twoPointConicalGradientShader.LocalMatrix is { })
-                {
-                    // TODO: Missing Transform property on RadialGradientBrush
-                    var localMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(twoPointConicalGradientShader.LocalMatrix.Value);
-
-                    if (!UseCompatMode)
-                    {
-                        localMatrix = AdjustMatrixLocation(localMatrix, skBounds.Location.X, skBounds.Location.Y);
-                    }
-
-                    sb.Append($"  <RadialGradientBrush.Transform>{NewLine}");
-                    sb.Append($"    <MatrixTransform Matrix=\"{XamlConverter.ToMatrix(localMatrix)}\"/>{NewLine}");
-                    sb.Append($"  </RadialGradientBrush.Transform>{NewLine}");
-                }
-            }
-
-            sb.Append($"  <RadialGradientBrush.GradientStops>{NewLine}");
+                Key = key,
+                Bounds = skBounds,
+                LocalMatrix = twoPointConicalGradientShader.LocalMatrix is null
+                    ? null
+                    : Svg.Skia.SkiaModelExtensions.ToSKMatrix(twoPointConicalGradientShader.LocalMatrix.Value),
+                Start = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.Start),
+                End = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.End),
+                StartRadius = twoPointConicalGradientShader.StartRadius,
+                EndRadius = twoPointConicalGradientShader.EndRadius,
+                Mode = twoPointConicalGradientShader.Mode
+            };
 
             if (twoPointConicalGradientShader.Colors is { } && twoPointConicalGradientShader.ColorPos is { })
             {
                 for (var i = 0; i < twoPointConicalGradientShader.Colors.Length; i++)
                 {
-                    var color = XamlConverter.ToHexColor(twoPointConicalGradientShader.Colors[i]);
-                    var offset = XamlConverter.ToString(twoPointConicalGradientShader.ColorPos[i]);
-                    sb.Append($"    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{NewLine}");
+                    var color = twoPointConicalGradientShader.Colors[i];
+                    var offset = twoPointConicalGradientShader.ColorPos[i];
+                    brush.GradientStops.Add(new GradientStop { Color = color, Offset = offset });
                 }
             }
 
-            sb.Append($"  </RadialGradientBrush.GradientStops>{NewLine}");
-            sb.Append($"</RadialGradientBrush>{NewLine}");
-
-            return sb.ToString();
+            return brush;
         }
 
         private string ToBrush(ShimSkiaSharp.PictureShader pictureShader, SkiaSharp.SKRect skBounds, string? key = null)
@@ -473,6 +281,21 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
+        private Brush? ToBrushModel(ShimSkiaSharp.PictureShader pictureShader, SkiaSharp.SKRect skBounds, string? key = null)
+        {
+            var brush = new PictureBrush
+            {
+                Key = key,
+                Bounds = skBounds,
+                Picture = null, // TODO:
+                CullRect =  pictureShader.Src?.CullRect ?? ShimSkiaSharp.SKRect.Empty,
+                Tile = pictureShader.Tile,
+                TileMode = pictureShader.TmX
+            };
+
+            return brush;
+        }
+
         private string ToBrush(ShimSkiaSharp.SKShader skShader, SkiaSharp.SKRect skBounds, string? key = null)
         {
             return skShader switch
@@ -486,6 +309,19 @@ namespace SvgToXamlConverter
             };
         }
 
+        private Brush? ToBrushModel(ShimSkiaSharp.SKShader skShader, SkiaSharp.SKRect skBounds, string? key = null)
+        {
+            return skShader switch
+            {
+                ShimSkiaSharp.ColorShader colorShader => ToBrushModel(colorShader, skBounds, key),
+                ShimSkiaSharp.LinearGradientShader linearGradientShader => ToBrushModel(linearGradientShader, skBounds, key),
+                ShimSkiaSharp.RadialGradientShader radialGradientShader => ToBrushModel(radialGradientShader, skBounds, key),
+                ShimSkiaSharp.TwoPointConicalGradientShader twoPointConicalGradientShader => ToBrushModel(twoPointConicalGradientShader, skBounds, key),
+                ShimSkiaSharp.PictureShader pictureShader => ToBrushModel(pictureShader, skBounds, key),
+                _ => null
+            };
+        }
+
         private string ToPen(ShimSkiaSharp.SKPaint skPaint, SkiaSharp.SKRect skBounds, string? key = null)
         {
             if (skPaint.Shader is null)
@@ -493,127 +329,37 @@ namespace SvgToXamlConverter
                 return "";
             }
 
-            var sb = new StringBuilder();
+            var pen = ToPenModel(skPaint, skBounds, key);
 
-            sb.Append($"<Pen{XamlConverter.ToKey(key)}");
-
-            if (skPaint.Shader is ShimSkiaSharp.ColorShader colorShader)
+            var context = new GeneratorContext()
             {
-                sb.Append($" Brush=\"{XamlConverter.ToHexColor(colorShader.Color)}\"");
-            }
+                NewLine = NewLine,
+                UseCompatMode = UseCompatMode,
+                UseBrushTransform = UseBrushTransform
+            };
+ 
+            return pen.Generate(context);
+        }
 
-            // ReSharper disable once CompareOfFloatsByEqualityOperator
-            if (skPaint.StrokeWidth != 1.0)
+        private Pen ToPenModel(ShimSkiaSharp.SKPaint skPaint, SkiaSharp.SKRect skBounds, string? key)
+        {
+            var pen = new Pen()
             {
-                sb.Append($" Thickness=\"{XamlConverter.ToString(skPaint.StrokeWidth)}\"");
-            }
+                Key = key,
+                Bounds = skBounds,
+                Brush = skPaint.Shader is { } 
+                    ? ToBrushModel(skPaint.Shader, skBounds) 
+                    : null,
+                StrokeWidth = skPaint.StrokeWidth,
+                StrokeCap = skPaint.StrokeCap,
+                StrokeJoin = skPaint.StrokeJoin,
+                StrokeMiter = skPaint.StrokeMiter,
+                Dashes = skPaint.PathEffect is ShimSkiaSharp.DashPathEffect(var intervals, var phase) { Intervals: { } }
+                    ? new Dashes() { Intervals = intervals, Phase = phase }
+                    : null
+            };
 
-            if (skPaint.StrokeCap != ShimSkiaSharp.SKStrokeCap.Butt)
-            {
-                if (UseCompatMode)
-                {
-                    sb.Append($" StartLineCap=\"{XamlConverter.ToPenLineCap(skPaint.StrokeCap)}\"");
-                    sb.Append($" EndLineCap=\"{XamlConverter.ToPenLineCap(skPaint.StrokeCap)}\"");
-                }
-                else
-                {
-                    sb.Append($" LineCap=\"{XamlConverter.ToPenLineCap(skPaint.StrokeCap)}\"");
-                }
-            }
-
-            if (UseCompatMode)
-            {
-                if (skPaint.PathEffect is ShimSkiaSharp.DashPathEffect { Intervals: { } })
-                {
-                    if (skPaint.StrokeCap != ShimSkiaSharp.SKStrokeCap.Square)
-                    {
-                        sb.Append($" DashCap=\"{XamlConverter.ToPenLineCap(skPaint.StrokeCap)}\"");
-                    }
-                }
-
-                if (skPaint.StrokeJoin != ShimSkiaSharp.SKStrokeJoin.Miter)
-                {
-                    sb.Append($" LineJoin=\"{XamlConverter.ToPenLineJoin(skPaint.StrokeJoin)}\"");
-                }
-            }
-            else
-            {
-                if (skPaint.StrokeJoin != ShimSkiaSharp.SKStrokeJoin.Bevel)
-                {
-                    sb.Append($" LineJoin=\"{XamlConverter.ToPenLineJoin(skPaint.StrokeJoin)}\"");
-                }
-            }
-
-            if (UseCompatMode)
-            {
-                var miterLimit = skPaint.StrokeMiter;
-                var strokeWidth = skPaint.StrokeWidth;
-
-                if (miterLimit < 1.0f)
-                {
-                    miterLimit = 10.0f;
-                }
-                else
-                {
-                    if (strokeWidth <= 0.0f)
-                    {
-                        miterLimit = 1.0f;
-                    }
-                }
-
-                // ReSharper disable once CompareOfFloatsByEqualityOperator
-                if (miterLimit != 10.0)
-                {
-                    sb.Append($" MiterLimit=\"{XamlConverter.ToString(miterLimit)}\"");
-                }
-            }
-            else
-            {
-                // ReSharper disable once CompareOfFloatsByEqualityOperator
-                if (skPaint.StrokeMiter != 10.0)
-                {
-                    sb.Append($" MiterLimit=\"{XamlConverter.ToString(skPaint.StrokeMiter)}\"");
-                }
-            }
-
-            if (skPaint.Shader is not ShimSkiaSharp.ColorShader || (skPaint.PathEffect is ShimSkiaSharp.DashPathEffect { Intervals: { } }))
-            {
-                sb.Append($">{NewLine}");
-            }
-            else
-            {
-                sb.Append($"/>{NewLine}");
-            }
-
-            if (skPaint.PathEffect is ShimSkiaSharp.DashPathEffect dashPathEffect && dashPathEffect.Intervals is { })
-            {
-                var dashes = new List<double>();
-
-                foreach (var interval in dashPathEffect.Intervals)
-                {
-                    dashes.Add(interval / skPaint.StrokeWidth);
-                }
-
-                var offset = dashPathEffect.Phase / skPaint.StrokeWidth;
-
-                sb.Append($"  <Pen.DashStyle>{NewLine}");
-                sb.Append($"    <DashStyle Dashes=\"{string.Join(",", dashes.Select(XamlConverter.ToString))}\" Offset=\"{XamlConverter.ToString(offset)}\"/>{NewLine}");
-                sb.Append($"  </Pen.DashStyle>{NewLine}");
-            }
-
-            if (skPaint.Shader is not ShimSkiaSharp.ColorShader)
-            {
-                sb.Append($"  <Pen.Brush>{NewLine}");
-                sb.Append(ToBrush(skPaint.Shader, skBounds));
-                sb.Append($"  </Pen.Brush>{NewLine}");
-            }
-
-            if (skPaint.Shader is not ShimSkiaSharp.ColorShader || (skPaint.PathEffect is ShimSkiaSharp.DashPathEffect { Intervals: { } }))
-            {
-                sb.Append($"</Pen>{NewLine}");
-            }
-
-            return sb.ToString();
+            return pen;
         }
 
         private void ToXamlGeometryDrawing(SkiaSharp.SKPath path, ShimSkiaSharp.SKPaint skPaint, StringBuilder sb, Resources? resources = null, bool reuseExistingResources = false)
