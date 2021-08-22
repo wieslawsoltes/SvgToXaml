@@ -845,4 +845,17 @@ namespace SvgToXamlConverter
             throw new NotImplementedException();
         }
     }
+
+    public record GeneratorFactory(GeneratorContext Context)
+    {
+        public Brush? CreateBrush(ShimSkiaSharp.SKShader skShader, SkiaSharp.SKRect skBounds, string? key = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Pen? CreatePen(ShimSkiaSharp.SKShader skShader, SkiaSharp.SKRect skBounds, string? key = null)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
