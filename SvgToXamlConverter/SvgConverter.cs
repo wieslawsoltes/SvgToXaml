@@ -55,13 +55,7 @@ namespace SvgToXamlConverter
 
         private string ToBrush(ShimSkiaSharp.ColorShader colorShader, SkiaSharp.SKRect skBounds, string? key = null)
         {
-            var brush = new SolidColorBrush
-            {
-                Key = key,
-                Bounds = skBounds,
-                LocalMatrix = null,
-                Color = colorShader.Color
-            };
+            var brush = ToBrushModel(colorShader, skBounds, key);
 
             var context = new GeneratorContext
             {
@@ -87,33 +81,6 @@ namespace SvgToXamlConverter
             return brush.Generate(context);
         }
 
-        private LinearGradientBrush ToBrushModel(ShimSkiaSharp.LinearGradientShader linearGradientShader, SkiaSharp.SKRect skBounds, string? key)
-        {
-            var brush = new LinearGradientBrush
-            {
-                Key = key,
-                Bounds = skBounds,
-                LocalMatrix = linearGradientShader.LocalMatrix is null
-                    ? null
-                    : Svg.Skia.SkiaModelExtensions.ToSKMatrix(linearGradientShader.LocalMatrix.Value),
-                Start = Svg.Skia.SkiaModelExtensions.ToSKPoint(linearGradientShader.Start),
-                End = Svg.Skia.SkiaModelExtensions.ToSKPoint(linearGradientShader.End),
-                Mode = linearGradientShader.Mode
-            };
-
-            if (linearGradientShader.Colors is { } && linearGradientShader.ColorPos is { })
-            {
-                for (var i = 0; i < linearGradientShader.Colors.Length; i++)
-                {
-                    var color = linearGradientShader.Colors[i];
-                    var offset = linearGradientShader.ColorPos[i];
-                    brush.GradientStops.Add(new GradientStop { Color = color, Offset = offset });
-                }
-            }
-
-            return brush;
-        }
-
         private string ToBrush(ShimSkiaSharp.RadialGradientShader radialGradientShader, SkiaSharp.SKRect skBounds, string? key = null)
         {
             var brush = ToBrushModel(radialGradientShader, skBounds, key);
@@ -128,33 +95,6 @@ namespace SvgToXamlConverter
             return brush.Generate(context);
         }
 
-        private Brush ToBrushModel(ShimSkiaSharp.RadialGradientShader radialGradientShader, SkiaSharp.SKRect skBounds, string? key)
-        {
-            var brush = new RadialGradientBrush
-            {
-                Key = key,
-                Bounds = skBounds,
-                LocalMatrix = radialGradientShader.LocalMatrix is null
-                    ? null
-                    : Svg.Skia.SkiaModelExtensions.ToSKMatrix(radialGradientShader.LocalMatrix.Value),
-                Center = Svg.Skia.SkiaModelExtensions.ToSKPoint(radialGradientShader.Center),
-                Radius = radialGradientShader.Radius,
-                Mode = radialGradientShader.Mode
-            };
-
-            if (radialGradientShader.Colors is { } && radialGradientShader.ColorPos is { })
-            {
-                for (var i = 0; i < radialGradientShader.Colors.Length; i++)
-                {
-                    var color = radialGradientShader.Colors[i];
-                    var offset = radialGradientShader.ColorPos[i];
-                    brush.GradientStops.Add(new GradientStop { Color = color, Offset = offset });
-                }
-            }
-
-            return brush;
-        }
-
         private string ToBrush(ShimSkiaSharp.TwoPointConicalGradientShader twoPointConicalGradientShader, SkiaSharp.SKRect skBounds, string? key = null)
         {
             var brush = ToBrushModel(twoPointConicalGradientShader, skBounds, key);
@@ -167,35 +107,6 @@ namespace SvgToXamlConverter
             };
  
             return brush.Generate(context);
-        }
-
-        private Brush ToBrushModel(ShimSkiaSharp.TwoPointConicalGradientShader twoPointConicalGradientShader, SkiaSharp.SKRect skBounds, string? key)
-        {
-            var brush = new TwoPointConicalGradientBrush()
-            {
-                Key = key,
-                Bounds = skBounds,
-                LocalMatrix = twoPointConicalGradientShader.LocalMatrix is null
-                    ? null
-                    : Svg.Skia.SkiaModelExtensions.ToSKMatrix(twoPointConicalGradientShader.LocalMatrix.Value),
-                Start = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.Start),
-                End = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.End),
-                StartRadius = twoPointConicalGradientShader.StartRadius,
-                EndRadius = twoPointConicalGradientShader.EndRadius,
-                Mode = twoPointConicalGradientShader.Mode
-            };
-
-            if (twoPointConicalGradientShader.Colors is { } && twoPointConicalGradientShader.ColorPos is { })
-            {
-                for (var i = 0; i < twoPointConicalGradientShader.Colors.Length; i++)
-                {
-                    var color = twoPointConicalGradientShader.Colors[i];
-                    var offset = twoPointConicalGradientShader.ColorPos[i];
-                    brush.GradientStops.Add(new GradientStop { Color = color, Offset = offset });
-                }
-            }
-
-            return brush;
         }
 
         private string ToBrush(ShimSkiaSharp.PictureShader pictureShader, SkiaSharp.SKRect skBounds, string? key = null)
@@ -281,21 +192,6 @@ namespace SvgToXamlConverter
             return sb.ToString();
         }
 
-        private Brush? ToBrushModel(ShimSkiaSharp.PictureShader pictureShader, SkiaSharp.SKRect skBounds, string? key = null)
-        {
-            var brush = new PictureBrush
-            {
-                Key = key,
-                Bounds = skBounds,
-                Picture = null, // TODO:
-                CullRect =  pictureShader.Src?.CullRect ?? ShimSkiaSharp.SKRect.Empty,
-                Tile = pictureShader.Tile,
-                TileMode = pictureShader.TmX
-            };
-
-            return brush;
-        }
-
         private string ToBrush(ShimSkiaSharp.SKShader skShader, SkiaSharp.SKRect skBounds, string? key = null)
         {
             return skShader switch
@@ -306,19 +202,6 @@ namespace SvgToXamlConverter
                 ShimSkiaSharp.TwoPointConicalGradientShader twoPointConicalGradientShader => ToBrush(twoPointConicalGradientShader, skBounds, key),
                 ShimSkiaSharp.PictureShader pictureShader => ToBrush(pictureShader, skBounds, key),
                 _ => ""
-            };
-        }
-
-        private Brush? ToBrushModel(ShimSkiaSharp.SKShader skShader, SkiaSharp.SKRect skBounds, string? key = null)
-        {
-            return skShader switch
-            {
-                ShimSkiaSharp.ColorShader colorShader => ToBrushModel(colorShader, skBounds, key),
-                ShimSkiaSharp.LinearGradientShader linearGradientShader => ToBrushModel(linearGradientShader, skBounds, key),
-                ShimSkiaSharp.RadialGradientShader radialGradientShader => ToBrushModel(radialGradientShader, skBounds, key),
-                ShimSkiaSharp.TwoPointConicalGradientShader twoPointConicalGradientShader => ToBrushModel(twoPointConicalGradientShader, skBounds, key),
-                ShimSkiaSharp.PictureShader pictureShader => ToBrushModel(pictureShader, skBounds, key),
-                _ => null
             };
         }
 
@@ -339,6 +222,130 @@ namespace SvgToXamlConverter
             };
  
             return pen.Generate(context);
+        }
+
+        private Brush ToBrushModel(ShimSkiaSharp.ColorShader colorShader, SkiaSharp.SKRect skBounds, string? key = null)
+        {
+            var brush = new SolidColorBrush
+            {
+                Key = key,
+                Bounds = skBounds,
+                LocalMatrix = null,
+                Color = colorShader.Color
+            };
+
+            return brush;
+        }
+
+        private LinearGradientBrush ToBrushModel(ShimSkiaSharp.LinearGradientShader linearGradientShader, SkiaSharp.SKRect skBounds, string? key)
+        {
+            var brush = new LinearGradientBrush
+            {
+                Key = key,
+                Bounds = skBounds,
+                LocalMatrix = linearGradientShader.LocalMatrix is null
+                    ? null
+                    : Svg.Skia.SkiaModelExtensions.ToSKMatrix(linearGradientShader.LocalMatrix.Value),
+                Start = Svg.Skia.SkiaModelExtensions.ToSKPoint(linearGradientShader.Start),
+                End = Svg.Skia.SkiaModelExtensions.ToSKPoint(linearGradientShader.End),
+                Mode = linearGradientShader.Mode
+            };
+
+            if (linearGradientShader.Colors is { } && linearGradientShader.ColorPos is { })
+            {
+                for (var i = 0; i < linearGradientShader.Colors.Length; i++)
+                {
+                    var color = linearGradientShader.Colors[i];
+                    var offset = linearGradientShader.ColorPos[i];
+                    brush.GradientStops.Add(new GradientStop { Color = color, Offset = offset });
+                }
+            }
+
+            return brush;
+        }
+
+        private Brush ToBrushModel(ShimSkiaSharp.RadialGradientShader radialGradientShader, SkiaSharp.SKRect skBounds, string? key)
+        {
+            var brush = new RadialGradientBrush
+            {
+                Key = key,
+                Bounds = skBounds,
+                LocalMatrix = radialGradientShader.LocalMatrix is null
+                    ? null
+                    : Svg.Skia.SkiaModelExtensions.ToSKMatrix(radialGradientShader.LocalMatrix.Value),
+                Center = Svg.Skia.SkiaModelExtensions.ToSKPoint(radialGradientShader.Center),
+                Radius = radialGradientShader.Radius,
+                Mode = radialGradientShader.Mode
+            };
+
+            if (radialGradientShader.Colors is { } && radialGradientShader.ColorPos is { })
+            {
+                for (var i = 0; i < radialGradientShader.Colors.Length; i++)
+                {
+                    var color = radialGradientShader.Colors[i];
+                    var offset = radialGradientShader.ColorPos[i];
+                    brush.GradientStops.Add(new GradientStop { Color = color, Offset = offset });
+                }
+            }
+
+            return brush;
+        }
+
+        private Brush ToBrushModel(ShimSkiaSharp.TwoPointConicalGradientShader twoPointConicalGradientShader, SkiaSharp.SKRect skBounds, string? key)
+        {
+            var brush = new TwoPointConicalGradientBrush()
+            {
+                Key = key,
+                Bounds = skBounds,
+                LocalMatrix = twoPointConicalGradientShader.LocalMatrix is null
+                    ? null
+                    : Svg.Skia.SkiaModelExtensions.ToSKMatrix(twoPointConicalGradientShader.LocalMatrix.Value),
+                Start = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.Start),
+                End = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.End),
+                StartRadius = twoPointConicalGradientShader.StartRadius,
+                EndRadius = twoPointConicalGradientShader.EndRadius,
+                Mode = twoPointConicalGradientShader.Mode
+            };
+
+            if (twoPointConicalGradientShader.Colors is { } && twoPointConicalGradientShader.ColorPos is { })
+            {
+                for (var i = 0; i < twoPointConicalGradientShader.Colors.Length; i++)
+                {
+                    var color = twoPointConicalGradientShader.Colors[i];
+                    var offset = twoPointConicalGradientShader.ColorPos[i];
+                    brush.GradientStops.Add(new GradientStop { Color = color, Offset = offset });
+                }
+            }
+
+            return brush;
+        }
+
+        private Brush? ToBrushModel(ShimSkiaSharp.PictureShader pictureShader, SkiaSharp.SKRect skBounds, string? key = null)
+        {
+            var brush = new PictureBrush
+            {
+                Key = key,
+                Bounds = skBounds,
+                Picture = null, // TODO:
+                CullRect =  pictureShader.Src?.CullRect ?? ShimSkiaSharp.SKRect.Empty,
+                Tile = pictureShader.Tile,
+                TileMode = pictureShader.TmX
+            };
+
+            return brush;
+        }
+
+        private Brush? ToBrushModel(ShimSkiaSharp.SKShader skShader, SkiaSharp.SKRect skBounds, string? key = null)
+        {
+            return skShader switch
+            {
+                ShimSkiaSharp.ColorShader colorShader => ToBrushModel(colorShader, skBounds, key),
+                ShimSkiaSharp.LinearGradientShader linearGradientShader => ToBrushModel(linearGradientShader, skBounds, key),
+                ShimSkiaSharp.RadialGradientShader radialGradientShader => ToBrushModel(radialGradientShader, skBounds, key),
+                ShimSkiaSharp.TwoPointConicalGradientShader twoPointConicalGradientShader => ToBrushModel(twoPointConicalGradientShader, skBounds, key),
+                ShimSkiaSharp.PictureShader pictureShader => ToBrushModel(pictureShader, skBounds, key),
+                _ => null
+            };
         }
 
         private Pen ToPenModel(ShimSkiaSharp.SKPaint skPaint, SkiaSharp.SKRect skBounds, string? key)
