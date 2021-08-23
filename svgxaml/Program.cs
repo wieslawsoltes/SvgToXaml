@@ -58,7 +58,9 @@ namespace svgxaml
                     var converter = new SvgConverter()
                     {
                         UseCompatMode = false,
-                        UseBrushTransform = false
+                        UseBrushTransform = false,
+                        ReuseExistingResources = false,
+                        Resources = null
                     };
 
                     var xaml = converter.ToXamlStyles(paths);
@@ -80,7 +82,9 @@ namespace svgxaml
                     var converter = new SvgConverter()
                     {
                         UseCompatMode = false,
-                        UseBrushTransform = false
+                        UseBrushTransform = false,
+                        ReuseExistingResources = false,
+                        Resources = null
                     };
 
                     var skSvg = new SKSvg();
