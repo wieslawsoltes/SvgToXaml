@@ -36,7 +36,7 @@ namespace SvgToXamlConverter
             return drawingGroup.Generate(context);
         }
 
-        public string ToXamlImage(ShimSkiaSharp.SKPicture? skPicture, string? key = null, bool writeResources = true)
+        public string ToXamlImage(ShimSkiaSharp.SKPicture? skPicture, string? key = null)
         {
             var drawingGroup = new DrawingGroup(skPicture, Resources);
             var drawingImage = new DrawingImage(drawingGroup);
@@ -48,7 +48,7 @@ namespace SvgToXamlConverter
                 UseCompatMode = UseCompatMode,
                 UseBrushTransform = UseBrushTransform,
                 ReuseExistingResources = ReuseExistingResources,
-                WriteResources = writeResources,
+                WriteResources = true,
                 Resources = Resources
             };
 

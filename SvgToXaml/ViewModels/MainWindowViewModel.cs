@@ -261,7 +261,7 @@ namespace SvgToXaml.ViewModels
                         Resources = _settings.UseResources ? new SvgToXamlConverter.ResourceDictionary() : null
                     };
 
-                    var xaml = converter.ToXamlImage(skSvg.Model, writeResources: true);
+                    var xaml = converter.ToXamlImage(skSvg.Model);
                     return converter.Format(xaml);
                 }
                 else
@@ -346,7 +346,7 @@ namespace SvgToXaml.ViewModels
                             Resources = _settings.UseResources ? new SvgToXamlConverter.ResourceDictionary() : null
                         };
 
-                        var xaml = converter.ToXamlImage(fileItemViewModel.Svg.Model, writeResources: true);
+                        var xaml = converter.ToXamlImage(fileItemViewModel.Svg.Model);
                         return converter.Format(xaml);
                     }
                     else
