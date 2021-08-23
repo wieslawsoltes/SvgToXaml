@@ -424,7 +424,7 @@ namespace SvgToXamlConverter
             {
                 // clip-path
 
-                if (currentClipPath is { })
+                if (currentClipPath.Builder is { })
                 {
                     //sb.Append($"</DrawingGroup>{NewLine}");
 
@@ -442,7 +442,7 @@ namespace SvgToXamlConverter
 
                 // matrix
 
-                if (currentTotalMatrix is { })
+                if (currentTotalMatrix.Builder is { })
                 {
                     //sb.Append($"</DrawingGroup>{NewLine}");
                     sb = currentTotalMatrix.Builder;
