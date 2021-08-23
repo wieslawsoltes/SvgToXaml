@@ -36,7 +36,7 @@ namespace SvgToXamlConverter
 
                 var isStroked = Paint.Style is ShimSkiaSharp.SKPaintStyle.StrokeAndFill or ShimSkiaSharp.SKPaintStyle.Stroke;
 
-                if (isStroked && Pen is { })
+                if (isStroked && Paint.Shader is { })
                 {
                     var resourceKey = resources is { } ? $"Pen{resources.PenCounter++}" : null;
 
