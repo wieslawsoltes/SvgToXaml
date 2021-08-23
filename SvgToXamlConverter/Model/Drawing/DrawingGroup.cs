@@ -20,13 +20,13 @@ namespace SvgToXamlConverter
 
         public ShimSkiaSharp.SKPicture? Picture { get; }
 
-        public double? Opacity { get; init; }
+        public double? Opacity { get; set; }
 
-        public SkiaSharp.SKMatrix? Transform { get; init; }
+        public SkiaSharp.SKMatrix? Transform { get; set; }
 
-        public SkiaSharp.SKPath? ClipGeometry { get; init; }
+        public SkiaSharp.SKPath? ClipGeometry { get; set; }
 
-        public Brush? OpacityMask { get; init; }
+        public Brush? OpacityMask { get; set; }
 
         public List<Drawing> Children { get; } = new();
 
@@ -369,17 +369,12 @@ namespace SvgToXamlConverter
 
                         if (paint.Color is { } skColor)
                         {
-                            var drawing = new DrawingGroup
-                            {
-                                Opacity = skColor.Alpha / 255.0
-                            };
-
                             if (content is { })
                             {
-                                drawing.Children.Add(content);
+                                content.Opacity = skColor.Alpha / 255.0;
+
+                                sb.Children.Add(content);
                             }
-                            
-                            sb.Children.Add(drawing);
                         }
 
                         break;
