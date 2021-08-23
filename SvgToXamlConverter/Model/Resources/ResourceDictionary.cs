@@ -13,18 +13,37 @@ namespace SvgToXamlConverter
 
         public int PenCounter { get; set; }
 
+        public HashSet<Brush> UseBrushes { get; init; } = new();
+
+        public HashSet<Pen> UsePens { get; init; } = new();
+
         public string Generate(GeneratorContext context)
         {
             var sb = new StringBuilder();
 
-            foreach (var resource in Brushes)
+            if (context.ReuseExistingResources)
             {
-                sb.Append(resource.Value.Brush.Generate(context));
-            }
+                foreach (var resource in UseBrushes)
+                {
+                    sb.Append(resource.Generate(context));
+                }
 
-            foreach (var resource in Pens)
+                foreach (var resource in UsePens)
+                {
+                    sb.Append(resource.Generate(context));
+                }
+            }
+            else
             {
-                sb.Append(resource.Value.Pen.Generate(context));
+                 foreach (var resource in Brushes)
+                 {
+                     sb.Append(resource.Value.Brush.Generate(context));
+                 }
+
+                 foreach (var resource in Pens)
+                 {
+                     sb.Append(resource.Value.Pen.Generate(context));
+                 }               
             }
 
             return sb.ToString();

@@ -11,33 +11,35 @@ namespace SvgToXamlConverter
     {
         public string NewLine { get; set; } = "\r\n";
 
-        public bool UseCompatMode { get; set; } = false;
+        public bool UseCompatMode { get; set; }
 
-        public bool UseBrushTransform { get; set; } = false;
+        public bool UseBrushTransform { get; set; }
 
-        public string ToXamlDrawingGroup(ShimSkiaSharp.SKPicture? skPicture, ResourceDictionary? resources = null, bool reuseExistingResources = false, string? key = null)
+        public bool ReuseExistingResources { get; set; }
+
+        public ResourceDictionary? Resources { get; set; }
+
+        public string ToXamlDrawingGroup(ShimSkiaSharp.SKPicture? skPicture, string? key = null)
         {
-            var drawingGroup = new DrawingGroup(skPicture, resources, key);
+            var drawingGroup = new DrawingGroup(skPicture, Resources, key);
 
             var context = new GeneratorContext
             {
                 NewLine = NewLine,
                 UseCompatMode = UseCompatMode,
                 UseBrushTransform = UseBrushTransform,
-                ReuseExistingResources = reuseExistingResources,
+                ReuseExistingResources = ReuseExistingResources,
                 WriteResources = false,
-                Resources = resources
+                Resources = Resources
             };
 
             return drawingGroup.Generate(context);
         }
 
-        public string ToXamlImage(ShimSkiaSharp.SKPicture? skPicture, ResourceDictionary? resources = null, bool reuseExistingResources = false, string? key = null, bool writeResources = true)
+        public string ToXamlImage(ShimSkiaSharp.SKPicture? skPicture, string? key = null, bool writeResources = true)
         {
-            var drawingGroup = new DrawingGroup(skPicture, resources);
-
+            var drawingGroup = new DrawingGroup(skPicture, Resources);
             var drawingImage = new DrawingImage(drawingGroup);
-
             var image = new Image(drawingImage, key);
 
             var context = new GeneratorContext
@@ -45,18 +47,18 @@ namespace SvgToXamlConverter
                 NewLine = NewLine,
                 UseCompatMode = UseCompatMode,
                 UseBrushTransform = UseBrushTransform,
-                ReuseExistingResources = reuseExistingResources,
+                ReuseExistingResources = ReuseExistingResources,
                 WriteResources = writeResources,
-                Resources = resources
+                Resources = Resources
             };
 
             return image.Generate(context);
         }
 
-        public string ToXamlStyles(List<string> paths, ResourceDictionary? resources = null, bool reuseExistingResources = false, bool generateImage = false, bool generatePreview = true)
+        public string ToXamlStyles(List<string> paths, bool generateImage = false, bool generatePreview = true)
         {
-            var results = new List<(string Path, string Key, string Xaml)>();
-
+            var results = new List<(string Path, string Key, Resource Resource)>();
+ 
             foreach (var path in paths)
             {
                 try
@@ -71,13 +73,15 @@ namespace SvgToXamlConverter
                     var key = $"_{CreateKey(path)}";
                     if (generateImage)
                     {
-                        var xaml = ToXamlImage(svg.Model, resources, reuseExistingResources, key, writeResources: false);
-                        results.Add((path, key, xaml));
+                        var drawingGroup = new DrawingGroup(svg.Model, Resources);
+                        var drawingImage = new DrawingImage(drawingGroup);
+                        var image = new Image(drawingImage, key);
+                        results.Add((path, key, image));
                     }
                     else
                     {
-                        var xaml = ToXamlDrawingGroup(svg.Model, resources, reuseExistingResources, key);
-                        results.Add((path, key, xaml));
+                        var drawingGroup = new DrawingGroup(svg.Model, Resources, key);
+                        results.Add((path, key, drawingGroup));
                     }
                 }
                 catch
@@ -86,96 +90,20 @@ namespace SvgToXamlConverter
                 }
             }
 
-            var sb = new StringBuilder();
+            var resources = results.Select(x => x.Resource).ToList();
+            var styles = new Styles(resources, generateImage, generatePreview);
 
-            if (UseCompatMode)
+            var context = new GeneratorContext
             {
-                sb.Append($"<ResourceDictionary xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"{NewLine}");
-                sb.Append($"                    xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">{NewLine}");
-            }
-            else
-            {
-                sb.Append($"<Styles xmlns=\"https://github.com/avaloniaui\"{NewLine}");
-                sb.Append($"        xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">{NewLine}");
-            }
+                NewLine = NewLine,
+                UseCompatMode = UseCompatMode,
+                UseBrushTransform = UseBrushTransform,
+                ReuseExistingResources = ReuseExistingResources,
+                WriteResources = false,
+                Resources = Resources
+            };
 
-            if (generatePreview && !UseCompatMode)
-            {
-                sb.Append($"  <Design.PreviewWith>");
-                sb.Append($"    <ScrollViewer HorizontalScrollBarVisibility=\"Auto\" VerticalScrollBarVisibility=\"Auto\">");
-                sb.Append($"      <WrapPanel ItemWidth=\"50\" ItemHeight=\"50\" MaxWidth=\"400\">");
-
-                foreach (var result in results)
-                {
-                    if (generateImage)
-                    {
-                        sb.Append($"        <ContentControl Content=\"{{DynamicResource {result.Key}}}\"/>");
-                    }
-                    else
-                    {
-                        sb.Append($"        <Image>");
-
-                        if (UseCompatMode)
-                        {
-                            sb.Append($"            <Image.Source>");
-                        }
-
-                        sb.Append($"                <DrawingImage Drawing=\"{{DynamicResource {result.Key}}}\"/>");
-
-                        if (UseCompatMode)
-                        {
-                            sb.Append($"            </Image.Source>");
-                        }
-
-                        sb.Append($"        </Image>");
-                    }
-                }
-
-                sb.Append($"      </WrapPanel>");
-                sb.Append($"    </ScrollViewer>");
-                sb.Append($"  </Design.PreviewWith>");
-            }
-
-            if (!UseCompatMode)
-            {
-                sb.Append($"  <Style>{NewLine}");
-                sb.Append($"    <Style.Resources>{NewLine}");
-            }
-
-            if (resources is { } && (resources.Brushes.Count > 0 || resources.Pens.Count > 0))
-            {
-                var context = new GeneratorContext
-                {
-                    NewLine = NewLine,
-                    UseCompatMode = UseCompatMode,
-                    UseBrushTransform = UseBrushTransform,
-                    ReuseExistingResources = reuseExistingResources,
-                    WriteResources = false,
-                    Resources = resources
-                };
-
-                sb.Append(resources.Generate(context));
-            }
-
-            foreach (var result in results)
-            {
-                sb.Append($"<!-- {Path.GetFileName(result.Path)} -->{NewLine}");
-                sb.Append(result.Xaml);
-                sb.Append(NewLine);
-            }
-
-            if (UseCompatMode)
-            {
-                sb.Append($"</ResourceDictionary>");
-            }
-            else
-            {
-                sb.Append($"    </Style.Resources>{NewLine}");
-                sb.Append($"  </Style>{NewLine}");
-                sb.Append($"</Styles>");
-            }
-
-            return sb.ToString();
+            return styles.Generate(context);
         }
 
         public virtual string CreateKey(string path)
@@ -185,7 +113,7 @@ namespace SvgToXamlConverter
             return $"_{key}";
         }
 
-        public string Format(string xml)
+        public virtual string Format(string xml)
         {
             try
             {

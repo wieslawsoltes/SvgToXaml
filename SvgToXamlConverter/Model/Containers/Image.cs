@@ -21,6 +21,8 @@ namespace SvgToXamlConverter
 
             var sb = new StringBuilder();
 
+            var content = Source.Generate(context);
+
             sb.Append($"<Image{XamlConverter.ToKey(Key)}");
 
             if (context.Resources is { } && (context.Resources.Brushes.Count > 0 || context.Resources.Pens.Count > 0) && context.WriteResources)
@@ -36,7 +38,7 @@ namespace SvgToXamlConverter
             if (context.Resources is { } && (context.Resources.Brushes.Count > 0 || context.Resources.Pens.Count > 0) && context.WriteResources)
             {
                 sb.Append($"<Image.Resources>{context.NewLine}");
-                sb.Append(context.Resources.Generate(context));
+                sb.Append(context.Resources.Generate(context with { WriteResources = false }));
                 sb.Append($"</Image.Resources>{context.NewLine}");
             }
 
@@ -45,7 +47,7 @@ namespace SvgToXamlConverter
                 sb.Append($"<Image.Source>{context.NewLine}");
             }
 
-            sb.Append(Source.Generate(context));
+            sb.Append(content);
 
             if (context.UseCompatMode)
             {

@@ -95,6 +95,7 @@ namespace SvgToXamlConverter
 
                     if (!string.IsNullOrEmpty(existingBrush.Key))
                     {
+                        context.Resources.UseBrushes.Add(existingBrush.Value.Brush);
                         sb.Append($" Brush=\"{{DynamicResource {existingBrush.Key}}}\"");
                         haveBrush = true;
                     }
@@ -104,6 +105,7 @@ namespace SvgToXamlConverter
                 {
                     if (Brush is { } && context.Resources is { } && Brush.Key is { })
                     {
+                        context.Resources.UseBrushes.Add(Brush);
                         sb.Append($" Brush=\"{{DynamicResource {Brush.Key}}}\"");
                         haveBrush = true;
                     }
@@ -144,6 +146,7 @@ namespace SvgToXamlConverter
 
                     if (!string.IsNullOrEmpty(existingPen.Key))
                     {
+                        context.Resources.UsePens.Add(existingPen.Value.Pen);
                         sb.Append($" Pen=\"{{DynamicResource {existingPen.Key}}}\"");
                         havePen = true;
                     }
@@ -153,6 +156,7 @@ namespace SvgToXamlConverter
                 {
                     if (Pen is { } && context.Resources is { } && Pen.Key is { })
                     {
+                        context.Resources.UsePens.Add(Pen);
                         sb.Append($" Pen=\"{{DynamicResource {Pen.Key}}}\"");
                         havePen = true;
                     }
