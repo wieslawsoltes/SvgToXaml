@@ -796,42 +796,6 @@ namespace SvgToXamlConverter
 
                         break;
                     }
-                    /*
-                    case LayerType.ClipPathGroup:
-                    {
-                        if (value is not SkiaSharp.SKPath path)
-                        {
-                            break;
-                        }
-
-                        var clipGeometry = ToSvgPathData(path);
-
-                        sb.Append($"<DrawingGroup>{NewLine}");
-                        sb.Append($"  <DrawingGroup.ClipGeometry>{NewLine}");
-                        sb.Append($"    <StreamGeometry>{clipGeometry}</StreamGeometry>{NewLine}");
-                        sb.Append($"  </DrawingGroup.ClipGeometry>{NewLine}");
-                        sb.Append(content);
-                        sb.Append($"</DrawingGroup>{NewLine}");
-
-                        break;
-                    }
-                    case LayerType.MatrixGroup:
-                    {
-                        if (value is not SkiaSharp.SKMatrix matrix)
-                        {
-                            break;
-                        }
-
-                        sb.Append($"<DrawingGroup>{NewLine}");
-                        sb.Append($"  <DrawingGroup.Transform>{NewLine}");
-                        sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(matrix)}\"/>{NewLine}");
-                        sb.Append($"  </DrawingGroup.Transform>{NewLine}");
-                        sb.Append(content);
-                        sb.Append($"</DrawingGroup>{NewLine}");
-
-                        break;
-                    }
-                    */
                     case LayerType.MaskGroup:
                     {
                         if (value is not ShimSkiaSharp.SKPaint)
