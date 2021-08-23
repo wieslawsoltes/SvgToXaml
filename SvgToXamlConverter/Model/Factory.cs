@@ -104,6 +104,7 @@
             {
                 Key = key,
                 Bounds = skBounds,
+                LocalMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(pictureShader.LocalMatrix),
                 Picture = new Image(new DrawingImage(new DrawingGroup(pictureShader.Src))),
                 CullRect =  pictureShader.Src?.CullRect ?? ShimSkiaSharp.SKRect.Empty,
                 Tile = pictureShader.Tile,
