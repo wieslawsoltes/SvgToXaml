@@ -426,9 +426,11 @@ namespace SvgToXamlConverter
 
                 if (currentClipPath.Builder is { })
                 {
-                    //sb.Append($"</DrawingGroup>{NewLine}");
+                    var drawing = sb;
 
                     sb = currentClipPath.Builder;
+
+                    sb.Children.Add(drawing);
 
                     Debug($"EndClipPath({clipPathStack.Count})");
                 }
@@ -444,8 +446,11 @@ namespace SvgToXamlConverter
 
                 if (currentTotalMatrix.Builder is { })
                 {
-                    //sb.Append($"</DrawingGroup>{NewLine}");
+                    var drawing = sb;
+
                     sb = currentTotalMatrix.Builder;
+
+                    sb.Children.Add(drawing);
 
                     Debug($"EndMatrix({totalMatrixStack.Count})");
                 }
