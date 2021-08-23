@@ -274,7 +274,7 @@ namespace SvgToXamlConverter
             void Debug(string message)
             {
 #if DEBUG
-                // sb.Append($"<!-- {message} -->{NewLine}");
+                System.Diagnostics.Debug.WriteLine(message);
 #endif
             }
 
