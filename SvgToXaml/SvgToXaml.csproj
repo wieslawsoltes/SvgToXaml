@@ -23,14 +23,11 @@
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.0-preview.120" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\SvgToXamlConverter\Model.cs">
-      <Link>Converter\Model.cs</Link>
+    <Compile Include="..\SvgToXamlConverter\Model\**\*.cs">
+      <LinkBase>Converter\Model</LinkBase>
     </Compile>
-    <Compile Include="..\SvgToXamlConverter\SvgConverter.cs">
-      <Link>Converter\SvgConverter.cs</Link>
-    </Compile>
-    <Compile Include="..\SvgToXamlConverter\XamlConverter.cs">
-      <Link>Converter\XamlConverter.cs</Link>
+    <Compile Include="..\SvgToXamlConverter\*.cs">
+      <LinkBase>Converter</LinkBase>
     </Compile>
   </ItemGroup>
 </Project>
