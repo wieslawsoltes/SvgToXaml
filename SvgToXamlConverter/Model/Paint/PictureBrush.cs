@@ -99,7 +99,7 @@ namespace SvgToXamlConverter
             if (Picture is not null)
             {
                 sb.Append($"  <VisualBrush.Visual>{context.NewLine}");
-                sb.Append(Picture.Generate(context));
+                sb.Append(Picture.Generate(context with { WriteResources = false }));
                 sb.Append($"{context.NewLine}");
                 sb.Append($"  </VisualBrush.Visual>{context.NewLine}");
             }
