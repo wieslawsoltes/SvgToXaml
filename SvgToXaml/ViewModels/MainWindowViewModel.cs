@@ -20,14 +20,9 @@ namespace SvgToXaml.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private ObservableCollection<FileItemViewModel>? _items;
         private FileItemViewModel? _selectedItem;
-        private bool _enableGenerateImage;
-        private bool _enableGeneratePreview;
-        private bool _useResources;
-        private bool _reuseExistingResources;
-        private bool _useCompatMode;
-        private bool _useBrushTransform;
+        private ObservableCollection<FileItemViewModel>? _items;
+        private SettingsViewModel _settings;
 
         public FileItemViewModel? SelectedItem
         {
@@ -41,40 +36,10 @@ namespace SvgToXaml.ViewModels
             set => this.RaiseAndSetIfChanged(ref _items, value);
         }
 
-        public bool EnableGenerateImage
+        public SettingsViewModel Settings
         {
-            get => _enableGenerateImage;
-            set => this.RaiseAndSetIfChanged(ref _enableGenerateImage, value);
-        }
-
-        public bool EnableGeneratePreview
-        {
-            get => _enableGeneratePreview;
-            set => this.RaiseAndSetIfChanged(ref _enableGeneratePreview, value);
-        }
-
-        public bool UseResources
-        {
-            get => _useResources;
-            set => this.RaiseAndSetIfChanged(ref _useResources, value);
-        }
-
-        public bool ReuseExistingResources
-        {
-            get => _reuseExistingResources;
-            set => this.RaiseAndSetIfChanged(ref _reuseExistingResources, value);
-        }
-
-        public bool UseCompatMode
-        {
-            get => _useCompatMode;
-            set => this.RaiseAndSetIfChanged(ref _useCompatMode, value);
-        }
-
-        public bool UseBrushTransform
-        {
-            get => _useBrushTransform;
-            set => this.RaiseAndSetIfChanged(ref _useBrushTransform, value);
+            get => _settings;
+            set => this.RaiseAndSetIfChanged(ref _settings, value);
         }
 
         public ICommand ClearCommand { get; }
@@ -95,13 +60,15 @@ namespace SvgToXaml.ViewModels
         {
             _items = new ObservableCollection<FileItemViewModel>();
 
-            _enableGenerateImage = true;
-            _enableGeneratePreview = true;
-
-            _useResources = true;
-            _reuseExistingResources = true;
-            _useCompatMode = false;
-            _useBrushTransform = false;
+            _settings = new SettingsViewModel()
+            {
+                EnableGenerateImage = true,
+                EnableGeneratePreview = true,
+                UseResources = true,
+                ReuseExistingResources = true,
+                UseCompatMode = false,
+                UseBrushTransform = false,
+            };
         
             ClearCommand = ReactiveCommand.Create(Clear);
 
@@ -127,13 +94,13 @@ namespace SvgToXaml.ViewModels
             });
   
             // ReSharper disable once AsyncVoidLambda
-            this.WhenAnyValue(x => x.UseCompatMode).Subscribe(async _ =>
+            this.WhenAnyValue(x => x.Settings.UseCompatMode).Subscribe(async _ =>
             {
                 await Reload();
             });
 
             // ReSharper disable once AsyncVoidLambda
-            this.WhenAnyValue(x => x.UseBrushTransform).Subscribe(async _ =>
+            this.WhenAnyValue(x => x.Settings.UseBrushTransform).Subscribe(async _ =>
             {
                 await Reload();
             });
@@ -171,7 +138,7 @@ namespace SvgToXaml.ViewModels
                 return;
             }
 
-            var xaml = await ToXaml(_selectedItem, _enableGenerateImage);
+            var xaml = await ToXaml(_selectedItem, _settings.EnableGenerateImage);
 
             await SetClipboard(xaml);
         }
@@ -206,7 +173,7 @@ namespace SvgToXaml.ViewModels
             var result = await dlg.ShowAsync((Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow);
             if (result is { })
             {
-                var xaml = await ToXaml(_selectedItem, _enableGenerateImage);
+                var xaml = await ToXaml(_selectedItem, _settings.EnableGenerateImage);
 
                 try
                 {
@@ -284,26 +251,26 @@ namespace SvgToXaml.ViewModels
 
             var text = await Task.Run(() =>
             {
-                if (_enableGenerateImage)
+                if (_settings.EnableGenerateImage)
                 {
                     var converter = new SvgConverter()
                     {
-                        UseCompatMode = _useCompatMode,
-                        UseBrushTransform = _useBrushTransform
+                        UseCompatMode = _settings.UseCompatMode,
+                        UseBrushTransform = _settings.UseBrushTransform
                     };
 
-                    var xaml = converter.ToXamlImage(skSvg.Model, _useResources ? new SvgToXamlConverter.ResourceDictionary() : null, _reuseExistingResources, writeResources: true);
+                    var xaml = converter.ToXamlImage(skSvg.Model, _settings.UseResources ? new SvgToXamlConverter.ResourceDictionary() : null, _settings.ReuseExistingResources, writeResources: true);
                     return converter.Format(xaml);
                 }
                 else
                 {
                     var converter = new SvgConverter()
                     {
-                        UseCompatMode = _useCompatMode,
-                        UseBrushTransform = _useBrushTransform
+                        UseCompatMode = _settings.UseCompatMode,
+                        UseBrushTransform = _settings.UseBrushTransform
                     };
 
-                    var xaml = converter.ToXamlDrawingGroup(skSvg.Model, _useResources ? new SvgToXamlConverter.ResourceDictionary() : null, _reuseExistingResources);
+                    var xaml = converter.ToXamlDrawingGroup(skSvg.Model, _settings.UseResources ? new SvgToXamlConverter.ResourceDictionary() : null, _settings.ReuseExistingResources);
                     return converter.Format(xaml);
                 }
             });
@@ -369,22 +336,22 @@ namespace SvgToXaml.ViewModels
                     {
                         var converter = new SvgConverter()
                         {
-                            UseCompatMode = _useCompatMode,
-                            UseBrushTransform = _useBrushTransform
+                            UseCompatMode = _settings.UseCompatMode,
+                            UseBrushTransform = _settings.UseBrushTransform
                         };
 
-                        var xaml = converter.ToXamlImage(fileItemViewModel.Svg.Model, _useResources ? new SvgToXamlConverter.ResourceDictionary() : null, _reuseExistingResources, writeResources: true);
+                        var xaml = converter.ToXamlImage(fileItemViewModel.Svg.Model, _settings.UseResources ? new SvgToXamlConverter.ResourceDictionary() : null, _settings.ReuseExistingResources, writeResources: true);
                         return converter.Format(xaml);
                     }
                     else
                     {
                         var converter = new SvgConverter()
                         {
-                            UseCompatMode = _useCompatMode,
-                            UseBrushTransform = _useBrushTransform
+                            UseCompatMode = _settings.UseCompatMode,
+                            UseBrushTransform = _settings.UseBrushTransform
                         };
 
-                        var xaml = converter.ToXamlDrawingGroup(fileItemViewModel.Svg.Model, _useResources ? new SvgToXamlConverter.ResourceDictionary() : null, _reuseExistingResources);
+                        var xaml = converter.ToXamlDrawingGroup(fileItemViewModel.Svg.Model, _settings.UseResources ? new SvgToXamlConverter.ResourceDictionary() : null, _settings.ReuseExistingResources);
                         return converter.Format(xaml);
                     }
                 }
@@ -399,15 +366,15 @@ namespace SvgToXaml.ViewModels
             {
                 var converter = new SvgConverter()
                 {
-                    UseCompatMode = _useCompatMode, UseBrushTransform = _useBrushTransform
+                    UseCompatMode = _settings.UseCompatMode, UseBrushTransform = _settings.UseBrushTransform
                 };
 
                 var xaml = converter.ToXamlStyles(
                     paths,
-                    resources: _useResources ? new SvgToXamlConverter.ResourceDictionary() : null,
-                    reuseExistingResources: _reuseExistingResources,
-                    generateImage: _enableGenerateImage,
-                    generatePreview: _enableGeneratePreview);
+                    resources: _settings.UseResources ? new SvgToXamlConverter.ResourceDictionary() : null,
+                    reuseExistingResources: _settings.ReuseExistingResources,
+                    generateImage: _settings.EnableGenerateImage,
+                    generatePreview: _settings.EnableGeneratePreview);
 
                 return converter.Format(xaml);
             });
@@ -464,11 +431,11 @@ namespace SvgToXaml.ViewModels
                 {
                     var converter = new SvgConverter()
                     {
-                        UseCompatMode = _useCompatMode,
-                        UseBrushTransform = _useBrushTransform
+                        UseCompatMode = _settings.UseCompatMode,
+                        UseBrushTransform = _settings.UseBrushTransform
                     };
 
-                    var xaml = converter.ToXamlDrawingGroup(item.Svg.Model, _useResources ? new SvgToXamlConverter.ResourceDictionary() : null, _reuseExistingResources);
+                    var xaml = converter.ToXamlDrawingGroup(item.Svg.Model, _settings.UseResources ? new SvgToXamlConverter.ResourceDictionary() : null, _settings.ReuseExistingResources);
 
                     var sb = new StringBuilder();
 

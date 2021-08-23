@@ -1,5 +1,6 @@
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -10,6 +11,8 @@ namespace SvgToXaml
 {
     public class App : Application
     {
+        private const string SettingsFileName = "settings.json";
+
         private const string PathsFileName = "paths.txt";
 
         public override void Initialize()
@@ -32,6 +35,16 @@ namespace SvgToXaml
 
                 desktop.Startup += (_, _) =>
                 {
+                    if (File.Exists(SettingsFileName))
+                    {
+                        var json = File.ReadAllText(SettingsFileName);
+                        var settings = JsonSerializer.Deserialize<SettingsViewModel>(json);
+                        if (settings is { })
+                        {
+                            mainViewModel.Settings = settings;
+                        }
+                    }
+                    
                     if (File.Exists(PathsFileName))
                     {
                         var paths = File.ReadAllLines(PathsFileName);
@@ -49,6 +62,9 @@ namespace SvgToXaml
                     {
                         File.WriteAllLines(PathsFileName, paths);
                     }
+
+                    var json = JsonSerializer.Serialize(mainViewModel.Settings);
+                    File.WriteAllText(SettingsFileName, json);
                 };
             }
 

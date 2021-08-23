@@ -7,6 +7,7 @@
              xmlns:rx="using:System.Reactive"
              xmlns:vm="using:SvgToXaml.ViewModels"
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="480"
+             x:DataType="vm:MainWindowViewModel" x:CompileBindings="True"
              x:Class="SvgToXaml.Views.MainView">
   <Design.DataContext>
     <vm:MainWindowViewModel />
@@ -249,7 +250,7 @@
               <Button.Flyout>
                 <Flyout ShowMode="TransientWithDismissOnPointerMoveAway" 
                         Placement="BottomEdgeAlignedRight">
-                  <StackPanel Spacing="12">
+                  <StackPanel Spacing="12" DataContext="{Binding Settings}">
                     <CheckBox IsChecked="{Binding EnableGenerateImage}"
                               Content="Generate Image Control"
                               HorizontalAlignment="Stretch"
