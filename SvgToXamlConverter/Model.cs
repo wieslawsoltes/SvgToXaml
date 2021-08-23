@@ -49,7 +49,7 @@ namespace SvgToXamlConverter
 
         public SkiaSharp.SKMatrix? LocalMatrix { get; set; }
   
-        protected SkiaSharp.SKMatrix WithTransXY(SkiaSharp.SKMatrix matrix, float x, float y)
+        protected static SkiaSharp.SKMatrix WithTransXY(SkiaSharp.SKMatrix matrix, float x, float y)
         {
             return new SkiaSharp.SKMatrix(
                 matrix.ScaleX,
