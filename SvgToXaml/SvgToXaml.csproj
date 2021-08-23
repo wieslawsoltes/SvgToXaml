@@ -24,13 +24,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\SvgToXamlConverter\Model.cs">
-      <Link>Model.cs</Link>
+      <Link>Converter\Model.cs</Link>
     </Compile>
     <Compile Include="..\SvgToXamlConverter\SvgConverter.cs">
-      <Link>SvgConverter.cs</Link>
+      <Link>Converter\SvgConverter.cs</Link>
     </Compile>
     <Compile Include="..\SvgToXamlConverter\XamlConverter.cs">
-      <Link>XamlConverter.cs</Link>
+      <Link>Converter\XamlConverter.cs</Link>
     </Compile>
   </ItemGroup>
 </Project>
