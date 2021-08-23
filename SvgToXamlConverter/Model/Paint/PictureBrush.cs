@@ -29,9 +29,7 @@ namespace SvgToXamlConverter
 
                     if (!localMatrix.IsIdentity)
                     {
-#if DEBUG
-                        sb.Append($"<!-- TODO: Transform: {XamlConverter.ToMatrix(localMatrix)} -->{context.NewLine}");
-#endif
+                        // TODO: LocalMatrix
                     }
                 }
                 else
