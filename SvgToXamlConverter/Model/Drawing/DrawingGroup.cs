@@ -195,7 +195,7 @@ namespace SvgToXamlConverter
                             currentTotalMatrix = default;
                         }
 
-                        while (true)
+                        //while (true)
                         {
                             if (layersStack.Count > 0)
                             {
