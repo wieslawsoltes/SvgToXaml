@@ -50,13 +50,15 @@ namespace SvgToXamlConverter
 
             var layersStack = new Stack<(DrawingGroup Builder, LayerType Type, object? Value)?>();
 
+            int currentCount = 0;
+            
             foreach (var canvasCommand in Picture.Commands)
             {
                 switch (canvasCommand)
                 {
                     case ShimSkiaSharp.ClipPathCanvasCommand(var clipPath, _, _):
                     {
-                        Debug($"StartClipPath({clipPathStack.Count})");
+                        Debug($"ClipPath({currentCount})", currentCount);
 
                         var path = Svg.Skia.SkiaModelExtensions.ToSKPath(clipPath);
                         if (path is null)
@@ -70,13 +72,14 @@ namespace SvgToXamlConverter
                         };
 
                         currentClipPath = (path, sb);
+                        sb.Children.Add(drawing);
                         sb = drawing;
 
                         break;
                     }
                     case ShimSkiaSharp.ClipRectCanvasCommand(var skRect, _, _):
                     {
-                        Debug($"StarClipPath({clipPathStack.Count})");
+                        Debug($"ClipRect({currentCount})", currentCount);
 
                         var rect = Svg.Skia.SkiaModelExtensions.ToSKRect(skRect);
                         var path = new SkiaSharp.SKPath();
@@ -88,19 +91,20 @@ namespace SvgToXamlConverter
                         };
 
                         currentClipPath = (path, sb);
+                        sb.Children.Add(drawing);
                         sb = drawing;
 
                         break;
                     }
                     case ShimSkiaSharp.SetMatrixCanvasCommand(var skMatrix):
                     {
+                        Debug($"SetMatrix({currentCount})", currentCount);
+
                         var matrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(skMatrix);
                         if (matrix.IsIdentity)
                         {
                             break;
                         }
-
-                        Debug($"StarMatrix({totalMatrixStack.Count})");
 
                         var previousMatrixList = new List<SkiaSharp.SKMatrix>();
 
@@ -126,12 +130,17 @@ namespace SvgToXamlConverter
                         };
 
                         currentTotalMatrix = (matrix, sb);
+                        sb.Children.Add(drawing);
                         sb = drawing;
 
                         break;
                     }
                     case ShimSkiaSharp.SaveLayerCanvasCommand(var count, var skPaint):
                     {
+                        currentCount = count;
+
+                        Debug($"SaveLayer({currentCount})", currentCount);
+
                         // Mask
 
                         if (skPaint is null)
@@ -196,6 +205,10 @@ namespace SvgToXamlConverter
                     }
                     case ShimSkiaSharp.SaveCanvasCommand(var count):
                     {
+                        currentCount = count;
+
+                        Debug($"Save({currentCount})", currentCount);
+
                         EmptyLayer();
                         Save(count);
 
@@ -203,12 +216,18 @@ namespace SvgToXamlConverter
                     }
                     case ShimSkiaSharp.RestoreCanvasCommand(var count):
                     {
+                        currentCount = count;
+
+                        Debug($"Restore({currentCount})", currentCount);
+
                         Restore(count);
 
                         break;
                     }
                     case ShimSkiaSharp.DrawPathCanvasCommand(var skPath, var skPaint):
                     {
+                        Debug($"DrawPath({currentCount})", currentCount);
+
                         var path = Svg.Skia.SkiaModelExtensions.ToSKPath(skPath);
                         if (path.IsEmpty)
                         {
@@ -221,6 +240,8 @@ namespace SvgToXamlConverter
                     }
                     case ShimSkiaSharp.DrawTextCanvasCommand(var text, var x, var y, var skPaint):
                     {
+                        Debug($"DrawText({currentCount})", currentCount);
+
                         var paint = Svg.Skia.SkiaModelExtensions.ToSKPaint(skPaint);
                         var path = paint.GetTextPath(text, x, y);
                         if (path.IsEmpty)
@@ -228,7 +249,7 @@ namespace SvgToXamlConverter
                             break;
                         }
 
-                        Debug($"Text='{text}'");
+                        Debug($"Text='{text}'", currentCount);
 
                         if (skPaint.TextAlign == ShimSkiaSharp.SKTextAlign.Center)
                         {
@@ -248,7 +269,7 @@ namespace SvgToXamlConverter
                     {
                         // TODO:
 
-                        Debug($"TODO: TextOnPath");
+                        Debug($"DrawTextOnPath({currentCount})", currentCount);
 
                         break;
                     }
@@ -256,7 +277,7 @@ namespace SvgToXamlConverter
                     {
                         // TODO:
 
-                        Debug($"TODO: TextBlob");
+                        Debug($"DrawTextBlob({currentCount})", currentCount);
 
                         break;
                     }
@@ -264,17 +285,17 @@ namespace SvgToXamlConverter
                     {
                         // TODO:
 
-                        Debug($"TODO: Image");
+                        Debug($"DrawImage({currentCount})", currentCount);
 
                         break;
                     }
                 }
             }
 
-            void Debug(string message)
+            void Debug(string message, int count)
             {
 #if DEBUG
-                System.Diagnostics.Debug.WriteLine(message);
+                System.Diagnostics.Debug.WriteLine(new string(' ', count * 2) + message);
 #endif
             }
 
@@ -285,8 +306,6 @@ namespace SvgToXamlConverter
 
             void SaveLayer(LayerType type, object? value, int count)
             {
-                Debug($"SaveLayer({type}, {count})");
-
                 layersStack.Push((sb, type, value));
                 sb = new DrawingGroup();
 
@@ -308,7 +327,7 @@ namespace SvgToXamlConverter
 
                 sb = builder;
 
-                Debug($"StartLayer({type})");
+                //Debug($"StartLayer({type})", currentCount);
 
                 switch (type)
                 {
@@ -399,7 +418,7 @@ namespace SvgToXamlConverter
                     }
                 }
 
-                Debug($"EndLayer({type})");
+                //Debug($"EndLayer({type})", currentCount);
             }
 
             void SaveGroups()
@@ -421,13 +440,9 @@ namespace SvgToXamlConverter
 
                 if (currentClipPath.Builder is { })
                 {
-                    var drawing = sb;
-
                     sb = currentClipPath.Builder;
 
-                    sb.Children.Add(drawing);
-
-                    Debug($"EndClipPath({clipPathStack.Count})");
+                    //Debug($"EndClipPath()", currentCount);
                 }
 
                 currentClipPath = default;
@@ -441,13 +456,9 @@ namespace SvgToXamlConverter
 
                 if (currentTotalMatrix.Builder is { })
                 {
-                    var drawing = sb;
-
                     sb = currentTotalMatrix.Builder;
 
-                    sb.Children.Add(drawing);
-
-                    Debug($"EndMatrix({totalMatrixStack.Count})");
+                    //Debug($"EndMatrix()", currentCount);
                 }
 
                 currentTotalMatrix = default;
@@ -460,13 +471,13 @@ namespace SvgToXamlConverter
 
             void Save(int count)
             {
-                Debug($"Save({count})");
+                //Debug($"Save({count})", currentCount);
                 SaveGroups();
             }
 
             void Restore(int count)
             {
-                Debug($"Restore({count})");
+                //dDebug($"Restore({count})", currentCount);
                 RestoreLayer();
                 RestoreGroups();
             }
