@@ -7,17 +7,17 @@ namespace SvgToXamlConverter
 {
     public record GeneratorContext
     {
-        public string NewLine { get; set; } = "\r\n";
+        public string NewLine { get; init; } = "\r\n";
 
-        public bool UseCompatMode { get; set; } = false;
+        public bool UseCompatMode { get; init; } = false;
 
-        public bool UseBrushTransform { get; set; } = false;
+        public bool UseBrushTransform { get; init; } = false;
 
-        public bool ReuseExistingResources { get; set; } = false;
+        public bool ReuseExistingResources { get; init; } = false;
 
-        public  bool WriteResources { get; set; } = false;
+        public  bool WriteResources { get; init; } = false;
 
-        public ResourceDictionary? Resources { get; set; }
+        public ResourceDictionary? Resources { get; init; }
     }
 
     public interface IGenerator
@@ -27,16 +27,16 @@ namespace SvgToXamlConverter
 
     public abstract record Resource : IGenerator
     {
-        public string? Key { get; set; }
+        public string? Key { get; init; }
 
         public abstract string Generate(GeneratorContext context);
     }
 
     public record ResourceDictionary : IGenerator
     {
-        public Dictionary<string, (ShimSkiaSharp.SKPaint Paint, Brush Brush)> Brushes  { get; set; } = new();
+        public Dictionary<string, (ShimSkiaSharp.SKPaint Paint, Brush Brush)> Brushes  { get; init; } = new();
 
-        public Dictionary<string, (ShimSkiaSharp.SKPaint Paint, Pen Pen)> Pens  { get; set; } = new();
+        public Dictionary<string, (ShimSkiaSharp.SKPaint Paint, Pen Pen)> Pens  { get; init; } = new();
 
         public int BrushCounter { get; set; }
 
@@ -44,17 +44,27 @@ namespace SvgToXamlConverter
 
         public string Generate(GeneratorContext context)
         {
-            throw new NotImplementedException();
+            var sb = new StringBuilder();
+
+            foreach (var resource in Brushes)
+            {
+                sb.Append(resource.Value.Brush.Generate(context));
+            }
+
+            foreach (var resource in Pens)
+            {
+                sb.Append(resource.Value.Pen.Generate(context));
+            }
+
+            return sb.ToString();
         }
     }
 
-    public record Point(double X, double Y);
-
     public abstract record Brush : Resource
     {
-        public SkiaSharp.SKRect Bounds { get; set; }
+        public SkiaSharp.SKRect Bounds { get; init; }
 
-        public SkiaSharp.SKMatrix? LocalMatrix { get; set; }
+        public SkiaSharp.SKMatrix? LocalMatrix { get; init; }
   
         protected static SkiaSharp.SKMatrix WithTransXY(SkiaSharp.SKMatrix matrix, float x, float y)
         {
@@ -73,23 +83,25 @@ namespace SvgToXamlConverter
 
     public record SolidColorBrush : Brush
     {
-        public ShimSkiaSharp.SKColor Color { get; set; } 
+        public ShimSkiaSharp.SKColor Color { get; init; } 
 
         public override string Generate(GeneratorContext context)
         {
             var sb = new StringBuilder();
+
             sb.Append($"<SolidColorBrush{XamlConverter.ToKey(Key)}");
             sb.Append($" Color=\"{XamlConverter.ToHexColor(Color)}\"");
             sb.Append($"/>{context.NewLine}");
+
             return sb.ToString();
         }
     }
 
     public record GradientStop : Resource
     {
-        public float Offset { get; set; }
+        public float Offset { get; init; }
 
-        public ShimSkiaSharp.SKColor Color { get; set; } 
+        public ShimSkiaSharp.SKColor Color { get; init; } 
 
         public override string Generate(GeneratorContext context)
         {
@@ -99,21 +111,16 @@ namespace SvgToXamlConverter
 
     public abstract record GradientBrush : Brush
     {
-        public ShimSkiaSharp.SKShaderTileMode Mode { get; set; }
+        public ShimSkiaSharp.SKShaderTileMode Mode { get; init; }
 
-        public List<GradientStop> GradientStops { get; set; }
-
-        public GradientBrush()
-        {
-            GradientStops = new List<GradientStop>();
-        }
+        public List<GradientStop> GradientStops { get; init; } = new ();
     }
 
     public record LinearGradientBrush : GradientBrush
     {
-        public SkiaSharp.SKPoint Start { get; set; }
+        public SkiaSharp.SKPoint Start { get; init; }
 
-        public SkiaSharp.SKPoint End { get; set; }
+        public SkiaSharp.SKPoint End { get; init; }
 
         public override string Generate(GeneratorContext context)
         {
@@ -212,9 +219,9 @@ namespace SvgToXamlConverter
 
     public record RadialGradientBrush : GradientBrush
     {
-        public SkiaSharp.SKPoint Center { get; set; }
+        public SkiaSharp.SKPoint Center { get; init; }
 
-        public float Radius { get; set; }
+        public float Radius { get; init; }
 
         public override string Generate(GeneratorContext context)
         {
@@ -334,13 +341,13 @@ namespace SvgToXamlConverter
 
     public record TwoPointConicalGradientBrush : GradientBrush
     {
-        public float StartRadius { get; set; }
+        public float StartRadius { get; init; }
 
-        public float EndRadius { get; set; }
+        public float EndRadius { get; init; }
 
-        public SkiaSharp.SKPoint Start { get; set; }
+        public SkiaSharp.SKPoint Start { get; init; }
 
-        public SkiaSharp.SKPoint End { get; set; }
+        public SkiaSharp.SKPoint End { get; init; }
 
         public override string Generate(GeneratorContext context)
         {
@@ -466,13 +473,13 @@ namespace SvgToXamlConverter
 
     public record PictureBrush : GradientBrush
     {
-        public Image? Picture { get; set; }
+        public Image? Picture { get; init; }
 
-        public ShimSkiaSharp.SKRect CullRect { get; set; }
+        public ShimSkiaSharp.SKRect CullRect { get; init; }
 
-        public ShimSkiaSharp.SKRect Tile { get; set; }
+        public ShimSkiaSharp.SKRect Tile { get; init; }
 
-        public ShimSkiaSharp.SKShaderTileMode TileMode { get; set; }
+        public ShimSkiaSharp.SKShaderTileMode TileMode { get; init; }
  
         public override string Generate(GeneratorContext context)
         {
@@ -560,26 +567,26 @@ namespace SvgToXamlConverter
 
     public record Dashes
     {
-        public float[]? Intervals { get; set; }
+        public float[]? Intervals { get; init; }
 
-        public float Phase { get; set; }
+        public float Phase { get; init; }
     }
     
     public record Pen : Resource
     {
-        public SkiaSharp.SKRect Bounds { get; set; }
+        public SkiaSharp.SKRect Bounds { get; init; }
 
-        public Brush? Brush { get; set; }
+        public Brush? Brush { get; init; }
 
-        public float StrokeWidth { get; set; }
+        public float StrokeWidth { get; init; }
 
-        public ShimSkiaSharp.SKStrokeCap StrokeCap { get; set; }
+        public ShimSkiaSharp.SKStrokeCap StrokeCap { get; init; }
 
-        public ShimSkiaSharp.SKStrokeJoin StrokeJoin { get; set; }
+        public ShimSkiaSharp.SKStrokeJoin StrokeJoin { get; init; }
 
-        public float StrokeMiter { get; set; }
+        public float StrokeMiter { get; init; }
 
-        public Dashes? Dashes { get; set; }
+        public Dashes? Dashes { get; init; }
 
         public override string Generate(GeneratorContext context)
         {
@@ -1066,12 +1073,12 @@ namespace SvgToXamlConverter
 
         public Brush? OpacityMask { get; }
 
-        public List<Drawing> Children { get; }
+        public List<Drawing> Children { get; } = new();
 
         public DrawingGroup(ShimSkiaSharp.SKPicture? picture)
         {
             Picture = picture;
-            Children = new List<Drawing>();
+
 /*
             if (skPicture?.Commands is null)
             {
@@ -1678,7 +1685,7 @@ namespace SvgToXamlConverter
 
     public record Image : Resource
     {
-        public DrawingImage? Source { get; set; }
+        public DrawingImage? Source { get; }
 
         public Image(DrawingImage? source)
         {
