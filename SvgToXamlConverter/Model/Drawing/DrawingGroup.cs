@@ -386,14 +386,14 @@ namespace SvgToXamlConverter
                             break;
                         }
 
-                        var drawing = new DrawingGroup();
-
                         if (content is { })
                         {
-                            drawing.Children.Add(content);
-                        }
+                            var drawing = new DrawingGroup();
 
-                        sb.Children.Add(drawing);
+                            drawing.Children.Add(content);
+
+                            sb.Children.Add(drawing);
+                        }
 
                         break;
                     }
