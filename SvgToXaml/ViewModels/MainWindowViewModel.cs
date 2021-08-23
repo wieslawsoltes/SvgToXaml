@@ -510,5 +510,17 @@ namespace SvgToXaml.ViewModels
                 }
             });
         }
+
+        public void Add(IEnumerable<string> paths)
+        {
+            if (_items is { })
+            {
+                foreach (var path in paths)
+                {
+                    var item = new FileItemViewModel(Path.GetFileName(path), path, Preview, Remove);
+                    _items.Add(item);
+                }
+            }
+        }
     }
 }
