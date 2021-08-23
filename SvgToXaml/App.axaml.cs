@@ -1,3 +1,5 @@
+using System.IO;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -8,6 +10,8 @@ namespace SvgToXaml
 {
     public class App : Application
     {
+        private const string PathsFileName = "paths.txt";
+
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
@@ -17,9 +21,34 @@ namespace SvgToXaml
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                desktop.MainWindow = new MainWindow
+                var mainViewModel = new MainWindowViewModel();
+
+                var mainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel(),
+                    DataContext = mainViewModel
+                };
+
+                desktop.MainWindow = mainWindow;
+
+                desktop.Startup += (_, _) =>
+                {
+                    if (File.Exists(PathsFileName))
+                    {
+                        var paths = File.ReadAllLines(PathsFileName);
+                        if (paths.Length > 0)
+                        {
+                            mainViewModel.Add(paths);
+                        }
+                    }
+                };
+
+                desktop.Exit += (_, _) =>
+                {
+                    var paths = mainViewModel.Items?.Select(x => x.Path);
+                    if (paths is { })
+                    {
+                        File.WriteAllLines(PathsFileName, paths);
+                    }
                 };
             }
 
