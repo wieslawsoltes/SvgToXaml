@@ -9,20 +9,11 @@ namespace SvgToXamlConverter
 
         private static readonly ShimSkiaSharp.SKColor s_transparentBlack = new(0, 0, 0, 255);
 
-        private enum LayerType
-        {
-            UnknownPaint,
-            MaskGroup,
-            MaskBrush,
-            OpacityGroup,
-            FilterGroup
-        }
-
         public ShimSkiaSharp.SKPicture? Picture { get; }
 
         public double? Opacity { get; set; }
 
-        public SkiaSharp.SKMatrix? Transform { get; set; }
+        public SkiaSharp.SKMatrix? Transform { get;  set; }
 
         public SkiaSharp.SKPath? ClipGeometry { get; set; }
 
@@ -34,34 +25,26 @@ namespace SvgToXamlConverter
         {
             Key = key;
             Picture = picture;
+            Initialize(Picture, resources);
+        }
 
-            if (Picture?.Commands is null)
+        private void Initialize(ShimSkiaSharp.SKPicture? picture, ResourceDictionary? resources = null)
+        {
+            if (picture?.Commands is null)
             {
                 return;
             }
 
-            int currentCount = 0;
-
             var totalMatrixStack = new Stack<SkiaSharp.SKMatrix?>();
-            var currentTotalMatrix = default(SkiaSharp.SKMatrix?);
-
             var clipPathStack = new Stack<SkiaSharp.SKPath?>();
+            var paintStack = new Stack<ShimSkiaSharp.SKPaint?>();
+            var layerStack = new Stack<DrawingGroup>();
+            var currentTotalMatrix = default(SkiaSharp.SKMatrix?);
             var currentClipPath = default(SkiaSharp.SKPath?);
 
-            var paintStack = new Stack<ShimSkiaSharp.SKPaint?>();
-
-            var layerStack = new Stack<DrawingGroup>();
-            
             layerStack.Push(this);
 
-            void Debug(string message, int count)
-            {
-#if DEBUG
-                System.Diagnostics.Debug.WriteLine(new string(' ', count * 2) + message);
-#endif
-            }
-
-            foreach (var canvasCommand in Picture.Commands)
+            foreach (var canvasCommand in picture.Commands)
             {
                 switch (canvasCommand)
                 {
@@ -79,13 +62,9 @@ namespace SvgToXamlConverter
                         };
 
                         var currentLayer = layerStack.Peek();
-
-                        //Debug($"ClipPath({currentCount})", currentCount);
                         currentLayer.Children.Add(newLayer);
                         layerStack.Push(newLayer);
-
                         currentClipPath = path;
-                        Debug($"SET({currentCount}) currentClipPath", currentCount);
 
                         break;
                     }
@@ -101,14 +80,10 @@ namespace SvgToXamlConverter
                         };
 
                         var currentLayer = layerStack.Peek();
-
-                        //Debug($"ClipRect({currentCount})", currentCount);
                         currentLayer.Children.Add(newLayer);
                         layerStack.Push(newLayer);
-
                         currentClipPath = path;
-                        Debug($"SET({currentCount}) currentClipPath", currentCount);
-                        
+
                         break;
                     }
                     case ShimSkiaSharp.SetMatrixCanvasCommand(var skMatrix):
@@ -143,51 +118,33 @@ namespace SvgToXamlConverter
                         };
 
                         var currentLayer = layerStack.Peek();
-
-                        //Debug($"SetMatrix({currentCount})", currentCount);
                         currentLayer.Children.Add(newLayer);
                         layerStack.Push(newLayer);
-
                         currentTotalMatrix = matrix;
-                        Debug($"SET({currentCount}) currentTotalMatrix", currentCount);
                         
                         break;
                     }
-                    case ShimSkiaSharp.SaveLayerCanvasCommand(var count, var skPaint):
+                    case ShimSkiaSharp.SaveLayerCanvasCommand(_, var skPaint):
                     {
-                        currentCount = count;
-
-                        //Debug($"SaveLayer({currentCount})", currentCount);
-
                         if (skPaint is null)
                         {
                             break;
                         }
-                        
+
                         totalMatrixStack.Push(currentTotalMatrix);
                         currentTotalMatrix = default;
 
                         clipPathStack.Push(currentClipPath);
                         currentClipPath = default;
 
-                        var newLayer = new DrawingGroup
-                        {
-                        };
-                        
+                        var newLayer = new DrawingGroup();
                         layerStack.Push(newLayer);
-
                         paintStack.Push(skPaint);
-
-                        Debug($"SET({currentCount}) currentPaint", currentCount);
 
                         break;
                     }
-                    case ShimSkiaSharp.SaveCanvasCommand(var count):
+                    case ShimSkiaSharp.SaveCanvasCommand(_):
                     {
-                        currentCount = count;
-
-                        //Debug($"Save({currentCount})", currentCount);
-
                         totalMatrixStack.Push(currentTotalMatrix);
                         currentTotalMatrix = default;
 
@@ -195,18 +152,11 @@ namespace SvgToXamlConverter
                         currentClipPath = default;
 
                         paintStack.Push(default);
-                        
-                        //var currentLayer = layerStack.Peek();
-                        //layerStack.Push(currentLayer);
 
                         break;
                     }
-                    case ShimSkiaSharp.RestoreCanvasCommand(var count):
+                    case ShimSkiaSharp.RestoreCanvasCommand(_):
                     {
-                        currentCount = count;
-
-                        //Debug($"Restore({currentCount})", currentCount);
-
                         if (paintStack.Count > 0)
                         {
                             var currentPaint = paintStack.Pop();
@@ -214,9 +164,6 @@ namespace SvgToXamlConverter
                             {
                                 var content = layerStack.Pop();
                                 var currentLayer = layerStack.Peek();
-
-                                Debug($"GET({currentCount}) currentPaint", currentCount);
-
                                 var skPaint = currentPaint;
 
                                 var isMaskGroup = skPaint.Shader is null
@@ -296,7 +243,6 @@ namespace SvgToXamlConverter
 
                         if (currentClipPath is { })
                         {
-                            Debug($"GET({currentCount}) currentClipPath", currentCount);
                             layerStack.Pop();
                         }
                         currentClipPath = default;
@@ -307,22 +253,18 @@ namespace SvgToXamlConverter
 
                         if (currentTotalMatrix is { })
                         {
-                            Debug($"GET({currentCount}) currentTotalMatrix", currentCount);
                             layerStack.Pop();
                         }
                         currentTotalMatrix = default;
                         if (totalMatrixStack.Count > 0)
                         {
                             currentTotalMatrix = totalMatrixStack.Pop();
-                           
                         }
 
                         break;
                     }
                     case ShimSkiaSharp.DrawPathCanvasCommand(var skPath, var skPaint):
                     {
-                        Debug($"DrawPath({currentCount})", currentCount);
-
                         var path = Svg.Skia.SkiaModelExtensions.ToSKPath(skPath);
                         if (path.IsEmpty)
                         {
@@ -338,16 +280,12 @@ namespace SvgToXamlConverter
                     }
                     case ShimSkiaSharp.DrawTextCanvasCommand(var text, var x, var y, var skPaint):
                     {
-                        Debug($"DrawText({currentCount})", currentCount);
-
                         var paint = Svg.Skia.SkiaModelExtensions.ToSKPaint(skPaint);
                         var path = paint.GetTextPath(text, x, y);
                         if (path.IsEmpty)
                         {
                             break;
                         }
-
-                        //Debug($"Text='{text}'", currentCount);
 
                         if (skPaint.TextAlign == ShimSkiaSharp.SKTextAlign.Center)
                         {
@@ -366,34 +304,27 @@ namespace SvgToXamlConverter
 
                         break;
                     }
+                    // ReSharper disable UnusedVariable
                     case ShimSkiaSharp.DrawTextOnPathCanvasCommand(var text, var skPath, var hOffset, var vOffset, var skPaint):
                     {
                         // TODO:
-
-                        //Debug($"DrawTextOnPath({currentCount})", currentCount);
-
                         break;
                     }
                     case ShimSkiaSharp.DrawTextBlobCanvasCommand(var skTextBlob, var x, var y, var skPaint):
                     {
                         // TODO:
-
-                        //Debug($"DrawTextBlob({currentCount})", currentCount);
-
                         break;
                     }
                     case ShimSkiaSharp.DrawImageCanvasCommand(var skImage, var skRect, var dest, var skPaint):
                     {
                         // TODO:
-
-                        //Debug($"DrawImage({currentCount})", currentCount);
-
                         break;
                     }
+                    // ReSharper restore  UnusedVariable
                 }
             }
         }
-
+        
         public override string Generate(GeneratorContext context)
         {
             var sb = new StringBuilder();
