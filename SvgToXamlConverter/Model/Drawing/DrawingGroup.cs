@@ -83,7 +83,7 @@ namespace SvgToXamlConverter
                         layerStack.Push(currentLayer);
                         currentLayer = newLayer;
                         currentClipPath = path;
-                        Debug($"Set: currentClipPath", currentCount);
+                        Debug($"SET: currentClipPath ({currentCount})", currentCount);
 
                         break;
                     }
@@ -103,7 +103,7 @@ namespace SvgToXamlConverter
                         layerStack.Push(currentLayer);
                         currentLayer = newLayer;
                         currentClipPath = path;
-                        Debug($"Set: currentClipPath", currentCount);
+                        Debug($"SET: currentClipPath ({currentCount})", currentCount);
                         
                         break;
                     }
@@ -143,7 +143,7 @@ namespace SvgToXamlConverter
                         layerStack.Push(currentLayer);
                         currentLayer = newLayer;
                         currentTotalMatrix = matrix;
-                        Debug($"Set: currentTotalMatrix", currentCount);
+                        Debug($"SET: currentTotalMatrix ({currentCount})", currentCount);
                         
                         break;
                     }
@@ -172,7 +172,7 @@ namespace SvgToXamlConverter
                         layerStack.Push(currentLayer);
                         currentLayer = newLayer;
                         currentPaint = skPaint;
-                        Debug($"Set: currentPaint", currentCount);
+                        Debug($"SET: currentPaint ({currentCount})", currentCount);
 
                         break;
                     }
@@ -215,7 +215,7 @@ namespace SvgToXamlConverter
                                 }
                             }
  
-                            Debug($"Get: currentPaint", currentCount);
+                            Debug($"GET: currentPaint ({currentCount})", currentCount);
                             currentLayer = layerStack.Pop();
                         }
                         currentPaint = default;
@@ -226,7 +226,7 @@ namespace SvgToXamlConverter
 
                         if (currentClipPath is { })
                         {
-                            Debug($"Get: currentClipPath", currentCount);
+                            Debug($"GET: currentClipPath ({currentCount})", currentCount);
                             currentLayer = layerStack.Pop();
                         }
                         currentClipPath = default;
@@ -237,7 +237,7 @@ namespace SvgToXamlConverter
 
                         if (currentTotalMatrix is { })
                         {
-                            Debug($"Get: currentTotalMatrix", currentCount);
+                            Debug($"GET: currentTotalMatrix ({currentCount})", currentCount);
                             currentLayer = layerStack.Pop();
                         }
                         currentTotalMatrix = default;
