@@ -33,7 +33,7 @@ namespace SvgToXamlConverter
                 Resources = Resources
             };
 
-            return drawingGroup.Generate(context);
+            return new XamlGenerator().Generate(drawingGroup, context);
         }
 
         public string ToXamlImage(ShimSkiaSharp.SKPicture? skPicture, string? key = null)
@@ -52,7 +52,7 @@ namespace SvgToXamlConverter
                 Resources = Resources
             };
 
-            return image.Generate(context);
+            return new XamlGenerator().Generate(image, context);
         }
 
         public string ToXamlStyles(List<string> paths, bool generateImage = false, bool generatePreview = true)
@@ -103,7 +103,7 @@ namespace SvgToXamlConverter
                 Resources = Resources
             };
 
-            return styles.Generate(context);
+            return new XamlGenerator().Generate(styles, context);
         }
 
         public virtual string CreateKey(string path)

@@ -6,7 +6,7 @@
 
         public SkiaSharp.SKMatrix? LocalMatrix { get; init; }
   
-        protected static SkiaSharp.SKMatrix WithTransXY(SkiaSharp.SKMatrix matrix, float x, float y)
+        public SkiaSharp.SKMatrix WithTransXY(SkiaSharp.SKMatrix matrix, float x, float y)
         {
             return new SkiaSharp.SKMatrix(
                 matrix.ScaleX,

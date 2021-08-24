@@ -27,6 +27,9 @@
     <Compile Include="..\SvgToXamlConverter\Model\**\*.cs">
       <LinkBase>Converter\Model</LinkBase>
     </Compile>
+    <Compile Include="..\SvgToXamlConverter\Generator\**\*.cs">
+      <LinkBase>Converter\Generator</LinkBase>
+    </Compile>
     <Compile Include="..\SvgToXamlConverter\*.cs">
       <LinkBase>Converter</LinkBase>
     </Compile>

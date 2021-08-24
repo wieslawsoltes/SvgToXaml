@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Text;
 
 namespace SvgToXamlConverter
 {
@@ -323,55 +322,6 @@ namespace SvgToXamlConverter
                     // ReSharper restore  UnusedVariable
                 }
             }
-        }
-        
-        public override string Generate(GeneratorContext context)
-        {
-            var sb = new StringBuilder();
-
-            sb.Append($"<DrawingGroup{XamlConverter.ToKey(Key)}");
-
-            // ReSharper disable once CompareOfFloatsByEqualityOperator
-            if (Opacity is { })
-            {
-                sb.Append($" Opacity=\"{XamlConverter.ToString(Opacity.Value)}\"");
-            }
-
-            sb.Append($">{context.NewLine}");
-
-            if (ClipGeometry is { })
-            {
-                var clipGeometry = XamlConverter.ToSvgPathData(ClipGeometry);
-
-                sb.Append($"  <DrawingGroup.ClipGeometry>{context.NewLine}");
-                sb.Append($"    <StreamGeometry>{clipGeometry}</StreamGeometry>{context.NewLine}");
-                sb.Append($"  </DrawingGroup.ClipGeometry>{context.NewLine}");
-            }
-
-            if (Transform is { })
-            {
-                var matrix = Transform.Value;
-
-                sb.Append($"  <DrawingGroup.Transform>{context.NewLine}");
-                sb.Append($"    <MatrixTransform Matrix=\"{XamlConverter.ToMatrix(matrix)}\"/>{context.NewLine}");
-                sb.Append($"  </DrawingGroup.Transform>{context.NewLine}");
-            }
-
-            if (OpacityMask is { })
-            {
-                sb.Append($"<DrawingGroup.OpacityMask>{context.NewLine}");
-                sb.Append(OpacityMask.Generate(context));
-                sb.Append($"</DrawingGroup.OpacityMask>{context.NewLine}");
-            }
-
-            foreach (var child in Children)
-            {
-                sb.Append(child.Generate(context));
-            }
-
-            sb.Append($"</DrawingGroup>");
-
-            return sb.ToString();
         }
     }
 }
