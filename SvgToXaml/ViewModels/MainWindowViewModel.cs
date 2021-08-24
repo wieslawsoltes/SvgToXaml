@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -33,6 +34,12 @@ namespace SvgToXaml.ViewModels
         public ICommand ClearCommand { get; }
         
         [JsonIgnore]
+        public ICommand OpenCommand { get; }
+
+        [JsonIgnore]
+        public ICommand SaveCommand { get; }
+
+        [JsonIgnore]
         public ICommand AddCommand { get; }
 
         [JsonIgnore]
@@ -56,6 +63,10 @@ namespace SvgToXaml.ViewModels
             _project = new ProjectViewModel();
             
             ClearCommand = ReactiveCommand.Create(Clear);
+
+            OpenCommand = ReactiveCommand.CreateFromTask(async () => await Open());
+
+            SaveCommand = ReactiveCommand.CreateFromTask(async () => await Save());
 
             AddCommand = ReactiveCommand.CreateFromTask(async () => await Add());
 
@@ -97,6 +108,55 @@ namespace SvgToXaml.ViewModels
             Project.Items.Clear();
         }
 
+        private async Task Open()
+        {
+            var dlg = new OpenFileDialog { AllowMultiple = false };
+            dlg.Filters.Add(new FileDialogFilter() { Name = "Project Files (*.json)", Extensions = new List<string> { "json" } });
+            dlg.Filters.Add(new FileDialogFilter() { Name = "All Files (*.*)", Extensions = new List<string> { "*" } });
+            var result = await dlg.ShowAsync((Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow);
+            if (result is { } && result.Length == 1)
+            {
+                var json = await Task.Run(() => File.ReadAllText(result.First()));
+                var project = JsonSerializer.Deserialize<ProjectViewModel>(json);
+                if (project is { })
+                {
+                    Project = project;
+
+                    await Task.Run(() =>
+                    {
+                        foreach (var fileItemViewModel in Project.Items)
+                        {
+                            Initialize(fileItemViewModel);
+                        }
+                    });
+                }
+            }
+        }
+        
+        private async Task Save()
+        {
+            var dlg = new SaveFileDialog();
+            dlg.Filters.Add(new FileDialogFilter() { Name = "Project Files (*.json)", Extensions = new List<string> { "json" } });
+            dlg.Filters.Add(new FileDialogFilter() { Name = "All Files (*.*)", Extensions = new List<string> { "*" } });
+            dlg.InitialFileName = Path.GetFileNameWithoutExtension("project");
+            var result = await dlg.ShowAsync((Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow);
+            if (result is { })
+            {
+                try
+                {
+                    await Task.Run(() =>
+                    {
+                        var json = JsonSerializer.Serialize(Project);
+                        File.WriteAllText(result, json);
+                    });
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
+        }
+        
         private async Task Add()
         {
             var dlg = new OpenFileDialog { AllowMultiple = true };
