@@ -49,10 +49,10 @@ namespace SvgToXamlConverter
             var currentClipPath = default(SkiaSharp.SKPath?);
 
             var paintStack = new Stack<ShimSkiaSharp.SKPaint?>();
-            var currentPaint = default(ShimSkiaSharp.SKPaint?);
 
             var layerStack = new Stack<DrawingGroup>();
-            var currentLayer = this;
+            
+            layerStack.Push(this);
 
             void Debug(string message, int count)
             {
@@ -78,10 +78,12 @@ namespace SvgToXamlConverter
                             ClipGeometry = path
                         };
 
+                        var currentLayer = layerStack.Peek();
+
                         //Debug($"ClipPath({currentCount})", currentCount);
                         currentLayer.Children.Add(newLayer);
-                        layerStack.Push(currentLayer);
-                        currentLayer = newLayer;
+                        layerStack.Push(newLayer);
+
                         currentClipPath = path;
                         Debug($"SET({currentCount}) currentClipPath", currentCount);
 
@@ -98,10 +100,12 @@ namespace SvgToXamlConverter
                             ClipGeometry = path
                         };
 
+                        var currentLayer = layerStack.Peek();
+
                         //Debug($"ClipRect({currentCount})", currentCount);
                         currentLayer.Children.Add(newLayer);
-                        layerStack.Push(currentLayer);
-                        currentLayer = newLayer;
+                        layerStack.Push(newLayer);
+
                         currentClipPath = path;
                         Debug($"SET({currentCount}) currentClipPath", currentCount);
                         
@@ -138,10 +142,12 @@ namespace SvgToXamlConverter
                             Transform = matrix
                         };
 
+                        var currentLayer = layerStack.Peek();
+
                         //Debug($"SetMatrix({currentCount})", currentCount);
                         currentLayer.Children.Add(newLayer);
-                        layerStack.Push(currentLayer);
-                        currentLayer = newLayer;
+                        layerStack.Push(newLayer);
+
                         currentTotalMatrix = matrix;
                         Debug($"SET({currentCount}) currentTotalMatrix", currentCount);
                         
@@ -167,11 +173,11 @@ namespace SvgToXamlConverter
                         var newLayer = new DrawingGroup
                         {
                         };
+                        
+                        layerStack.Push(newLayer);
 
-                        //currentLayer.Children.Add(newLayer);
-                        layerStack.Push(currentLayer);
-                        currentLayer = newLayer;
-                        currentPaint = skPaint;
+                        paintStack.Push(skPaint);
+
                         Debug($"SET({currentCount}) currentPaint", currentCount);
 
                         break;
@@ -188,9 +194,9 @@ namespace SvgToXamlConverter
                         clipPathStack.Push(currentClipPath);
                         currentClipPath = default;
 
-                        paintStack.Push(currentPaint);
-                        currentPaint = default;
-
+                        paintStack.Push(default);
+                        
+                        //var currentLayer = layerStack.Peek();
                         //layerStack.Push(currentLayer);
 
                         break;
@@ -201,98 +207,97 @@ namespace SvgToXamlConverter
 
                         //Debug($"Restore({currentCount})", currentCount);
 
-                        if (currentPaint is { })
+                        if (paintStack.Count > 0)
                         {
-                            Debug($"GET({currentCount}) currentPaint", currentCount);
-
-                            var skPaint = currentPaint;
-
-                            var content = currentLayer;
-                            currentLayer = layerStack.Pop();
-
-                            var isMaskGroup = skPaint.Shader is null 
-                                              && skPaint.ColorFilter is null 
-                                              && skPaint.ImageFilter is null 
-                                              && skPaint.Color is { } skMaskStartColor 
-                                              && skMaskStartColor.Equals(s_transparentBlack);
-                            if (isMaskGroup)
+                            var currentPaint = paintStack.Pop();
+                            if (currentPaint is { })
                             {
-                                if (content is { })
-                                {
-                                    currentLayer.Children.Add(content);
-                                }
-                            }
+                                var content = layerStack.Pop();
+                                var currentLayer = layerStack.Peek();
 
-                            var isMaskBrush = skPaint.Shader is null 
-                                              && skPaint.ColorFilter is { }
-                                              && skPaint.ImageFilter is null 
-                                              && skPaint.Color is { } skMaskEndColor 
-                                              && skMaskEndColor.Equals(s_transparentBlack);
-                            if (isMaskBrush)
-                            {
-                                var drawing = new DrawingGroup
-                                {
-                                    OpacityMask = new PictureBrush
-                                    {
-                                        Picture = new Image(new DrawingImage(content)),
-                                        TileMode = ShimSkiaSharp.SKShaderTileMode.Clamp
-                                    }
-                                };
+                                Debug($"GET({currentCount}) currentPaint", currentCount);
 
-                                currentLayer.Children.Add(drawing);  
-                            }
+                                var skPaint = currentPaint;
 
-                            var isOpacityGroup = skPaint.Shader is null 
-                                                 && skPaint.ColorFilter is null 
-                                                 && skPaint.ImageFilter is null 
-                                                 && skPaint.Color is { Alpha: < OpaqueAlpha };
-                            if (isOpacityGroup)
-                            {
-                                if (skPaint.Color is { } skColor)
+                                var isMaskGroup = skPaint.Shader is null
+                                                  && skPaint.ColorFilter is null
+                                                  && skPaint.ImageFilter is null
+                                                  && skPaint.Color is { } skMaskStartColor
+                                                  && skMaskStartColor.Equals(s_transparentBlack);
+                                if (isMaskGroup)
                                 {
                                     if (content is { })
                                     {
-                                        content.Opacity = skColor.Alpha / 255.0;
+                                        currentLayer.Children.Add(content);
+                                    }
+                                }
+
+                                var isMaskBrush = skPaint.Shader is null
+                                                  && skPaint.ColorFilter is { }
+                                                  && skPaint.ImageFilter is null
+                                                  && skPaint.Color is { } skMaskEndColor
+                                                  && skMaskEndColor.Equals(s_transparentBlack);
+                                if (isMaskBrush)
+                                {
+                                    var drawing = new DrawingGroup
+                                    {
+                                        OpacityMask = new PictureBrush
+                                        {
+                                            Picture = new Image(new DrawingImage(content)),
+                                            TileMode = ShimSkiaSharp.SKShaderTileMode.Clamp
+                                        }
+                                    };
+
+                                    currentLayer.Children.Add(drawing);
+                                }
+
+                                var isOpacityGroup = skPaint.Shader is null
+                                                     && skPaint.ColorFilter is null
+                                                     && skPaint.ImageFilter is null
+                                                     && skPaint.Color is { Alpha: < OpaqueAlpha };
+                                if (isOpacityGroup)
+                                {
+                                    if (skPaint.Color is { } skColor)
+                                    {
+                                        if (content is { })
+                                        {
+                                            content.Opacity = skColor.Alpha / 255.0;
+                                            currentLayer.Children.Add(content);
+                                        }
+                                    }
+                                }
+
+                                var isFilterGroup = skPaint.Shader is null
+                                                    && skPaint.ColorFilter is null
+                                                    && skPaint.ImageFilter is { }
+                                                    && skPaint.Color is { } skFilterColor
+                                                    && skFilterColor.Equals(s_transparentBlack);
+                                if (isFilterGroup)
+                                {
+                                    if (content is { })
+                                    {
+                                        var drawing = new DrawingGroup();
+
+                                        drawing.Children.Add(content);
+
+                                        currentLayer.Children.Add(drawing);
+                                    }
+                                }
+
+                                if (!isMaskGroup && !isMaskBrush && !isOpacityGroup && !isFilterGroup)
+                                {
+                                    if (content is { })
+                                    {
                                         currentLayer.Children.Add(content);
                                     }
                                 }
                             }
-
-                            var isFilterGroup = skPaint.Shader is null 
-                                                && skPaint.ColorFilter is null
-                                                && skPaint.ImageFilter is { } 
-                                                && skPaint.Color is { } skFilterColor
-                                                && skFilterColor.Equals(s_transparentBlack);
-                            if (isFilterGroup)
-                            {
-                                if (content is { })
-                                {
-                                    var drawing = new DrawingGroup();
-
-                                    drawing.Children.Add(content);
-
-                                    currentLayer.Children.Add(drawing);
-                                }
-                            }
-
-                            if (!isMaskGroup && !isMaskBrush && !isOpacityGroup && !isFilterGroup)
-                            {
-                                if (content is { })
-                                {
-                                    currentLayer.Children.Add(content);
-                                }
-                            }
-                        }
-                        currentPaint = default;
-                        if (paintStack.Count > 0)
-                        {
-                            currentPaint = paintStack.Pop();
                         }
 
                         if (currentClipPath is { })
                         {
                             Debug($"GET({currentCount}) currentClipPath", currentCount);
-                            currentLayer = layerStack.Pop();
+                            layerStack.Pop();
                         }
                         currentClipPath = default;
                         if (clipPathStack.Count > 0)
@@ -303,7 +308,7 @@ namespace SvgToXamlConverter
                         if (currentTotalMatrix is { })
                         {
                             Debug($"GET({currentCount}) currentTotalMatrix", currentCount);
-                            currentLayer = layerStack.Pop();
+                            layerStack.Pop();
                         }
                         currentTotalMatrix = default;
                         if (totalMatrixStack.Count > 0)
@@ -311,8 +316,6 @@ namespace SvgToXamlConverter
                             currentTotalMatrix = totalMatrixStack.Pop();
                            
                         }
-
-                        //currentLayer = layerStack.Pop();
 
                         break;
                     }
@@ -327,7 +330,8 @@ namespace SvgToXamlConverter
                         }
 
                         var geometryDrawing = new GeometryDrawing(skPaint, path, resources);
-
+ 
+                        var currentLayer = layerStack.Peek();
                         currentLayer.Children.Add(geometryDrawing);
 
                         break;
@@ -357,6 +361,7 @@ namespace SvgToXamlConverter
 
                         var geometryDrawing = new GeometryDrawing(skPaint, path, resources);
 
+                        var currentLayer = layerStack.Peek();
                         currentLayer.Children.Add(geometryDrawing);
 
                         break;
