@@ -323,101 +323,11 @@ namespace SvgToXamlConverter
                 }
             }
 /*
-            var sb = this;
 
-            var totalMatrixStack = new Stack<(SkiaSharp.SKMatrix? Matrix, DrawingGroup Builder)>();
-            var currentTotalMatrix = default((SkiaSharp.SKMatrix? Matrix, DrawingGroup Builder));
-
-            var clipPathStack = new Stack<(SkiaSharp.SKPath? Path, DrawingGroup Builder)>();
-            var currentClipPath = default((SkiaSharp.SKPath? Path, DrawingGroup Builder));
-
-            var layersStack = new Stack<(DrawingGroup Builder, LayerType Type, object? Value)?>();
-
-            int currentCount = 0;
-            
             foreach (var canvasCommand in Picture.Commands)
             {
                 switch (canvasCommand)
                 {
-                    case ShimSkiaSharp.ClipPathCanvasCommand(var clipPath, _, _):
-                    {
-                        Debug($"ClipPath({currentCount})", currentCount);
-
-                        var path = Svg.Skia.SkiaModelExtensions.ToSKPath(clipPath);
-                        if (path is null)
-                        {
-                            break;
-                        }
-
-                        var drawing = new DrawingGroup
-                        {
-                            ClipGeometry = path
-                        };
-
-                        currentClipPath = (path, sb);
-                        sb.Children.Add(drawing);
-                        sb = drawing;
-
-                        break;
-                    }
-                    case ShimSkiaSharp.ClipRectCanvasCommand(var skRect, _, _):
-                    {
-                        Debug($"ClipRect({currentCount})", currentCount);
-
-                        var rect = Svg.Skia.SkiaModelExtensions.ToSKRect(skRect);
-                        var path = new SkiaSharp.SKPath();
-                        path.AddRect(rect);
-
-                        var drawing = new DrawingGroup
-                        {
-                            ClipGeometry = path
-                        };
-
-                        currentClipPath = (path, sb);
-                        sb.Children.Add(drawing);
-                        sb = drawing;
-
-                        break;
-                    }
-                    case ShimSkiaSharp.SetMatrixCanvasCommand(var skMatrix):
-                    {
-                        Debug($"SetMatrix({currentCount})", currentCount);
-
-                        var matrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(skMatrix);
-                        if (matrix.IsIdentity)
-                        {
-                            break;
-                        }
-
-                        var previousMatrixList = new List<SkiaSharp.SKMatrix>();
-
-                        foreach (var totalMatrixList in totalMatrixStack)
-                        {
-                            if (totalMatrixList.Matrix is { } totalMatrix)
-                            {
-                                previousMatrixList.Add(totalMatrix);
-                            }
-                        }
-
-                        previousMatrixList.Reverse();
-
-                        foreach (var previousMatrix in previousMatrixList)
-                        {
-                            var inverted = previousMatrix.Invert();
-                            matrix = inverted.PreConcat(matrix);
-                        }
-
-                        var drawing = new DrawingGroup
-                        {
-                            Transform = matrix
-                        };
-
-                        currentTotalMatrix = (matrix, sb);
-                        sb.Children.Add(drawing);
-                        sb = drawing;
-
-                        break;
-                    }
                     case ShimSkiaSharp.SaveLayerCanvasCommand(var count, var skPaint):
                     {
                         currentCount = count;
@@ -507,79 +417,7 @@ namespace SvgToXamlConverter
 
                         break;
                     }
-                    case ShimSkiaSharp.DrawPathCanvasCommand(var skPath, var skPaint):
-                    {
-                        Debug($"DrawPath({currentCount})", currentCount);
-
-                        var path = Svg.Skia.SkiaModelExtensions.ToSKPath(skPath);
-                        if (path.IsEmpty)
-                        {
-                            break;
-                        }
-
-                        sb.Children.Add(new GeometryDrawing(skPaint, path, resources));
-
-                        break;
-                    }
-                    case ShimSkiaSharp.DrawTextCanvasCommand(var text, var x, var y, var skPaint):
-                    {
-                        Debug($"DrawText({currentCount})", currentCount);
-
-                        var paint = Svg.Skia.SkiaModelExtensions.ToSKPaint(skPaint);
-                        var path = paint.GetTextPath(text, x, y);
-                        if (path.IsEmpty)
-                        {
-                            break;
-                        }
-
-                        Debug($"Text='{text}'", currentCount);
-
-                        if (skPaint.TextAlign == ShimSkiaSharp.SKTextAlign.Center)
-                        {
-                            path.Transform(SkiaSharp.SKMatrix.CreateTranslation(-path.Bounds.Width / 2f, 0f));
-                        }
-
-                        if (skPaint.TextAlign == ShimSkiaSharp.SKTextAlign.Right)
-                        {
-                            path.Transform(SkiaSharp.SKMatrix.CreateTranslation(-path.Bounds.Width, 0f));
-                        }
-
-                        sb.Children.Add(new GeometryDrawing(skPaint, path, resources));
-
-                        break;
-                    }
-                    case ShimSkiaSharp.DrawTextOnPathCanvasCommand(var text, var skPath, var hOffset, var vOffset, var skPaint):
-                    {
-                        // TODO:
-
-                        Debug($"DrawTextOnPath({currentCount})", currentCount);
-
-                        break;
-                    }
-                    case ShimSkiaSharp.DrawTextBlobCanvasCommand(var skTextBlob, var x, var y, var skPaint):
-                    {
-                        // TODO:
-
-                        Debug($"DrawTextBlob({currentCount})", currentCount);
-
-                        break;
-                    }
-                    case ShimSkiaSharp.DrawImageCanvasCommand(var skImage, var skRect, var dest, var skPaint):
-                    {
-                        // TODO:
-
-                        Debug($"DrawImage({currentCount})", currentCount);
-
-                        break;
-                    }
                 }
-            }
-
-            void Debug(string message, int count)
-            {
-#if DEBUG
-                System.Diagnostics.Debug.WriteLine(new string(' ', count * 2) + message);
-#endif
             }
 
             void EmptyLayer()
