@@ -11,9 +11,7 @@ namespace SvgToXaml
 {
     public class App : Application
     {
-        private const string SettingsFileName = "settings.json";
-
-        private const string PathsFileName = "paths.txt";
+        private const string ProjectFileName = "project.json";
 
         public override void Initialize()
         {
@@ -35,36 +33,26 @@ namespace SvgToXaml
 
                 desktop.Startup += (_, _) =>
                 {
-                    if (File.Exists(SettingsFileName))
+                    if (File.Exists(ProjectFileName))
                     {
-                        var json = File.ReadAllText(SettingsFileName);
-                        var settings = JsonSerializer.Deserialize<SettingsViewModel>(json);
-                        if (settings is { })
+                        var json = File.ReadAllText(ProjectFileName);
+                        var project = JsonSerializer.Deserialize<ProjectViewModel>(json);
+                        if (project is { })
                         {
-                            mainViewModel.Settings = settings;
-                        }
-                    }
-                    
-                    if (File.Exists(PathsFileName))
-                    {
-                        var paths = File.ReadAllLines(PathsFileName);
-                        if (paths.Length > 0)
-                        {
-                            mainViewModel.Add(paths);
+                            mainViewModel.Project = project;
+
+                            foreach (var fileItemViewModel in mainViewModel.Project.Items)
+                            {
+                                mainViewModel.Initialize(fileItemViewModel);
+                            }
                         }
                     }
                 };
 
                 desktop.Exit += (_, _) =>
                 {
-                    var paths = mainViewModel.Items?.Select(x => x.Path);
-                    if (paths is { })
-                    {
-                        File.WriteAllLines(PathsFileName, paths);
-                    }
-
-                    var json = JsonSerializer.Serialize(mainViewModel.Settings);
-                    File.WriteAllText(SettingsFileName, json);
+                    var json = JsonSerializer.Serialize(mainViewModel.Project);
+                    File.WriteAllText(ProjectFileName, json);
                 };
             }
 

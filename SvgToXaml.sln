@@ -5,7 +5,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgToXaml", "SvgToXaml\SvgT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "svgxaml", "svgxaml\svgxaml.csproj", "{06BE0887-524B-4119-814D-42AE1DCA4C91}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgToXamlConverter", "SvgToXamlConverter\SvgToXamlConverter.csproj", "{DFCAD52A-92A3-4421-9620-923A9271D016}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgModel", "SvgModel\SvgModel.csproj", "{DFCAD52A-92A3-4421-9620-923A9271D016}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgConverter", "SvgConverter\SvgConverter.csproj", "{DC4DBC06-FA81-4658-8718-F0A004CE0C2E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,5 +27,9 @@ Global
 		{DFCAD52A-92A3-4421-9620-923A9271D016}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFCAD52A-92A3-4421-9620-923A9271D016}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DFCAD52A-92A3-4421-9620-923A9271D016}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC4DBC06-FA81-4658-8718-F0A004CE0C2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC4DBC06-FA81-4658-8718-F0A004CE0C2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC4DBC06-FA81-4658-8718-F0A004CE0C2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC4DBC06-FA81-4658-8718-F0A004CE0C2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

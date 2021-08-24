@@ -24,13 +24,13 @@
     <PackageReference Include="System.Text.Json" Version="5.0.2" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\SvgToXamlConverter\Model\**\*.cs">
+    <Compile Include="..\SvgModel\Model\**\*.cs">
       <LinkBase>Converter\Model</LinkBase>
     </Compile>
-    <Compile Include="..\SvgToXamlConverter\Generator\**\*.cs">
+    <Compile Include="..\SvgConverter\Generator\**\*.cs">
       <LinkBase>Converter\Generator</LinkBase>
     </Compile>
-    <Compile Include="..\SvgToXamlConverter\*.cs">
+    <Compile Include="..\SvgConverter\*.cs">
       <LinkBase>Converter</LinkBase>
     </Compile>
   </ItemGroup>

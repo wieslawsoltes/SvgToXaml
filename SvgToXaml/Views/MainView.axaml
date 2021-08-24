@@ -92,8 +92,8 @@
                    Opacity="0.3" 
                    Height="0.55"/>
         <!-- Items List -->
-        <ListBox Items="{Binding Items}"
-                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+        <ListBox Items="{Binding Project.Items}"
+                 SelectedItem="{Binding Project.SelectedItem, Mode=TwoWay}"
                  Background="Transparent"
                  Margin="12,12,12,12">
           <ListBox.Styles>
@@ -250,7 +250,7 @@
               <Button.Flyout>
                 <Flyout ShowMode="TransientWithDismissOnPointerMoveAway" 
                         Placement="BottomEdgeAlignedRight">
-                  <StackPanel Spacing="12" DataContext="{Binding Settings}">
+                  <StackPanel Spacing="12" DataContext="{Binding Project.Settings}">
                     <CheckBox IsChecked="{Binding EnableGenerateImage}"
                               Content="Generate Image Control"
                               HorizontalAlignment="Stretch"
@@ -325,7 +325,7 @@
               </Border.Background>
             </Border>
             <Viewbox>
-              <SKPictureControl Picture="{Binding SelectedItem.Picture, FallbackValue={x:Null}}" />
+              <SKPictureControl Picture="{Binding Project.SelectedItem.Picture, FallbackValue={x:Null}}" />
             </Viewbox>
           </Panel>
         </DockPanel>

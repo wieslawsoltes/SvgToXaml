@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using ReactiveUI;
@@ -14,44 +15,60 @@ namespace SvgToXaml.ViewModels
         private SKSvg? _svg;
         private SkiaSharp.SKPicture? _picture;
 
+        [JsonInclude]
         public string Name
         {
             get => _name;
             private set => this.RaiseAndSetIfChanged(ref _name, value);
         }
 
+        [JsonInclude]
         public string Path
         {
             get => _path;
             private set => this.RaiseAndSetIfChanged(ref _path, value);
         }
 
+        [JsonIgnore]
         public SKSvg? Svg
         {
             get => _svg;
             private set => this.RaiseAndSetIfChanged(ref _svg, value);
         }
 
+        [JsonIgnore]
         public SkiaSharp.SKPicture? Picture
         {
             get => _picture;
             private set => this.RaiseAndSetIfChanged(ref _picture, value);
         }
 
-        public ICommand PreviewCommand { get; }
+        [JsonIgnore]
+        public ICommand? PreviewCommand { get; private set; }
 
-        public ICommand RemoveCommand { get; }
+        [JsonIgnore]
+        public ICommand? RemoveCommand { get; private set; }
 
-        public FileItemViewModel(string name, string path, Func<FileItemViewModel, Task> preview, Func<FileItemViewModel, Task> remove)
+        [JsonConstructor]
+        public FileItemViewModel(string name, string path)
         {
             _name = name;
             _path = path;
-
-            PreviewCommand = ReactiveCommand.CreateFromTask(async () => await preview(this));
-
-            RemoveCommand = ReactiveCommand.Create(async () => await remove(this));
+        }
+        
+        public FileItemViewModel(string name, string path, Func<FileItemViewModel, Task> preview, Func<FileItemViewModel, Task> remove) 
+            : this(name, path)
+        {
+            Initialize(preview, remove);
         }
 
+        public void Initialize(Func<FileItemViewModel, Task> preview, Func<FileItemViewModel, Task> remove)
+        {
+            PreviewCommand = ReactiveCommand.CreateFromTask(async () => await preview(this));
+
+            RemoveCommand = ReactiveCommand.Create(async () => await remove(this)); 
+        }
+ 
         public async Task Load()
         {
             if (_isLoading)
