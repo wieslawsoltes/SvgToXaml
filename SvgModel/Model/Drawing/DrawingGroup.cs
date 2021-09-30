@@ -27,6 +27,45 @@ namespace SvgToXamlConverter
             Initialize(Picture, resources);
         }
 
+        private bool IsMaskGroupLayer(ShimSkiaSharp.SKPaint skPaint)
+        {
+            var isMaskGroup = skPaint.Shader is null
+                              && skPaint.ColorFilter is null
+                              && skPaint.ImageFilter is null
+                              && skPaint.Color is { } skMaskStartColor
+                              && skMaskStartColor.Equals(s_transparentBlack);
+            return isMaskGroup;
+        }
+
+        private bool IsMaskBrushLayer(ShimSkiaSharp.SKPaint skPaint)
+        {
+            var isMaskBrush = skPaint.Shader is null
+                              && skPaint.ColorFilter is { }
+                              && skPaint.ImageFilter is null
+                              && skPaint.Color is { } skMaskEndColor
+                              && skMaskEndColor.Equals(s_transparentBlack);
+            return isMaskBrush;
+        }
+
+        private bool IsOpacityGroupLayer(ShimSkiaSharp.SKPaint skPaint)
+        {
+            var isOpacityGroup = skPaint.Shader is null
+                                 && skPaint.ColorFilter is null
+                                 && skPaint.ImageFilter is null
+                                 && skPaint.Color is { Alpha: < OpaqueAlpha };
+            return isOpacityGroup;
+        }
+
+        private bool IsFilterGroupLayer(ShimSkiaSharp.SKPaint skPaint)
+        {
+            var isFilterGroup = skPaint.Shader is null
+                                && skPaint.ColorFilter is null
+                                && skPaint.ImageFilter is { }
+                                && skPaint.Color is { } skFilterColor
+                                && skFilterColor.Equals(s_transparentBlack);
+            return isFilterGroup;
+        }
+
         private void Initialize(ShimSkiaSharp.SKPicture? picture, ResourceDictionary? resources = null)
         {
             if (picture?.Commands is null)
@@ -165,11 +204,7 @@ namespace SvgToXamlConverter
                                 var currentLayer = layerStack.Peek();
                                 var skPaint = currentPaint;
 
-                                var isMaskGroup = skPaint.Shader is null
-                                                  && skPaint.ColorFilter is null
-                                                  && skPaint.ImageFilter is null
-                                                  && skPaint.Color is { } skMaskStartColor
-                                                  && skMaskStartColor.Equals(s_transparentBlack);
+                                var isMaskGroup = IsMaskGroupLayer(skPaint);
                                 if (isMaskGroup)
                                 {
                                     if (content is { })
@@ -178,11 +213,7 @@ namespace SvgToXamlConverter
                                     }
                                 }
 
-                                var isMaskBrush = skPaint.Shader is null
-                                                  && skPaint.ColorFilter is { }
-                                                  && skPaint.ImageFilter is null
-                                                  && skPaint.Color is { } skMaskEndColor
-                                                  && skMaskEndColor.Equals(s_transparentBlack);
+                                var isMaskBrush = IsMaskBrushLayer(skPaint);
                                 if (isMaskBrush)
                                 {
                                     var drawing = new DrawingGroup
@@ -197,10 +228,7 @@ namespace SvgToXamlConverter
                                     currentLayer.Children.Add(drawing);
                                 }
 
-                                var isOpacityGroup = skPaint.Shader is null
-                                                     && skPaint.ColorFilter is null
-                                                     && skPaint.ImageFilter is null
-                                                     && skPaint.Color is { Alpha: < OpaqueAlpha };
+                                var isOpacityGroup = IsOpacityGroupLayer(skPaint);
                                 if (isOpacityGroup)
                                 {
                                     if (skPaint.Color is { } skColor)
@@ -213,11 +241,7 @@ namespace SvgToXamlConverter
                                     }
                                 }
 
-                                var isFilterGroup = skPaint.Shader is null
-                                                    && skPaint.ColorFilter is null
-                                                    && skPaint.ImageFilter is { }
-                                                    && skPaint.Color is { } skFilterColor
-                                                    && skFilterColor.Equals(s_transparentBlack);
+                                var isFilterGroup = IsFilterGroupLayer(skPaint);
                                 if (isFilterGroup)
                                 {
                                     if (content is { })
