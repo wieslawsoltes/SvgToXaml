@@ -361,6 +361,31 @@
                               HorizontalContentAlignment="Stretch"
                               Margin="0"
                               Padding="6"/>
+                    <Separator Background="{DynamicResource SystemChromeAltLowColor}" Opacity="0.3" Height="0.55"/>
+                    <CheckBox IsChecked="{Binding IgnoreOpacity}"
+                              Content="Ignore Opacity"
+                              HorizontalAlignment="Stretch"
+                              HorizontalContentAlignment="Stretch"
+                              Margin="0"
+                              Padding="6"/>
+                    <CheckBox IsChecked="{Binding IgnoreFilter}"
+                              Content="Ignore Filter"
+                              HorizontalAlignment="Stretch"
+                              HorizontalContentAlignment="Stretch"
+                              Margin="0"
+                              Padding="6"/>
+                    <CheckBox IsChecked="{Binding IgnoreClipPath}"
+                              Content="Ignore ClipPath"
+                              HorizontalAlignment="Stretch"
+                              HorizontalContentAlignment="Stretch"
+                              Margin="0"
+                              Padding="6"/>
+                    <CheckBox IsChecked="{Binding IgnoreMask}"
+                              Content="Ignore Mask"
+                              HorizontalAlignment="Stretch"
+                              HorizontalContentAlignment="Stretch"
+                              Margin="0"
+                              Padding="6"/>
                   </StackPanel>
                 </Flyout>
               </Button.Flyout>

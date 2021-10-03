@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using ReactiveUI;
-using Svg.Skia;
+using Svg.Model;
 
 namespace SvgToXaml.ViewModels
 {
@@ -12,7 +12,7 @@ namespace SvgToXaml.ViewModels
         private bool _isLoading;
         private string _name;
         private string _path;
-        private SKSvg? _svg;
+        private SvgViewModel? _svg;
         private SkiaSharp.SKPicture? _picture;
 
         [JsonInclude]
@@ -30,7 +30,7 @@ namespace SvgToXaml.ViewModels
         }
 
         [JsonIgnore]
-        public SKSvg? Svg
+        public SvgViewModel? Svg
         {
             get => _svg;
             private set => this.RaiseAndSetIfChanged(ref _svg, value);
@@ -69,7 +69,7 @@ namespace SvgToXaml.ViewModels
             RemoveCommand = ReactiveCommand.Create(async () => await remove(this)); 
         }
  
-        public async Task Load()
+        public async Task Load(DrawAttributes ignoreAttribute)
         {
             if (_isLoading)
             {
@@ -82,8 +82,8 @@ namespace SvgToXaml.ViewModels
             {
                 await Task.Run(() =>
                 {
-                    Svg = new SKSvg();
-                    Picture = Svg.Load(Path);
+                    Svg = new SvgViewModel();
+                    Picture = Svg.Load(Path, ignoreAttribute);
                 });
             }
 

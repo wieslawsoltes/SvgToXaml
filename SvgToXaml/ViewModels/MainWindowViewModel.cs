@@ -13,7 +13,6 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using ReactiveUI;
-using Svg.Skia;
 using SvgToXaml.Views;
 using SvgToXamlConverter;
 
@@ -85,7 +84,7 @@ namespace SvgToXaml.ViewModels
             {
                 if (x is { })
                 {
-                    await x.Load();
+                    await x.Load(Project.GetIgnoreAttributes());
                 }
             });
   
@@ -97,6 +96,30 @@ namespace SvgToXaml.ViewModels
 
             // ReSharper disable once AsyncVoidLambda
             this.WhenAnyValue(x => x.Project.Settings.UseBrushTransform).Subscribe(async _ =>
+            {
+                await Reload();
+            });
+
+            // ReSharper disable once AsyncVoidLambda
+            this.WhenAnyValue(x => x.Project.Settings.IgnoreOpacity).Subscribe(async _ =>
+            {
+                await Reload();
+            });
+
+            // ReSharper disable once AsyncVoidLambda
+            this.WhenAnyValue(x => x.Project.Settings.IgnoreFilter).Subscribe(async _ =>
+            {
+                await Reload();
+            });
+
+            // ReSharper disable once AsyncVoidLambda
+            this.WhenAnyValue(x => x.Project.Settings.IgnoreClipPath).Subscribe(async _ =>
+            {
+                await Reload();
+            });
+
+            // ReSharper disable once AsyncVoidLambda
+            this.WhenAnyValue(x => x.Project.Settings.IgnoreMask).Subscribe(async _ =>
             {
                 await Reload();
             });
@@ -280,11 +303,11 @@ namespace SvgToXaml.ViewModels
                 return "";
             });
 
-            var skSvg = new SKSvg();
+            var skSvg = new SvgViewModel();
 
             try
             {
-                skSvg.FromSvg(svg);
+                skSvg.FromSvg(svg, Project.GetIgnoreAttributes());
             }
             catch
             {
@@ -362,7 +385,7 @@ namespace SvgToXaml.ViewModels
 
             if (Project.SelectedItem is { } selectedItem)
             {
-                await selectedItem.Load();
+                await selectedItem.Load(Project.GetIgnoreAttributes());
             }
         }
         
@@ -372,7 +395,7 @@ namespace SvgToXaml.ViewModels
             {
                 if (fileItemViewModel.Picture is null)
                 {
-                    await fileItemViewModel.Load();
+                    await fileItemViewModel.Load(Project.GetIgnoreAttributes());
                 }
 
                 if (fileItemViewModel.Svg is { })
@@ -462,7 +485,7 @@ namespace SvgToXaml.ViewModels
             {
                 if (item.Svg is null)
                 {
-                    await item.Load();
+                    await item.Load(Project.GetIgnoreAttributes());
                 }
 
                 if (item.Svg is null)

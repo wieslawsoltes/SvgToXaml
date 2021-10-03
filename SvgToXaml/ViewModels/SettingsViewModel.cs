@@ -11,6 +11,10 @@ namespace SvgToXaml.ViewModels
         private bool _reuseExistingResources;
         private bool _useCompatMode;
         private bool _useBrushTransform;
+        private bool _ignoreOpacity;
+        private bool _ignoreFilter;
+        private bool _ignoreClipPath;
+        private bool _ignoreMask;
 
         [JsonInclude]
         public bool EnableGenerateImage
@@ -52,6 +56,34 @@ namespace SvgToXaml.ViewModels
         {
             get => _useBrushTransform;
             set => this.RaiseAndSetIfChanged(ref _useBrushTransform, value);
+        }
+
+        [JsonInclude]
+        public bool IgnoreOpacity
+        {
+            get => _ignoreOpacity;
+            set => this.RaiseAndSetIfChanged(ref _ignoreOpacity, value);
+        }
+
+        [JsonInclude]
+        public bool IgnoreFilter
+        {
+            get => _ignoreFilter;
+            set => this.RaiseAndSetIfChanged(ref _ignoreFilter, value);
+        }
+
+        [JsonInclude]
+        public bool IgnoreClipPath
+        {
+            get => _ignoreClipPath;
+            set => this.RaiseAndSetIfChanged(ref _ignoreClipPath, value);
+        }
+
+        [JsonInclude]
+        public bool IgnoreMask
+        {
+            get => _ignoreMask;
+            set => this.RaiseAndSetIfChanged(ref _ignoreMask, value);
         }
 
         [JsonConstructor]

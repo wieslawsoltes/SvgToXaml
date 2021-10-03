@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
 using ReactiveUI;
+using Svg.Model;
 
 namespace SvgToXaml.ViewModels
 {
@@ -44,7 +45,38 @@ namespace SvgToXaml.ViewModels
                 ReuseExistingResources = true,
                 UseCompatMode = false,
                 UseBrushTransform = false,
+                IgnoreOpacity = false,
+                IgnoreFilter = false,
+                IgnoreClipPath = false,
+                IgnoreMask = false,
             };
+        }
+
+        public DrawAttributes GetIgnoreAttributes()
+        {
+            var ignoreAttribute = DrawAttributes.None;
+
+            if (_settings.IgnoreOpacity)
+            {
+                ignoreAttribute |= DrawAttributes.Opacity;
+            }
+
+            if (_settings.IgnoreFilter)
+            {
+                ignoreAttribute |= DrawAttributes.Filter;
+            }
+
+            if (_settings.IgnoreClipPath)
+            {
+                ignoreAttribute |= DrawAttributes.ClipPath;
+            }
+
+            if (_settings.IgnoreMask)
+            {
+                ignoreAttribute |= DrawAttributes.Mask;
+            }
+
+            return ignoreAttribute;
         }
     }
 }
