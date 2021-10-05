@@ -1,13 +1,68 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 #
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgToXaml", "SvgToXaml\SvgToXaml.csproj", "{F6C225E1-F217-4146-8FC5-536B93B2ED93}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7F50DE02-D1D9-48CF-B810-2F036D022B34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "svgxaml", "svgxaml\svgxaml.csproj", "{06BE0887-524B-4119-814D-42AE1DCA4C91}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgToXamlConverter", "src\SvgToXamlConverter\SvgToXamlConverter.csproj", "{3066AB6A-F627-491B-A187-AE1DAB5C73C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgModel", "SvgModel\SvgModel.csproj", "{DFCAD52A-92A3-4421-9620-923A9271D016}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgToXaml", "src\SvgToXaml\SvgToXaml.csproj", "{FF9A2CC2-C733-421E-8F6D-39442041C86B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgConverter", "SvgConverter\SvgConverter.csproj", "{DC4DBC06-FA81-4658-8718-F0A004CE0C2E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "svgxaml", "src\svgxaml\svgxaml.csproj", "{3C542F9C-446C-4B77-A4B6-FD0D74DCC9E7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{3DA1182D-FE58-4135-83B6-12612E71F8E9}"
+ProjectSection(SolutionItems) = preProject
+	.editorconfig = .editorconfig
+	.nuke = .nuke
+	build.ps1 = build.ps1
+	build.sh = build.sh
+	global.json = global.json
+	build\SvgToXaml.public.snk = build\SvgToXaml.public.snk
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{038CD179-37B9-4AD8-B94E-D077723F45D7}"
+ProjectSection(SolutionItems) = preProject
+	LICENSE = LICENSE
+	README.md = README.md
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0A02A9B3-8AF1-4AAD-93B8-2E18438C9A3F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgToXamlConverter.UnitTests", "tests\SvgToXamlConverter.UnitTests\SvgToXamlConverter.UnitTests.csproj", "{A9A6981E-12E8-4553-AA63-0EF5F1E1B575}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "git", "git", "{AEF545DD-DD4E-454A-91E6-A1D82B6382F6}"
+ProjectSection(SolutionItems) = preProject
+	.gitattributes = .gitattributes
+	.gitignore = .gitignore
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{5B9F5688-208D-449D-A2D3-021834123C78}"
+ProjectSection(SolutionItems) = preProject
+	nuget.config = nuget.config
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "props", "props", "{D4B713E6-64FD-411D-93FD-462D35E4A3A1}"
+ProjectSection(SolutionItems) = preProject
+	build\Avalonia.Desktop.props = build\Avalonia.Desktop.props
+	build\Avalonia.Diagnostics.props = build\Avalonia.Diagnostics.props
+	build\Avalonia.props = build\Avalonia.props
+	build\Avalonia.ReactiveUI.props = build\Avalonia.ReactiveUI.props
+	build\Avalonia.Skia.props = build\Avalonia.Skia.props
+	build\Base.props = build\Base.props
+	build\ReferenceAssemblies.props = build\ReferenceAssemblies.props
+	build\SignAssembly.props = build\SignAssembly.props
+	build\SkiaSharp.Linux.props = build\SkiaSharp.Linux.props
+	build\SkiaSharp.props = build\SkiaSharp.props
+	build\SourceLink.props = build\SourceLink.props
+	build\System.CommandLine.props = build\System.CommandLine.props
+	build\XUnit.props = build\XUnit.props
+	build\Avalonia.Controls.Skia.props = build\Avalonia.Controls.Skia.props
+	build\Avalonia.Markup.Xaml.Loader.props = build\Avalonia.Markup.Xaml.Loader.props
+	build\Avalonia.Xaml.Behaviors.props = build\Avalonia.Xaml.Behaviors.props
+	build\Svg.Skia.props = build\Svg.Skia.props
+	build\System.Text.Json.props = build\System.Text.Json.props
+EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_build", "build\build\_build.csproj", "{E9A88CB0-B853-44C3-8A7E-F67DAD2A7F9B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,21 +70,35 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F6C225E1-F217-4146-8FC5-536B93B2ED93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F6C225E1-F217-4146-8FC5-536B93B2ED93}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F6C225E1-F217-4146-8FC5-536B93B2ED93}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F6C225E1-F217-4146-8FC5-536B93B2ED93}.Release|Any CPU.Build.0 = Release|Any CPU
-		{06BE0887-524B-4119-814D-42AE1DCA4C91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{06BE0887-524B-4119-814D-42AE1DCA4C91}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{06BE0887-524B-4119-814D-42AE1DCA4C91}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{06BE0887-524B-4119-814D-42AE1DCA4C91}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DFCAD52A-92A3-4421-9620-923A9271D016}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DFCAD52A-92A3-4421-9620-923A9271D016}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DFCAD52A-92A3-4421-9620-923A9271D016}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DFCAD52A-92A3-4421-9620-923A9271D016}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DC4DBC06-FA81-4658-8718-F0A004CE0C2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DC4DBC06-FA81-4658-8718-F0A004CE0C2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DC4DBC06-FA81-4658-8718-F0A004CE0C2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DC4DBC06-FA81-4658-8718-F0A004CE0C2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3066AB6A-F627-491B-A187-AE1DAB5C73C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3066AB6A-F627-491B-A187-AE1DAB5C73C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3066AB6A-F627-491B-A187-AE1DAB5C73C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3066AB6A-F627-491B-A187-AE1DAB5C73C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF9A2CC2-C733-421E-8F6D-39442041C86B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF9A2CC2-C733-421E-8F6D-39442041C86B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF9A2CC2-C733-421E-8F6D-39442041C86B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF9A2CC2-C733-421E-8F6D-39442041C86B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C542F9C-446C-4B77-A4B6-FD0D74DCC9E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C542F9C-446C-4B77-A4B6-FD0D74DCC9E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C542F9C-446C-4B77-A4B6-FD0D74DCC9E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C542F9C-446C-4B77-A4B6-FD0D74DCC9E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9A6981E-12E8-4553-AA63-0EF5F1E1B575}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9A6981E-12E8-4553-AA63-0EF5F1E1B575}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9A6981E-12E8-4553-AA63-0EF5F1E1B575}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9A6981E-12E8-4553-AA63-0EF5F1E1B575}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9A88CB0-B853-44C3-8A7E-F67DAD2A7F9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9A88CB0-B853-44C3-8A7E-F67DAD2A7F9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9A88CB0-B853-44C3-8A7E-F67DAD2A7F9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9A88CB0-B853-44C3-8A7E-F67DAD2A7F9B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3066AB6A-F627-491B-A187-AE1DAB5C73C5} = {7F50DE02-D1D9-48CF-B810-2F036D022B34}
+		{FF9A2CC2-C733-421E-8F6D-39442041C86B} = {7F50DE02-D1D9-48CF-B810-2F036D022B34}
+		{3C542F9C-446C-4B77-A4B6-FD0D74DCC9E7} = {7F50DE02-D1D9-48CF-B810-2F036D022B34}
+		{A9A6981E-12E8-4553-AA63-0EF5F1E1B575} = {0A02A9B3-8AF1-4AAD-93B8-2E18438C9A3F}
+		{AEF545DD-DD4E-454A-91E6-A1D82B6382F6} = {3DA1182D-FE58-4135-83B6-12612E71F8E9}
+		{5B9F5688-208D-449D-A2D3-021834123C78} = {3DA1182D-FE58-4135-83B6-12612E71F8E9}
+		{D4B713E6-64FD-411D-93FD-462D35E4A3A1} = {3DA1182D-FE58-4135-83B6-12612E71F8E9}
+		{E9A88CB0-B853-44C3-8A7E-F67DAD2A7F9B} = {3DA1182D-FE58-4135-83B6-12612E71F8E9}
 	EndGlobalSection
 EndGlobal
