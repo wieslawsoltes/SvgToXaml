@@ -319,7 +319,7 @@ namespace SvgToXaml.ViewModels
             {
                 if (Project.Settings.EnableGenerateImage)
                 {
-                    var converter = new SvgConverter()
+                    var converter = new SvgToXamlConverter.SvgToXamlConverter()
                     {
                         UseCompatMode = Project.Settings.UseCompatMode,
                         UseBrushTransform = Project.Settings.UseBrushTransform,
@@ -332,7 +332,7 @@ namespace SvgToXaml.ViewModels
                 }
                 else
                 {
-                    var converter = new SvgConverter()
+                    var converter = new SvgToXamlConverter.SvgToXamlConverter()
                     {
                         UseCompatMode = Project.Settings.UseCompatMode,
                         UseBrushTransform = Project.Settings.UseBrushTransform,
@@ -403,7 +403,7 @@ namespace SvgToXaml.ViewModels
                 {
                     if (enableGenerateImage)
                     {
-                        var converter = new SvgConverter()
+                        var converter = new SvgToXamlConverter.SvgToXamlConverter()
                         {
                             UseCompatMode = Project.Settings.UseCompatMode,
                             UseBrushTransform = Project.Settings.UseBrushTransform,
@@ -416,7 +416,7 @@ namespace SvgToXaml.ViewModels
                     }
                     else
                     {
-                        var converter = new SvgConverter()
+                        var converter = new SvgToXamlConverter.SvgToXamlConverter()
                         {
                             UseCompatMode = Project.Settings.UseCompatMode,
                             UseBrushTransform = Project.Settings.UseBrushTransform,
@@ -437,7 +437,7 @@ namespace SvgToXaml.ViewModels
         {
             return await Task.Run(() =>
             {
-                var converter = new SvgConverter()
+                var converter = new SvgToXamlConverter.SvgToXamlConverter()
                 {
                     UseCompatMode = Project.Settings.UseCompatMode, 
                     UseBrushTransform = Project.Settings.UseBrushTransform,
@@ -496,7 +496,7 @@ namespace SvgToXaml.ViewModels
 
                 try
                 {
-                    var converter = new SvgConverter()
+                    var converter = new SvgToXamlConverter.SvgToXamlConverter()
                     {
                         UseCompatMode = Project.Settings.UseCompatMode,
                         UseBrushTransform = Project.Settings.UseBrushTransform,

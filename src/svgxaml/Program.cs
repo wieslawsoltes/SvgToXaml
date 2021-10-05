@@ -55,7 +55,7 @@ namespace svgxaml
                         return;
                     }
 
-                    var converter = new SvgConverter()
+                    var converter = new SvgToXamlConverter.SvgToXamlConverter()
                     {
                         UseCompatMode = false,
                         UseBrushTransform = false,
@@ -79,7 +79,7 @@ namespace svgxaml
                 }
                 else
                 {
-                    var converter = new SvgConverter()
+                    var converter = new SvgToXamlConverter.SvgToXamlConverter()
                     {
                         UseCompatMode = false,
                         UseBrushTransform = false,

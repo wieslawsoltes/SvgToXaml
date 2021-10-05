@@ -11,7 +11,7 @@ using SvgToXamlConverter.Model.Resources;
 
 namespace SvgToXamlConverter
 {
-    public class SvgConverter
+    public class SvgToXamlConverter
     {
         public string NewLine { get; set; } = "\r\n";
 
