@@ -6,6 +6,7 @@
     <IsPackable>False</IsPackable>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
+    <ApplicationIcon>Assets\Icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -13,6 +14,12 @@
     <PackageId>SvgToXaml</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>svg;xaml;axaml;avalonia;avaloniaui;convert;converter;vector graphics;rendering;2d;graphics;geometry;shapes;skiasharp;skia</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PublishTrimmed>False</PublishTrimmed>
+    <PublishSingleFile>False</PublishSingleFile>
+    <PublishReadyToRun>True</PublishReadyToRun>
   </PropertyGroup>
 
   <ItemGroup>
