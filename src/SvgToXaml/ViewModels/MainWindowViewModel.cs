@@ -504,16 +504,12 @@ namespace SvgToXaml.ViewModels
                         Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
                     };
 
-                    var xaml = converter.ToXamlDrawingGroup(item.Svg.Model);
+                    var xaml = converter.ToXamlImage(item.Svg.Model);
 
                     var sb = new StringBuilder();
 
                     sb.Append($"<Viewbox xmlns=\"https://github.com/avaloniaui\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">");
-                    sb.Append($"<Image>");
-                    sb.Append($"<DrawingImage>");
                     sb.Append($"{xaml}");
-                    sb.Append($"</DrawingImage>");
-                    sb.Append($"</Image>");
                     sb.Append($"</Viewbox>");
 
                     var viewboxXaml = sb.ToString();
