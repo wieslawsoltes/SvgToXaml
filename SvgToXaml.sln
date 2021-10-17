@@ -17,6 +17,7 @@ ProjectSection(SolutionItems) = preProject
 	build.sh = build.sh
 	global.json = global.json
 	build\SvgToXaml.public.snk = build\SvgToXaml.public.snk
+	azure-pipelines.yml = azure-pipelines.yml
 EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{038CD179-37B9-4AD8-B94E-D077723F45D7}"
