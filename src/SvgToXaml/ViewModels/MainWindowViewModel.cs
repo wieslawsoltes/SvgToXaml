@@ -14,7 +14,6 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using ReactiveUI;
 using SvgToXaml.Views;
-using SvgToXamlConverter;
 using ResourceDictionary = SvgToXamlConverter.Model.Resources.ResourceDictionary;
 
 namespace SvgToXaml.ViewModels
@@ -134,11 +133,16 @@ namespace SvgToXaml.ViewModels
 
         private async Task Open()
         {
+            var window = (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+            if (window is null)
+            {
+                return;
+            }
             var dlg = new OpenFileDialog { AllowMultiple = false };
             dlg.Filters.Add(new FileDialogFilter() { Name = "Project Files (*.json)", Extensions = new List<string> { "json" } });
             dlg.Filters.Add(new FileDialogFilter() { Name = "All Files (*.*)", Extensions = new List<string> { "*" } });
-            var result = await dlg.ShowAsync((Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow);
-            if (result is { } && result.Length == 1)
+            var result = await dlg.ShowAsync(window);
+            if (result is { Length: 1 })
             {
                 var json = await Task.Run(() => File.ReadAllText(result.First()));
                 var project = JsonSerializer.Deserialize<ProjectViewModel>(json);
@@ -159,11 +163,16 @@ namespace SvgToXaml.ViewModels
         
         private async Task Save()
         {
+            var window = (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+            if (window is null)
+            {
+                return;
+            }
             var dlg = new SaveFileDialog();
             dlg.Filters.Add(new FileDialogFilter() { Name = "Project Files (*.json)", Extensions = new List<string> { "json" } });
             dlg.Filters.Add(new FileDialogFilter() { Name = "All Files (*.*)", Extensions = new List<string> { "*" } });
             dlg.InitialFileName = Path.GetFileNameWithoutExtension("project");
-            var result = await dlg.ShowAsync((Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow);
+            var result = await dlg.ShowAsync(window);
             if (result is { })
             {
                 try
@@ -183,12 +192,17 @@ namespace SvgToXaml.ViewModels
         
         private async Task Add()
         {
+            var window = (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+            if (window is null)
+            {
+                return;
+            }
             var dlg = new OpenFileDialog { AllowMultiple = true };
             dlg.Filters.Add(new FileDialogFilter() { Name = "Supported Files (*.svg;*.svgz)", Extensions = new List<string> { "svg", "svgz" } });
             dlg.Filters.Add(new FileDialogFilter() { Name = "SVG Files (*.svg)", Extensions = new List<string> { "svg" } });
             dlg.Filters.Add(new FileDialogFilter() { Name = "SVGZ Files (*.svgz)", Extensions = new List<string> { "svgz" } });
             dlg.Filters.Add(new FileDialogFilter() { Name = "All Files (*.*)", Extensions = new List<string> { "*" } });
-            var result = await dlg.ShowAsync((Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow);
+            var result = await dlg.ShowAsync(window);
             if (result is { })
             {
                 var paths = result.ToList();
@@ -231,12 +245,18 @@ namespace SvgToXaml.ViewModels
                 return;
             }
 
+            var window = (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+            if (window is null)
+            {
+                return;
+            }
+
             var dlg = new SaveFileDialog();
             dlg.Filters.Add(new FileDialogFilter() { Name = "AXAML Files (*.axaml)", Extensions = new List<string> { "axaml" } });
             dlg.Filters.Add(new FileDialogFilter() { Name = "XAML Files (*.xaml)", Extensions = new List<string> { "xaml" } });
             dlg.Filters.Add(new FileDialogFilter() { Name = "All Files (*.*)", Extensions = new List<string> { "*" } });
             dlg.InitialFileName = Path.GetFileNameWithoutExtension(Project.SelectedItem.Path);
-            var result = await dlg.ShowAsync((Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow);
+            var result = await dlg.ShowAsync(window);
             if (result is { })
             {
                 var xaml = await ToXaml(Project.SelectedItem, Project.Settings.EnableGenerateImage);
@@ -259,12 +279,18 @@ namespace SvgToXaml.ViewModels
                 return;
             }
 
+            var window = (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+            if (window is null)
+            {
+                return;
+            }
+
             var dlg = new SaveFileDialog();
             dlg.Filters.Add(new FileDialogFilter() { Name = "AXAML Files (*.axaml)", Extensions = new List<string> { "axaml" } });
             dlg.Filters.Add(new FileDialogFilter() { Name = "XAML Files (*.xaml)", Extensions = new List<string> { "xaml" } });
             dlg.Filters.Add(new FileDialogFilter() { Name = "All Files (*.*)", Extensions = new List<string> { "*" } });
             dlg.InitialFileName = Path.GetFileNameWithoutExtension("Svg");
-            var result = await dlg.ShowAsync((Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow);
+            var result = await dlg.ShowAsync(window);
             if (result is { })
             {
                 var paths = Project.Items.Select(x => x.Path).ToList();
