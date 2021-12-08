@@ -1,12 +1,11 @@
-﻿namespace SvgToXamlConverter.Model.Drawing
-{
-    public record DrawingImage : Drawing
-    {
-        public Drawing? Drawing { get; }
+﻿namespace SvgToXamlConverter.Model.Drawing;
 
-        public DrawingImage(Drawing? drawing = null)
-        {
-            Drawing = drawing;
-        }
+public record DrawingImage : Drawing
+{
+    public Drawing? Drawing { get; }
+
+    public DrawingImage(Drawing? drawing = null)
+    {
+        Drawing = drawing;
     }
 }

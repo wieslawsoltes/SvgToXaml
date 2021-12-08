@@ -1,7 +1,6 @@
-﻿namespace SvgToXamlConverter.Model.Resources
+﻿namespace SvgToXamlConverter.Model.Resources;
+
+public abstract record Resource
 {
-    public abstract record Resource
-    {
-        public string? Key { get; init; }
-    }
+    public string? Key { get; init; }
 }

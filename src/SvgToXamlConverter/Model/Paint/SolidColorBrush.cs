@@ -1,7 +1,6 @@
-﻿namespace SvgToXamlConverter.Model.Paint
+﻿namespace SvgToXamlConverter.Model.Paint;
+
+public record SolidColorBrush : Brush
 {
-    public record SolidColorBrush : Brush
-    {
-        public ShimSkiaSharp.SKColor Color { get; init; }
-    }
+    public ShimSkiaSharp.SKColor Color { get; init; }
 }

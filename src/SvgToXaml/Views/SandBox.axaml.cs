@@ -2,19 +2,17 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace SvgToXaml.Views
-{
-    public class SandBox : UserControl
-    {
-        public SandBox()
-        {
-            InitializeComponent();
-        }
+namespace SvgToXaml.Views;
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
+public class SandBox : UserControl
+{
+    public SandBox()
+    {
+        InitializeComponent();
+    }
+
+    private void InitializeComponent()
+    {
+        AvaloniaXamlLoader.Load(this);
     }
 }
-

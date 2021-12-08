@@ -2,58 +2,57 @@ using Svg.Model;
 using ShimSkiaSharp;
 using Svg.Skia;
 
-namespace SvgToXaml.ViewModels
+namespace SvgToXaml.ViewModels;
+
+public class SvgViewModel : ViewModelBase
 {
-    public class SvgViewModel : ViewModelBase
+    private static readonly IAssetLoader s_assetLoader = new SkiaAssetLoader();
+
+    public SKDrawable? Drawable { get; private set; }
+
+    public SKPicture? Model { get; private set; }
+
+    public SkiaSharp.SKPicture? Picture { get; private set; }
+
+    private void Reset()
     {
-        private static readonly IAssetLoader s_assetLoader = new SkiaAssetLoader();
+        Model = null;
+        Drawable = null;
 
-        public SKDrawable? Drawable { get; private set; }
+        Picture?.Dispose();
+        Picture = null;
+    }
 
-        public SKPicture? Model { get; private set; }
-
-        public SkiaSharp.SKPicture? Picture { get; private set; }
-
-        private void Reset()
-        {
-            Model = null;
-            Drawable = null;
-
-            Picture?.Dispose();
-            Picture = null;
-        }
-
-        public void Dispose()
-        {
-            Reset();
-        }
+    public void Dispose()
+    {
+        Reset();
+    }
         
-        public SkiaSharp.SKPicture? Load(string path, DrawAttributes ignoreAttributes)
+    public SkiaSharp.SKPicture? Load(string path, DrawAttributes ignoreAttributes)
+    {
+        Reset();
+        var svgDocument = SvgExtensions.Open(path);
+        if (svgDocument is { })
         {
-            Reset();
-            var svgDocument = SvgExtensions.Open(path);
-            if (svgDocument is { })
-            {
-                Model = SvgExtensions.ToModel(svgDocument, s_assetLoader, out var drawable, out _, ignoreAttributes);
-                Drawable = drawable;
-                Picture = Model?.ToSKPicture();
-                return Picture;
-            }
-            return null;
+            Model = SvgExtensions.ToModel(svgDocument, s_assetLoader, out var drawable, out _, ignoreAttributes);
+            Drawable = drawable;
+            Picture = Model?.ToSKPicture();
+            return Picture;
         }
+        return null;
+    }
 
-        public SkiaSharp.SKPicture? FromSvg(string svg, DrawAttributes ignoreAttributes)
+    public SkiaSharp.SKPicture? FromSvg(string svg, DrawAttributes ignoreAttributes)
+    {
+        Reset();
+        var svgDocument = SvgExtensions.FromSvg(svg);
+        if (svgDocument is { })
         {
-            Reset();
-            var svgDocument = SvgExtensions.FromSvg(svg);
-            if (svgDocument is { })
-            {
-                Model = SvgExtensions.ToModel(svgDocument, s_assetLoader, out var drawable, out _, ignoreAttributes);
-                Drawable = drawable;
-                Picture = Model?.ToSKPicture();
-                return Picture;
-            }
-            return null;
+            Model = SvgExtensions.ToModel(svgDocument, s_assetLoader, out var drawable, out _, ignoreAttributes);
+            Drawable = drawable;
+            Picture = Model?.ToSKPicture();
+            return Picture;
         }
+        return null;
     }
 }

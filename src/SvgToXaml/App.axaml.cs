@@ -7,56 +7,55 @@ using Avalonia.Markup.Xaml;
 using SvgToXaml.ViewModels;
 using SvgToXaml.Views;
 
-namespace SvgToXaml
+namespace SvgToXaml;
+
+public class App : Application
 {
-    public class App : Application
+    private const string ProjectFileName = "project.json";
+
+    public override void Initialize()
     {
-        private const string ProjectFileName = "project.json";
+        AvaloniaXamlLoader.Load(this);
+    }
 
-        public override void Initialize()
+    public override void OnFrameworkInitializationCompleted()
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            AvaloniaXamlLoader.Load(this);
-        }
+            var mainViewModel = new MainWindowViewModel();
 
-        public override void OnFrameworkInitializationCompleted()
-        {
-            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            var mainWindow = new MainWindow
             {
-                var mainViewModel = new MainWindowViewModel();
+                DataContext = mainViewModel
+            };
 
-                var mainWindow = new MainWindow
+            desktop.MainWindow = mainWindow;
+
+            desktop.Startup += (_, _) =>
+            {
+                if (File.Exists(ProjectFileName))
                 {
-                    DataContext = mainViewModel
-                };
-
-                desktop.MainWindow = mainWindow;
-
-                desktop.Startup += (_, _) =>
-                {
-                    if (File.Exists(ProjectFileName))
+                    var json = File.ReadAllText(ProjectFileName);
+                    var project = JsonSerializer.Deserialize<ProjectViewModel>(json);
+                    if (project is { })
                     {
-                        var json = File.ReadAllText(ProjectFileName);
-                        var project = JsonSerializer.Deserialize<ProjectViewModel>(json);
-                        if (project is { })
-                        {
-                            mainViewModel.Project = project;
+                        mainViewModel.Project = project;
 
-                            foreach (var fileItemViewModel in mainViewModel.Project.Items)
-                            {
-                                mainViewModel.Initialize(fileItemViewModel);
-                            }
+                        foreach (var fileItemViewModel in mainViewModel.Project.Items)
+                        {
+                            mainViewModel.Initialize(fileItemViewModel);
                         }
                     }
-                };
+                }
+            };
 
-                desktop.Exit += (_, _) =>
-                {
-                    var json = JsonSerializer.Serialize(mainViewModel.Project);
-                    File.WriteAllText(ProjectFileName, json);
-                };
-            }
-
-            base.OnFrameworkInitializationCompleted();
+            desktop.Exit += (_, _) =>
+            {
+                var json = JsonSerializer.Serialize(mainViewModel.Project);
+                File.WriteAllText(ProjectFileName, json);
+            };
         }
+
+        base.OnFrameworkInitializationCompleted();
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace SvgToXamlConverter.Model.Paint
-{
-    public record RadialGradientBrush : GradientBrush
-    {
-        public SkiaSharp.SKPoint Center { get; init; }
+﻿namespace SvgToXamlConverter.Model.Paint;
 
-        public float Radius { get; init; }
-    }
+public record RadialGradientBrush : GradientBrush
+{
+    public SkiaSharp.SKPoint Center { get; init; }
+
+    public float Radius { get; init; }
 }

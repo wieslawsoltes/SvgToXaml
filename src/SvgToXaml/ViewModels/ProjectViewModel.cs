@@ -3,80 +3,79 @@ using System.Text.Json.Serialization;
 using ReactiveUI;
 using Svg.Model;
 
-namespace SvgToXaml.ViewModels
+namespace SvgToXaml.ViewModels;
+
+public class ProjectViewModel : ViewModelBase
 {
-    public class ProjectViewModel : ViewModelBase
+    private FileItemViewModel? _selectedItem;
+    private ObservableCollection<FileItemViewModel> _items;
+    private SettingsViewModel _settings;
+
+    [JsonIgnore]
+    public FileItemViewModel? SelectedItem
     {
-        private FileItemViewModel? _selectedItem;
-        private ObservableCollection<FileItemViewModel> _items;
-        private SettingsViewModel _settings;
+        get => _selectedItem;
+        set => this.RaiseAndSetIfChanged(ref _selectedItem, value);
+    }
 
-        [JsonIgnore]
-        public FileItemViewModel? SelectedItem
+    [JsonInclude]
+    public ObservableCollection<FileItemViewModel> Items
+    {
+        get => _items;
+        set => this.RaiseAndSetIfChanged(ref _items, value);
+    }
+
+    [JsonInclude]
+    public SettingsViewModel Settings
+    {
+        get => _settings;
+        set => this.RaiseAndSetIfChanged(ref _settings, value);
+    }
+
+    [JsonConstructor]
+    public ProjectViewModel()
+    {
+        _items = new ObservableCollection<FileItemViewModel>();
+
+        _settings = new SettingsViewModel()
         {
-            get => _selectedItem;
-            set => this.RaiseAndSetIfChanged(ref _selectedItem, value);
+            EnableGenerateImage = true,
+            EnableGeneratePreview = true,
+            UseResources = true,
+            ReuseExistingResources = true,
+            UseCompatMode = false,
+            UseBrushTransform = false,
+            IgnoreOpacity = false,
+            IgnoreFilter = false,
+            IgnoreClipPath = false,
+            IgnoreMask = false,
+        };
+    }
+
+    public DrawAttributes GetIgnoreAttributes()
+    {
+        var ignoreAttribute = DrawAttributes.None;
+
+        if (_settings.IgnoreOpacity)
+        {
+            ignoreAttribute |= DrawAttributes.Opacity;
         }
 
-        [JsonInclude]
-        public ObservableCollection<FileItemViewModel> Items
+        if (_settings.IgnoreFilter)
         {
-            get => _items;
-            set => this.RaiseAndSetIfChanged(ref _items, value);
+            ignoreAttribute |= DrawAttributes.Filter;
         }
 
-        [JsonInclude]
-        public SettingsViewModel Settings
+        if (_settings.IgnoreClipPath)
         {
-            get => _settings;
-            set => this.RaiseAndSetIfChanged(ref _settings, value);
+            ignoreAttribute |= DrawAttributes.ClipPath;
         }
 
-        [JsonConstructor]
-        public ProjectViewModel()
+        if (_settings.IgnoreMask)
         {
-            _items = new ObservableCollection<FileItemViewModel>();
-
-            _settings = new SettingsViewModel()
-            {
-                EnableGenerateImage = true,
-                EnableGeneratePreview = true,
-                UseResources = true,
-                ReuseExistingResources = true,
-                UseCompatMode = false,
-                UseBrushTransform = false,
-                IgnoreOpacity = false,
-                IgnoreFilter = false,
-                IgnoreClipPath = false,
-                IgnoreMask = false,
-            };
+            ignoreAttribute |= DrawAttributes.Mask;
         }
 
-        public DrawAttributes GetIgnoreAttributes()
-        {
-            var ignoreAttribute = DrawAttributes.None;
-
-            if (_settings.IgnoreOpacity)
-            {
-                ignoreAttribute |= DrawAttributes.Opacity;
-            }
-
-            if (_settings.IgnoreFilter)
-            {
-                ignoreAttribute |= DrawAttributes.Filter;
-            }
-
-            if (_settings.IgnoreClipPath)
-            {
-                ignoreAttribute |= DrawAttributes.ClipPath;
-            }
-
-            if (_settings.IgnoreMask)
-            {
-                ignoreAttribute |= DrawAttributes.Mask;
-            }
-
-            return ignoreAttribute;
-        }
+        return ignoreAttribute;
     }
 }

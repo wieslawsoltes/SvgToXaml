@@ -1,9 +1,8 @@
-﻿namespace SvgToXamlConverter.Model.Paint
-{
-    public record LinearGradientBrush : GradientBrush
-    {
-        public SkiaSharp.SKPoint Start { get; init; }
+﻿namespace SvgToXamlConverter.Model.Paint;
 
-        public SkiaSharp.SKPoint End { get; init; }
-    }
+public record LinearGradientBrush : GradientBrush
+{
+    public SkiaSharp.SKPoint Start { get; init; }
+
+    public SkiaSharp.SKPoint End { get; init; }
 }

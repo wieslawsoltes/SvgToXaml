@@ -1,8 +1,7 @@
 ﻿using ReactiveUI;
 
-namespace SvgToXaml.ViewModels
+namespace SvgToXaml.ViewModels;
+
+public class ViewModelBase : ReactiveObject
 {
-    public class ViewModelBase : ReactiveObject
-    {
-    }
 }

@@ -1,11 +1,10 @@
 ﻿using SvgToXamlConverter.Model.Resources;
 
-namespace SvgToXamlConverter.Model.Paint
-{
-    public record GradientStop : Resource
-    {
-        public float Offset { get; init; }
+namespace SvgToXamlConverter.Model.Paint;
 
-        public ShimSkiaSharp.SKColor Color { get; init; }
-    }
+public record GradientStop : Resource
+{
+    public float Offset { get; init; }
+
+    public ShimSkiaSharp.SKColor Color { get; init; }
 }
