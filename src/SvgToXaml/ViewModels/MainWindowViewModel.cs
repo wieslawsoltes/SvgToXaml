@@ -133,7 +133,7 @@ public class MainWindowViewModel : ViewModelBase
 
     private async Task Open()
     {
-        var window = (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+        var window = (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
         if (window is null)
         {
             return;
@@ -163,7 +163,7 @@ public class MainWindowViewModel : ViewModelBase
         
     private async Task Save()
     {
-        var window = (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+        var window = (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
         if (window is null)
         {
             return;
@@ -192,7 +192,7 @@ public class MainWindowViewModel : ViewModelBase
         
     private async Task Add()
     {
-        var window = (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+        var window = (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
         if (window is null)
         {
             return;
@@ -245,7 +245,7 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        var window = (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+        var window = (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
         if (window is null)
         {
             return;
@@ -279,7 +279,7 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        var window = (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+        var window = (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
         if (window is null)
         {
             return;
@@ -320,7 +320,10 @@ public class MainWindowViewModel : ViewModelBase
         {
             try
             {
-                return await Application.Current.Clipboard.GetTextAsync();
+                if (Application.Current?.Clipboard is { } clipboard)
+                {
+                    return await clipboard.GetTextAsync();
+                }
             }
             catch
             {
@@ -385,7 +388,10 @@ public class MainWindowViewModel : ViewModelBase
         {
             try
             {
-                await Application.Current.Clipboard.SetTextAsync(xaml);
+                if (Application.Current?.Clipboard is { } clipboard)
+                {
+                    await clipboard.SetTextAsync(xaml);
+                }
             }
             catch
             {
@@ -549,7 +555,11 @@ public class MainWindowViewModel : ViewModelBase
                     Height = 600
                 };
 
-                await window.ShowDialog((Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow);
+                var owner = (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+                if (owner is { })
+                {
+                    await window.ShowDialog(owner);
+                }
             }
             catch
             {
