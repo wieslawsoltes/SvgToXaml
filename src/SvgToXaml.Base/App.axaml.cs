@@ -55,6 +55,17 @@ public class App : Application
                 File.WriteAllText(ProjectFileName, json);
             };
         }
+        else if (ApplicationLifetime is ISingleViewApplicationLifetime single)
+        {
+            var mainViewModel = new MainWindowViewModel();
+
+            var mainView = new MainView()
+            {
+                DataContext = mainViewModel
+            };
+
+            single.MainView = mainView;
+        }
 
         base.OnFrameworkInitializationCompleted();
     }
