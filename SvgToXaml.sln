@@ -5,7 +5,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7F50DE02-D1D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgToXamlConverter", "src\SvgToXamlConverter\SvgToXamlConverter.csproj", "{3066AB6A-F627-491B-A187-AE1DAB5C73C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgToXaml", "src\SvgToXaml\SvgToXaml.csproj", "{FF9A2CC2-C733-421E-8F6D-39442041C86B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgToXaml.Base", "src\SvgToXaml.Base\SvgToXaml.Base.csproj", "{FF9A2CC2-C733-421E-8F6D-39442041C86B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "svgxaml", "src\svgxaml\svgxaml.csproj", "{3C542F9C-446C-4B77-A4B6-FD0D74DCC9E7}"
 EndProject
@@ -60,9 +60,12 @@ ProjectSection(SolutionItems) = preProject
 	build\Avalonia.Xaml.Behaviors.props = build\Avalonia.Xaml.Behaviors.props
 	build\Svg.Skia.props = build\Svg.Skia.props
 	build\System.Text.Json.props = build\System.Text.Json.props
+	build\Avalonia.Web.Blazor.props = build\Avalonia.Web.Blazor.props
 EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_build", "build\build\_build.csproj", "{E9A88CB0-B853-44C3-8A7E-F67DAD2A7F9B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgToXaml.Desktop", "src\SvgToXaml.Desktop\SvgToXaml.Desktop.csproj", "{F5405E7E-2C76-406F-B81D-159CC9F712A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -90,6 +93,10 @@ Global
 		{E9A88CB0-B853-44C3-8A7E-F67DAD2A7F9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9A88CB0-B853-44C3-8A7E-F67DAD2A7F9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9A88CB0-B853-44C3-8A7E-F67DAD2A7F9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5405E7E-2C76-406F-B81D-159CC9F712A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5405E7E-2C76-406F-B81D-159CC9F712A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5405E7E-2C76-406F-B81D-159CC9F712A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5405E7E-2C76-406F-B81D-159CC9F712A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3066AB6A-F627-491B-A187-AE1DAB5C73C5} = {7F50DE02-D1D9-48CF-B810-2F036D022B34}
@@ -100,5 +107,6 @@ Global
 		{5B9F5688-208D-449D-A2D3-021834123C78} = {3DA1182D-FE58-4135-83B6-12612E71F8E9}
 		{D4B713E6-64FD-411D-93FD-462D35E4A3A1} = {3DA1182D-FE58-4135-83B6-12612E71F8E9}
 		{E9A88CB0-B853-44C3-8A7E-F67DAD2A7F9B} = {3DA1182D-FE58-4135-83B6-12612E71F8E9}
+		{F5405E7E-2C76-406F-B81D-159CC9F712A4} = {7F50DE02-D1D9-48CF-B810-2F036D022B34}
 	EndGlobalSection
 EndGlobal

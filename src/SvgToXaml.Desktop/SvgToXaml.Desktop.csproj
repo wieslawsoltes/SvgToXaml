@@ -6,14 +6,8 @@
     <IsPackable>False</IsPackable>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
-    <ApplicationIcon>Assets\Icon.ico</ApplicationIcon>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <Description>An Svg to Xaml conveter.</Description>
-    <PackageId>SvgToXaml</PackageId>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageTags>svg;xaml;axaml;avalonia;avaloniaui;convert;converter;vector graphics;rendering;2d;graphics;geometry;shapes;skiasharp;skia</PackageTags>
+    <ApplicationIcon>..\SvgToXaml.Base\Assets\Icon.ico</ApplicationIcon>
+    <RootNamespace>SvgToXaml</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -24,10 +18,6 @@
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\SvgToXamlConverter\SvgToXamlConverter.csproj" />
   </ItemGroup>
 
   <Import Project="..\..\build\Base.props" />
@@ -43,5 +33,9 @@
   <Import Project="..\..\build\SkiaSharp.Linux.props" />
   <Import Project="..\..\build\Svg.Skia.props" />
   <Import Project="..\..\build\System.Text.Json.props" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\SvgToXaml.Base\SvgToXaml.Base.csproj" />
+  </ItemGroup>
 
 </Project>
