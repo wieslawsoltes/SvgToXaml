@@ -923,6 +923,22 @@ public class XamlGenerator : GeneratorBase
             sb.Append($"</DrawingGroup.OpacityMask>{context.NewLine}");
         }
 
+        if (context.AddTransparentBackground && drawingGroup.Picture is { })
+        {
+            var left = drawingGroup.Picture.CullRect.Left;
+            var top = drawingGroup.Picture.CullRect.Top;
+            var right = drawingGroup.Picture.CullRect.Right;
+            var bottom = drawingGroup.Picture.CullRect.Bottom;
+            sb.Append($"<GeometryDrawing Brush=\"Transparent\" ");
+            sb.Append($"Geometry=\"F1");
+            sb.Append($"M{ToXamlString(left)},{ToXamlString(top)}");
+            sb.Append($"L{ToXamlString(right)},{ToXamlString(top)}");
+            sb.Append($"L{ToXamlString(right)},{ToXamlString(bottom)}");
+            sb.Append($"L{ToXamlString(left)},{ToXamlString(bottom)}");
+            sb.Append($"z\" ");
+            sb.Append($"/>{context.NewLine}");
+        }
+
         foreach (var child in drawingGroup.Children)
         {
             sb.Append(Generate(child, context));
