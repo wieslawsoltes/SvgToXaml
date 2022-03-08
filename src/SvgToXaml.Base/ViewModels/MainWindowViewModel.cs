@@ -439,6 +439,7 @@ public class MainWindowViewModel : ViewModelBase
                     {
                         UseCompatMode = Project.Settings.UseCompatMode,
                         UseBrushTransform = Project.Settings.UseBrushTransform,
+                        AddTransparentBackground = Project.Settings.AddTransparentBackground,
                         ReuseExistingResources = Project.Settings.ReuseExistingResources,
                         Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
                     };
@@ -452,6 +453,7 @@ public class MainWindowViewModel : ViewModelBase
                     {
                         UseCompatMode = Project.Settings.UseCompatMode,
                         UseBrushTransform = Project.Settings.UseBrushTransform,
+                        AddTransparentBackground = Project.Settings.AddTransparentBackground,
                         ReuseExistingResources = Project.Settings.ReuseExistingResources,
                         Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
                     };

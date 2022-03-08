@@ -19,6 +19,8 @@ public class SvgToXamlConverter
 
     public bool UseBrushTransform { get; set; }
 
+    public bool AddTransparentBackground { get; set; }
+
     public bool ReuseExistingResources { get; set; }
 
     public ResourceDictionary? Resources { get; set; }
@@ -32,6 +34,7 @@ public class SvgToXamlConverter
             NewLine = NewLine,
             UseCompatMode = UseCompatMode,
             UseBrushTransform = UseBrushTransform,
+            AddTransparentBackground = AddTransparentBackground,
             ReuseExistingResources = ReuseExistingResources,
             WriteResources = false,
             Resources = Resources
@@ -51,6 +54,7 @@ public class SvgToXamlConverter
             NewLine = NewLine,
             UseCompatMode = UseCompatMode,
             UseBrushTransform = UseBrushTransform,
+            AddTransparentBackground = AddTransparentBackground,
             ReuseExistingResources = ReuseExistingResources,
             WriteResources = true,
             Resources = Resources
@@ -102,6 +106,7 @@ public class SvgToXamlConverter
             NewLine = NewLine,
             UseCompatMode = UseCompatMode,
             UseBrushTransform = UseBrushTransform,
+            AddTransparentBackground = AddTransparentBackground,
             ReuseExistingResources = ReuseExistingResources,
             WriteResources = false,
             Resources = Resources

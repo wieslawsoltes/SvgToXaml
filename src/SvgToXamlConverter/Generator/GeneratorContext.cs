@@ -10,6 +10,8 @@ public record GeneratorContext
 
     public bool UseBrushTransform { get; init; } = false;
 
+    public bool AddTransparentBackground { get; init; } = false;
+
     public bool ReuseExistingResources { get; init; } = false;
 
     public  bool WriteResources { get; init; } = false;

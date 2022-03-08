@@ -45,6 +45,7 @@ public class ProjectViewModel : ViewModelBase
             ReuseExistingResources = true,
             UseCompatMode = false,
             UseBrushTransform = false,
+            AddTransparentBackground = true,
             IgnoreOpacity = false,
             IgnoreFilter = false,
             IgnoreClipPath = false,
