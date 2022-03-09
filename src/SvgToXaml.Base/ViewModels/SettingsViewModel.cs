@@ -11,6 +11,7 @@ public class SettingsViewModel : ViewModelBase
     private bool _reuseExistingResources;
     private bool _useCompatMode;
     private bool _useBrushTransform;
+    private bool _addTransparentBackground;
     private bool _ignoreOpacity;
     private bool _ignoreFilter;
     private bool _ignoreClipPath;
@@ -56,6 +57,13 @@ public class SettingsViewModel : ViewModelBase
     {
         get => _useBrushTransform;
         set => this.RaiseAndSetIfChanged(ref _useBrushTransform, value);
+    }
+
+    [JsonInclude]
+    public bool AddTransparentBackground
+    {
+        get => _addTransparentBackground;
+        set => this.RaiseAndSetIfChanged(ref _addTransparentBackground, value);
     }
 
     [JsonInclude]

@@ -580,7 +580,7 @@ public class XamlGenerator : GeneratorBase
         if (pictureBrush.Picture is not null)
         {
             sb.Append($"  <VisualBrush.Visual>{context.NewLine}");
-            sb.Append(Generate(pictureBrush.Picture, context with { WriteResources = false }));
+            sb.Append(Generate(pictureBrush.Picture, context with { WriteResources = false, AddTransparentBackground = false }));
             sb.Append($"{context.NewLine}");
             sb.Append($"  </VisualBrush.Visual>{context.NewLine}");
         }
@@ -923,6 +923,22 @@ public class XamlGenerator : GeneratorBase
             sb.Append($"</DrawingGroup.OpacityMask>{context.NewLine}");
         }
 
+        if (context.AddTransparentBackground && drawingGroup.Picture is { })
+        {
+            var left = drawingGroup.Picture.CullRect.Left;
+            var top = drawingGroup.Picture.CullRect.Top;
+            var right = drawingGroup.Picture.CullRect.Right;
+            var bottom = drawingGroup.Picture.CullRect.Bottom;
+            sb.Append($"<GeometryDrawing Brush=\"Transparent\" ");
+            sb.Append($"Geometry=\"F1");
+            sb.Append($"M{ToXamlString(left)},{ToXamlString(top)}");
+            sb.Append($"L{ToXamlString(right)},{ToXamlString(top)}");
+            sb.Append($"L{ToXamlString(right)},{ToXamlString(bottom)}");
+            sb.Append($"L{ToXamlString(left)},{ToXamlString(bottom)}");
+            sb.Append($"z\" ");
+            sb.Append($"/>{context.NewLine}");
+        }
+
         foreach (var child in drawingGroup.Children)
         {
             sb.Append(Generate(child, context));
@@ -1037,7 +1053,7 @@ public class XamlGenerator : GeneratorBase
         if (context.Resources is { } && (context.Resources.Brushes.Count > 0 || context.Resources.Pens.Count > 0) && context.WriteResources)
         {
             sb.Append($"<Image.Resources>{context.NewLine}");
-            sb.Append(Generate(context.Resources, context with { WriteResources = false }));
+            sb.Append(Generate(context.Resources, context with { WriteResources = false, AddTransparentBackground = false }));
             sb.Append($"</Image.Resources>{context.NewLine}");
         }
 
@@ -1071,7 +1087,7 @@ public class XamlGenerator : GeneratorBase
 
         foreach (var result in styles.Resources)
         {
-            content.Append(Generate(result, context with { WriteResources = false }));
+            content.Append(Generate(result, context with { WriteResources = false, AddTransparentBackground = false }));
             content.Append(context.NewLine);
         }
 
@@ -1131,7 +1147,7 @@ public class XamlGenerator : GeneratorBase
 
         if (context.Resources is { } && (context.Resources.Brushes.Count > 0 || context.Resources.Pens.Count > 0))
         {
-            sb.Append(Generate(context.Resources, context with { WriteResources = false }));
+            sb.Append(Generate(context.Resources, context with { WriteResources = false, AddTransparentBackground = false }));
         }
 
         sb.Append(content);
