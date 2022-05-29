@@ -13,11 +13,6 @@ public class App : Application
 {
     private const string ProjectFileName = "project.json";
 
-    public App()
-    {
-        Name = "SvgToXaml";
-    }
-    
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
