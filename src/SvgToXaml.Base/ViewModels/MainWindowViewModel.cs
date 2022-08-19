@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using ReactiveUI;
 using SvgToXaml.Views;
@@ -131,61 +133,118 @@ public class MainWindowViewModel : ViewModelBase
         Project.Items.Clear();
     }
 
+    private List<FilePickerFileType> GetOpenFileTypes()
+    {
+        return new List<FilePickerFileType>
+        {
+            StorageService.Json,
+            StorageService.All
+        };
+    }
+
+    private static List<FilePickerFileType> GetSaveFileTypes()
+    {
+        return new List<FilePickerFileType>
+        {
+            StorageService.Json,
+            StorageService.All
+        };
+    }
+
+    private static List<FilePickerFileType> GetImportFileTypes()
+    {
+        return new List<FilePickerFileType>
+        {
+            StorageService.ImageSvg,
+            StorageService.All
+        };
+    }
+
+    private static List<FilePickerFileType> GetExportFileTypes()
+    {
+        return new List<FilePickerFileType>
+        {
+            StorageService.ImageSvg,
+            StorageService.All
+        };
+    }
+
     private async Task Open()
     {
-        var window = (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
-        if (window is null)
+        var storageProvider = StorageService.GetStorageProvider();
+        if (storageProvider is null)
         {
             return;
         }
-        var dlg = new OpenFileDialog { AllowMultiple = false };
-        dlg.Filters.Add(new FileDialogFilter() { Name = "Project Files (*.json)", Extensions = new List<string> { "json" } });
-        dlg.Filters.Add(new FileDialogFilter() { Name = "All Files (*.*)", Extensions = new List<string> { "*" } });
-        var result = await dlg.ShowAsync(window);
-        if (result is { Length: 1 })
-        {
-            var json = await Task.Run(() => File.ReadAllText(result.First()));
-            var project = JsonSerializer.Deserialize<ProjectViewModel>(json);
-            if (project is { })
-            {
-                Project = project;
 
-                await Task.Run(() =>
+        var result = await storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Open project",
+            FileTypeFilter = GetOpenFileTypes(),
+            AllowMultiple = false
+        });
+
+        var file = result.FirstOrDefault();
+
+        if (file is not null && file.CanOpenRead)
+        {
+            try
+            {
+                await using var stream = await file.OpenReadAsync();
+                using var reader = new StreamReader(stream);
+                var json = await reader.ReadToEndAsync();
+                var project = JsonSerializer.Deserialize<ProjectViewModel>(json);
+                if (project is { })
                 {
-                    foreach (var fileItemViewModel in Project.Items)
+                    Project = project;
+
+                    await Task.Run(() =>
                     {
-                        Initialize(fileItemViewModel);
-                    }
-                });
+                        foreach (var fileItemViewModel in Project.Items)
+                        {
+                            Initialize(fileItemViewModel);
+                        }
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
             }
         }
     }
         
     private async Task Save()
     {
-        var window = (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
-        if (window is null)
+        var storageProvider = StorageService.GetStorageProvider();
+        if (storageProvider is null)
         {
             return;
         }
-        var dlg = new SaveFileDialog();
-        dlg.Filters.Add(new FileDialogFilter() { Name = "Project Files (*.json)", Extensions = new List<string> { "json" } });
-        dlg.Filters.Add(new FileDialogFilter() { Name = "All Files (*.*)", Extensions = new List<string> { "*" } });
-        dlg.InitialFileName = Path.GetFileNameWithoutExtension("project");
-        var result = await dlg.ShowAsync(window);
-        if (result is { })
+
+        var file = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Save project",
+            FileTypeChoices = GetSaveFileTypes(),
+            SuggestedFileName = Path.GetFileNameWithoutExtension("project"),
+            DefaultExtension = "json",
+            ShowOverwritePrompt = true
+        });
+
+        if (file is not null && file.CanOpenWrite)
         {
             try
             {
-                await Task.Run(() =>
-                {
-                    var json = JsonSerializer.Serialize(Project);
-                    File.WriteAllText(result, json);
-                });
+                var json = await Task.Run(() => JsonSerializer.Serialize(Project));
+                await using var stream = await file.OpenWriteAsync();
+                await using var writer = new StreamWriter(stream);
+                await writer.WriteAsync(json);
             }
-            catch
+            catch (Exception ex)
             {
-                // ignored
+                Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
             }
         }
     }
