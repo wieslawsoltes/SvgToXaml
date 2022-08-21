@@ -57,15 +57,15 @@
       "netstandard.dll": "sha256-Pa7wOL0+8pBSNtM8ZnodpaHhWgUyZEiWyIp3pQxvCBo=",
       "ReactiveUI.dll": "sha256-YguK6xTN1hQ9P8tSc69RDNiY5QsItt1xe6Ek62Tne7U=",
       "ShimSkiaSharp.dll": "sha256-8YK4z0zUpSqbzCVtMaW+3SuJmHhBXQViWB579dnZgDk=",
-      "SkiaSharp.dll": "sha256-+jvlN1ntK\/J+hY1WdergiUHIf9qHnWZpO9VMQMNIfZ4=",
+      "SkiaSharp.dll": "sha256-czyUiGqKMiuLqGlQ91MqBLHksz74ZbggwoNMVEjW0Mo=",
       "SkiaSharp.HarfBuzz.dll": "sha256-UhinqbOQpqK8ZHiphbokHKPozazchkWd\/BCZgjau260=",
       "Splat.dll": "sha256-Ym6C2Hl+rjaNwRNH3yQl0\/mGD8qLpS33QROYld\/6kqU=",
       "Svg.Custom.dll": "sha256-uu7Odyyy9hBzCyW+F5SrExuiRqQpKiZa\/N6hxK0cZkk=",
       "Svg.Model.dll": "sha256-vgdA4VV+5hVZzLwuuKX9z36ZOQM2abR\/niKFc5yLgts=",
       "Svg.Skia.dll": "sha256-lkF+XGyjKyt2GJU7OHuMiLS5uN5KAjPM1vm+\/P\/GFhE=",
-      "SvgToXaml.Base.dll": "sha256-X6pjaSv1uo6x6MhdOQjrD4ntnCWNTMI3KJjZhrdvUw0=",
-      "SvgToXaml.Web.dll": "sha256-\/t1bAs5+pcM1DO\/yElQXVdzAQFLyz3gXv7rTXt1lX3E=",
-      "SvgToXamlConverter.dll": "sha256-PRFgpHPKvGr9YymrQuiXk5TCOQxgg4wTuTXYG3pbKIY=",
+      "SvgToXaml.Base.dll": "sha256-LRkBAKXqX61g5jzd8UFJzMFmveGP3Hg\/CGq8PE9olS8=",
+      "SvgToXaml.Web.dll": "sha256-1mB9XkOj9jPFzbLCzCEMUfdpkr3ACxQheyBsrcjtur0=",
+      "SvgToXamlConverter.dll": "sha256-7GbS3V9vXr90pSjOq4RoH8KfBVgEAbAZNdn1iRwQ\/wQ=",
       "System.Collections.Concurrent.dll": "sha256-6PrLSK0VIxrfCNLNKBXJuwM4zsNgyXlBMvqM3B+ktXk=",
       "System.Collections.dll": "sha256-GawUIxVjrT+SsZB5Sc8qOaSD+pOQBxjsu3V1XWS7Yh8=",
       "System.Collections.Immutable.dll": "sha256-VYWcQBy+NokFpm7TSnNMMYbFteRsBTF+oV\/tj1QRk9A=",
@@ -134,8 +134,8 @@
     "libraryInitializers": null,
     "pdb": null,
     "runtime": {
-      "dotnet.6.0.8.65rfz9t89a.js": "sha256-1LtwFYIMmS3J5UOhwBX97lrDxPN8H1jgsiElftVMHfQ=",
-      "dotnet.wasm": "sha256-3fuhTIdX8g4oRcrrT4qGP\/5WWeE94tN66ilzwgF6MAg="
+      "dotnet.6.0.8.65rfz9t89a.js": "sha256-U50UV76oi1t7mt+2+NHC6YOWxKCAiJILNahiyOjHPEE=",
+      "dotnet.wasm": "sha256-PFceFFdqyT4Dt3\/udeH6W8NwkLFKxB2KK6h1neiQu8M="
     },
     "satelliteResources": {
       "cs": {
