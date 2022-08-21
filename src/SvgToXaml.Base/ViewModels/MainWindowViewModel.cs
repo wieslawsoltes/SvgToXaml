@@ -214,7 +214,7 @@ public class MainWindowViewModel : ViewModelBase
             }
         }
     }
-        
+
     private async Task Save()
     {
         var storageProvider = StorageService.GetStorageProvider();
@@ -248,7 +248,7 @@ public class MainWindowViewModel : ViewModelBase
             }
         }
     }
-        
+
     private async Task Add()
     {
         var window = (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
