@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
-using ReactiveUI;
 using Svg.Model;
 
 namespace SvgToXaml.ViewModels;
@@ -15,21 +14,21 @@ public class ProjectViewModel : ViewModelBase
     public FileItemViewModel? SelectedItem
     {
         get => _selectedItem;
-        set => this.RaiseAndSetIfChanged(ref _selectedItem, value);
+        set => SetProperty(ref _selectedItem, value);
     }
 
     [JsonInclude]
     public ObservableCollection<FileItemViewModel> Items
     {
         get => _items;
-        set => this.RaiseAndSetIfChanged(ref _items, value);
+        set => SetProperty(ref _items, value);
     }
 
     [JsonInclude]
     public SettingsViewModel Settings
     {
         get => _settings;
-        set => this.RaiseAndSetIfChanged(ref _settings, value);
+        set => SetProperty(ref _settings, value);
     }
 
     [JsonConstructor]

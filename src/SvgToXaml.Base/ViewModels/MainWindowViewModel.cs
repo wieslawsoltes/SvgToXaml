@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -14,7 +15,8 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
-using ReactiveUI;
+using CommunityToolkit.Mvvm.Input;
+using ReactiveMarbles.PropertyChanged;
 using SvgToXaml.Views;
 using ResourceDictionary = SvgToXamlConverter.Model.Resources.ResourceDictionary;
 
@@ -28,7 +30,7 @@ public class MainWindowViewModel : ViewModelBase
     public ProjectViewModel Project
     {
         get => _project;
-        set => this.RaiseAndSetIfChanged(ref _project, value);
+        set => SetProperty(ref _project, value);
     }
 
     [JsonIgnore]
@@ -63,26 +65,26 @@ public class MainWindowViewModel : ViewModelBase
     {
         _project = new ProjectViewModel();
             
-        ClearCommand = ReactiveCommand.Create(Clear);
+        ClearCommand = new RelayCommand(Clear);
 
-        OpenCommand = ReactiveCommand.CreateFromTask(async () => await Open());
+        OpenCommand = new AsyncRelayCommand(async () => await Open());
 
-        SaveCommand = ReactiveCommand.CreateFromTask(async () => await Save());
+        SaveCommand = new AsyncRelayCommand(async () => await Save());
 
-        AddCommand = ReactiveCommand.CreateFromTask(async () => await Add());
+        AddCommand = new AsyncRelayCommand(async () => await Add());
 
-        CopySelectedCommand = ReactiveCommand.CreateFromTask<string>(async format => await CopySelected(format));
+        CopySelectedCommand = new AsyncRelayCommand<string>(async format => await CopySelected(format));
 
-        CopyAllCommand = ReactiveCommand.CreateFromTask<string>(async format => await CopyAll(format));
+        CopyAllCommand = new AsyncRelayCommand<string>(async format => await CopyAll(format));
 
-        ExportSelectedCommand = ReactiveCommand.CreateFromTask<string>(async format => await ExportSelected(format));
+        ExportSelectedCommand = new AsyncRelayCommand<string>(async format => await ExportSelected(format));
 
-        ExportAllCommand = ReactiveCommand.CreateFromTask<string>(async format => await ExportAll(format));
+        ExportAllCommand = new AsyncRelayCommand<string>(async format => await ExportAll(format));
 
-        ClipboardCommand = ReactiveCommand.CreateFromTask<string>(async format => await Clipboard(format));
+        ClipboardCommand = new AsyncRelayCommand<string>(async format => await Clipboard(format));
 
         // ReSharper disable once AsyncVoidLambda
-        this.WhenAnyValue(x => x.Project.SelectedItem).Subscribe(async x =>
+        this.WhenChanged(x => x.Project.SelectedItem).DistinctUntilChanged().Subscribe(async x =>
         {
             if (x is { })
             {
@@ -91,31 +93,31 @@ public class MainWindowViewModel : ViewModelBase
         });
   
         // ReSharper disable once AsyncVoidLambda
-        this.WhenAnyValue(x => x.Project.Settings.UseCompatMode).Subscribe(async _ =>
+        this.WhenChanged(x => x.Project.Settings.UseCompatMode).DistinctUntilChanged().Subscribe(async _ =>
         {
             await Reload();
         });
 
         // ReSharper disable once AsyncVoidLambda
-        this.WhenAnyValue(x => x.Project.Settings.IgnoreOpacity).Subscribe(async _ =>
+        this.WhenChanged(x => x.Project.Settings.IgnoreOpacity).DistinctUntilChanged().Subscribe(async _ =>
         {
             await Reload();
         });
 
         // ReSharper disable once AsyncVoidLambda
-        this.WhenAnyValue(x => x.Project.Settings.IgnoreFilter).Subscribe(async _ =>
+        this.WhenChanged(x => x.Project.Settings.IgnoreFilter).DistinctUntilChanged().Subscribe(async _ =>
         {
             await Reload();
         });
 
         // ReSharper disable once AsyncVoidLambda
-        this.WhenAnyValue(x => x.Project.Settings.IgnoreClipPath).Subscribe(async _ =>
+        this.WhenChanged(x => x.Project.Settings.IgnoreClipPath).DistinctUntilChanged().Subscribe(async _ =>
         {
             await Reload();
         });
 
         // ReSharper disable once AsyncVoidLambda
-        this.WhenAnyValue(x => x.Project.Settings.IgnoreMask).Subscribe(async _ =>
+        this.WhenChanged(x => x.Project.Settings.IgnoreMask).DistinctUntilChanged().Subscribe(async _ =>
         {
             await Reload();
         });

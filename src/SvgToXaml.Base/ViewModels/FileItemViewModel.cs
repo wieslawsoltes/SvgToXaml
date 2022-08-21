@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using ReactiveUI;
+using CommunityToolkit.Mvvm.Input;
 using Svg.Model;
 
 namespace SvgToXaml.ViewModels;
@@ -19,28 +19,28 @@ public class FileItemViewModel : ViewModelBase
     public string Name
     {
         get => _name;
-        private set => this.RaiseAndSetIfChanged(ref _name, value);
+        private set => SetProperty(ref _name, value);
     }
 
     [JsonInclude]
     public string Path
     {
         get => _path;
-        private set => this.RaiseAndSetIfChanged(ref _path, value);
+        private set => SetProperty(ref _path, value);
     }
 
     [JsonIgnore]
     public SvgViewModel? Svg
     {
         get => _svg;
-        private set => this.RaiseAndSetIfChanged(ref _svg, value);
+        private set => SetProperty(ref _svg, value);
     }
 
     [JsonIgnore]
     public SkiaSharp.SKPicture? Picture
     {
         get => _picture;
-        private set => this.RaiseAndSetIfChanged(ref _picture, value);
+        private set => SetProperty(ref _picture, value);
     }
 
     [JsonIgnore]
@@ -64,9 +64,9 @@ public class FileItemViewModel : ViewModelBase
 
     public void Initialize(Func<FileItemViewModel, Task> preview, Func<FileItemViewModel, Task> remove)
     {
-        PreviewCommand = ReactiveCommand.CreateFromTask(async () => await preview(this));
+        PreviewCommand = new AsyncRelayCommand(async () => await preview(this));
 
-        RemoveCommand = ReactiveCommand.Create(async () => await remove(this)); 
+        RemoveCommand = new AsyncRelayCommand(async () => await remove(this)); 
     }
  
     public async Task Load(DrawAttributes ignoreAttribute)

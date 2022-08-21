@@ -1,7 +1,6 @@
 ﻿using System;
 using Avalonia;
 using Avalonia.Controls.Skia;
-using Avalonia.ReactiveUI;
 using Avalonia.Xaml.Interactions.Core;
 using Avalonia.Xaml.Interactivity;
 
@@ -25,21 +24,14 @@ class Program
             .UsePlatformDetect()
             .LogToTrace()
             .UseSkia()
-            //.UseDirect2D1()
             .With(new Win32PlatformOptions()
             {
-                UseDeferredRendering = true,
-                AllowEglInitialization = true,
-                UseWindowsUIComposition = true
             })
             .With(new X11PlatformOptions()
             {
-                UseDeferredRendering = true
             })
             .With(new AvaloniaNativePlatformOptions()
             {
-                UseDeferredRendering = true
-            })
-            .UseReactiveUI();
+            });
     }
 }

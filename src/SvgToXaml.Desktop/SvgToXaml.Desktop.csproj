@@ -25,7 +25,6 @@
   <Import Project="..\..\build\Avalonia.props" />
   <Import Project="..\..\build\Avalonia.Desktop.props" />
   <Import Project="..\..\build\Avalonia.Diagnostics.props" />
-  <Import Project="..\..\build\Avalonia.ReactiveUI.props" />
   <Import Project="..\..\build\Avalonia.Markup.Xaml.Loader.props" />
   <Import Project="..\..\build\Avalonia.Xaml.Behaviors.props" />
   <Import Project="..\..\build\Avalonia.Controls.Skia.props" />

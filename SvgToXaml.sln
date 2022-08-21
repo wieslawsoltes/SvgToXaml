@@ -45,7 +45,6 @@ ProjectSection(SolutionItems) = preProject
 	build\Avalonia.Desktop.props = build\Avalonia.Desktop.props
 	build\Avalonia.Diagnostics.props = build\Avalonia.Diagnostics.props
 	build\Avalonia.props = build\Avalonia.props
-	build\Avalonia.ReactiveUI.props = build\Avalonia.ReactiveUI.props
 	build\Avalonia.Skia.props = build\Avalonia.Skia.props
 	build\Base.props = build\Base.props
 	build\ReferenceAssemblies.props = build\ReferenceAssemblies.props
@@ -62,6 +61,8 @@ ProjectSection(SolutionItems) = preProject
 	build\System.Text.Json.props = build\System.Text.Json.props
 	build\Avalonia.Web.Blazor.props = build\Avalonia.Web.Blazor.props
 	build\Avalonia.Themes.Fluent.props = build\Avalonia.Themes.Fluent.props
+	build\CommunityToolkit.Mvvm.props = build\CommunityToolkit.Mvvm.props
+	build\ReactiveMarbles.PropertyChanged.props = build\ReactiveMarbles.PropertyChanged.props
 EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_build", "build\build\_build.csproj", "{E9A88CB0-B853-44C3-8A7E-F67DAD2A7F9B}"

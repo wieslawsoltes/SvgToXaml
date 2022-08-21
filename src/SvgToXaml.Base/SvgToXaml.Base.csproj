@@ -26,7 +26,6 @@
   <Import Project="..\..\build\Avalonia.props" />
   <Import Project="..\..\build\Avalonia.Themes.Fluent.props" />
   <Import Project="..\..\build\Avalonia.Diagnostics.props" />
-  <Import Project="..\..\build\Avalonia.ReactiveUI.props" />
   <Import Project="..\..\build\Avalonia.Markup.Xaml.Loader.props" />
   <Import Project="..\..\build\Avalonia.Xaml.Behaviors.props" />
   <Import Project="..\..\build\Avalonia.Controls.Skia.props" />
@@ -34,6 +33,8 @@
   <Import Project="..\..\build\SkiaSharp.Linux.props" />
   <Import Project="..\..\build\Svg.Skia.props" />
   <Import Project="..\..\build\System.Text.Json.props" />
+  <Import Project="..\..\build\CommunityToolkit.Mvvm.props" />
+  <Import Project="..\..\build\ReactiveMarbles.PropertyChanged.props" />
 
   <ItemGroup>
     <ProjectReference Include="..\SvgToXamlConverter\SvgToXamlConverter.csproj" />
