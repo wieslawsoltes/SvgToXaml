@@ -4,6 +4,7 @@ using System.Text.Json;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.ThemeManager;
 using SvgToXaml.ViewModels;
 using SvgToXaml.Views;
 
@@ -11,10 +12,20 @@ namespace SvgToXaml;
 
 public class App : Application
 {
+    public static IThemeManager? ThemeManager;
+
     private const string ProjectFileName = "project.json";
 
     public override void Initialize()
     {
+#if true
+        ThemeManager = new FluentThemeManager();
+#else
+        ThemeManager = new SimpleThemeManager();
+#endif
+        ThemeManager.Initialize(this);
+        ThemeManager?.Switch(1);
+
         AvaloniaXamlLoader.Load(this);
     }
 

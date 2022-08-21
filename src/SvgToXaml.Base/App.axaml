@@ -7,7 +7,6 @@
     <local:ViewLocator />
   </Application.DataTemplates>
   <Application.Styles>
-    <FluentTheme Mode="Dark" />
     <StyleInclude Source="/Views/Styles.axaml" />
   </Application.Styles>
 </Application>

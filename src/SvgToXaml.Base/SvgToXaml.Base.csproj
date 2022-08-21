@@ -29,6 +29,7 @@
   <Import Project="..\..\build\Avalonia.Markup.Xaml.Loader.props" />
   <Import Project="..\..\build\Avalonia.Xaml.Behaviors.props" />
   <Import Project="..\..\build\Avalonia.Controls.Skia.props" />
+  <Import Project="..\..\build\Avalonia.ThemeManager.props" />
   <Import Project="..\..\build\SkiaSharp.props" />
   <Import Project="..\..\build\SkiaSharp.Linux.props" />
   <Import Project="..\..\build\Svg.Skia.props" />
