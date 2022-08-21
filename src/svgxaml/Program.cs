@@ -58,7 +58,6 @@ class Program
                 var converter = new SvgToXamlConverter.SvgToXamlConverter()
                 {
                     UseCompatMode = false,
-                    UseBrushTransform = false,
                     ReuseExistingResources = false,
                     Resources = null
                 };
@@ -82,7 +81,6 @@ class Program
                 var converter = new SvgToXamlConverter.SvgToXamlConverter()
                 {
                     UseCompatMode = false,
-                    UseBrushTransform = false,
                     ReuseExistingResources = false,
                     Resources = null
                 };

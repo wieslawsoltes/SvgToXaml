@@ -97,12 +97,6 @@ public class MainWindowViewModel : ViewModelBase
         });
 
         // ReSharper disable once AsyncVoidLambda
-        this.WhenAnyValue(x => x.Project.Settings.UseBrushTransform).Subscribe(async _ =>
-        {
-            await Reload();
-        });
-
-        // ReSharper disable once AsyncVoidLambda
         this.WhenAnyValue(x => x.Project.Settings.IgnoreOpacity).Subscribe(async _ =>
         {
             await Reload();
@@ -410,7 +404,6 @@ public class MainWindowViewModel : ViewModelBase
                 var converter = new SvgToXamlConverter.SvgToXamlConverter()
                 {
                     UseCompatMode = Project.Settings.UseCompatMode,
-                    UseBrushTransform = Project.Settings.UseBrushTransform,
                     ReuseExistingResources = Project.Settings.ReuseExistingResources,
                     Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
                 };
@@ -423,7 +416,6 @@ public class MainWindowViewModel : ViewModelBase
                 var converter = new SvgToXamlConverter.SvgToXamlConverter()
                 {
                     UseCompatMode = Project.Settings.UseCompatMode,
-                    UseBrushTransform = Project.Settings.UseBrushTransform,
                     ReuseExistingResources = Project.Settings.ReuseExistingResources,
                     Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
                 };
@@ -497,7 +489,6 @@ public class MainWindowViewModel : ViewModelBase
                     var converter = new SvgToXamlConverter.SvgToXamlConverter()
                     {
                         UseCompatMode = Project.Settings.UseCompatMode,
-                        UseBrushTransform = Project.Settings.UseBrushTransform,
                         AddTransparentBackground = Project.Settings.AddTransparentBackground,
                         ReuseExistingResources = Project.Settings.ReuseExistingResources,
                         Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
@@ -511,7 +502,6 @@ public class MainWindowViewModel : ViewModelBase
                     var converter = new SvgToXamlConverter.SvgToXamlConverter()
                     {
                         UseCompatMode = Project.Settings.UseCompatMode,
-                        UseBrushTransform = Project.Settings.UseBrushTransform,
                         AddTransparentBackground = Project.Settings.AddTransparentBackground,
                         ReuseExistingResources = Project.Settings.ReuseExistingResources,
                         Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
@@ -533,7 +523,6 @@ public class MainWindowViewModel : ViewModelBase
             var converter = new SvgToXamlConverter.SvgToXamlConverter()
             {
                 UseCompatMode = Project.Settings.UseCompatMode, 
-                UseBrushTransform = Project.Settings.UseBrushTransform,
                 ReuseExistingResources = Project.Settings.ReuseExistingResources,
                 Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
             };
@@ -592,7 +581,6 @@ public class MainWindowViewModel : ViewModelBase
                 var converter = new SvgToXamlConverter.SvgToXamlConverter()
                 {
                     UseCompatMode = Project.Settings.UseCompatMode,
-                    UseBrushTransform = Project.Settings.UseBrushTransform,
                     ReuseExistingResources = Project.Settings.ReuseExistingResources,
                     Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
                 };

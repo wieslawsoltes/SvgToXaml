@@ -172,39 +172,6 @@ public class XamlGenerator : GeneratorBase
         var start = linearGradientBrush.Start;
         var end = linearGradientBrush.End;
 
-        if (!context.UseBrushTransform)
-        {
-            if (linearGradientBrush.LocalMatrix is { })
-            {
-                var localMatrix = linearGradientBrush.LocalMatrix.Value;
-                localMatrix.TransX = Math.Max(0f, localMatrix.TransX - linearGradientBrush.Bounds.Location.X);
-                localMatrix.TransY = Math.Max(0f, localMatrix.TransY - linearGradientBrush.Bounds.Location.Y);
-
-                start = localMatrix.MapPoint(start);
-                end = localMatrix.MapPoint(end);
-            }
-            else
-            {
-                start.X = Math.Max(0f, start.X - linearGradientBrush.Bounds.Location.X);
-                start.Y = Math.Max(0f, start.Y - linearGradientBrush.Bounds.Location.Y);
-                end.X = Math.Max(0f, end.X - linearGradientBrush.Bounds.Location.X);
-                end.Y = Math.Max(0f, end.Y - linearGradientBrush.Bounds.Location.Y);
-            }
-        }
-        else
-        {
-            if (!context.UseCompatMode)
-            {
-                if (linearGradientBrush.LocalMatrix is null)
-                {
-                    start.X = Math.Max(0f, start.X - linearGradientBrush.Bounds.Location.X);
-                    start.Y = Math.Max(0f, start.Y - linearGradientBrush.Bounds.Location.Y);
-                    end.X = Math.Max(0f, end.X - linearGradientBrush.Bounds.Location.X);
-                    end.Y = Math.Max(0f, end.Y - linearGradientBrush.Bounds.Location.Y);
-                }
-            }
-        }
-
         sb.Append($"<LinearGradientBrush{ToKey(linearGradientBrush.Key)}");
 
         sb.Append($" StartPoint=\"{ToPoint(start)}\"");
@@ -222,22 +189,13 @@ public class XamlGenerator : GeneratorBase
 
         sb.Append($">{context.NewLine}");
 
-        if (context.UseBrushTransform)
+        if (linearGradientBrush.LocalMatrix is { })
         {
-            if (linearGradientBrush.LocalMatrix is { })
-            {
-                // TODO: Missing Transform property on LinearGradientBrush
-                var localMatrix = linearGradientBrush.LocalMatrix.Value;
+            var localMatrix = linearGradientBrush.LocalMatrix.Value;
 
-                if (!context.UseCompatMode)
-                {
-                    localMatrix = linearGradientBrush.WithTransXY(localMatrix, linearGradientBrush.Bounds.Location.X, linearGradientBrush.Bounds.Location.Y);
-                }
-
-                sb.Append($"  <LinearGradientBrush.Transform>{context.NewLine}");
-                sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{context.NewLine}");
-                sb.Append($"  </LinearGradientBrush.Transform>{context.NewLine}");
-            }
+            sb.Append($"  <LinearGradientBrush.Transform>{context.NewLine}");
+            sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{context.NewLine}");
+            sb.Append($"  </LinearGradientBrush.Transform>{context.NewLine}");
         }
 
         if (linearGradientBrush.GradientStops.Count > 0)
@@ -267,43 +225,6 @@ public class XamlGenerator : GeneratorBase
 
         var center = radialGradientBrush.Center;
         var gradientOrigin = radialGradientBrush.Center;
-
-        if (!context.UseBrushTransform)
-        {
-            if (radialGradientBrush.LocalMatrix is { })
-            {
-                var localMatrix = radialGradientBrush.LocalMatrix.Value;
-
-                localMatrix.TransX = Math.Max(0f, localMatrix.TransX - radialGradientBrush.Bounds.Location.X);
-                localMatrix.TransY = Math.Max(0f, localMatrix.TransY - radialGradientBrush.Bounds.Location.Y);
-
-                center = localMatrix.MapPoint(center);
-                gradientOrigin = localMatrix.MapPoint(gradientOrigin);
-
-                var radiusMapped = localMatrix.MapVector(new SkiaSharp.SKPoint(radius, 0));
-                radius = radiusMapped.X;
-            }
-            else
-            {
-                center.X = Math.Max(0f, center.X - radialGradientBrush.Bounds.Location.X);
-                center.Y = Math.Max(0f, center.Y - radialGradientBrush.Bounds.Location.Y);
-                gradientOrigin.X = Math.Max(0f, gradientOrigin.X - radialGradientBrush.Bounds.Location.X);
-                gradientOrigin.Y = Math.Max(0f, gradientOrigin.Y - radialGradientBrush.Bounds.Location.Y);
-            }
-        }
-        else
-        {
-            if (!context.UseCompatMode)
-            {
-                if (radialGradientBrush.LocalMatrix is null)
-                {
-                    center.X = Math.Max(0f, center.X - radialGradientBrush.Bounds.Location.X);
-                    center.Y = Math.Max(0f, center.Y - radialGradientBrush.Bounds.Location.Y);
-                    gradientOrigin.X = Math.Max(0f, gradientOrigin.X - radialGradientBrush.Bounds.Location.X);
-                    gradientOrigin.Y = Math.Max(0f, gradientOrigin.Y - radialGradientBrush.Bounds.Location.Y);
-                }
-            }
-        }
 
         if (!context.UseCompatMode)
         {
@@ -337,22 +258,13 @@ public class XamlGenerator : GeneratorBase
 
         sb.Append($">{context.NewLine}");
 
-        if (context.UseBrushTransform)
+        if (radialGradientBrush.LocalMatrix is { })
         {
-            if (radialGradientBrush.LocalMatrix is { })
-            {
-                // TODO: Missing Transform property on RadialGradientBrush
-                var localMatrix = radialGradientBrush.LocalMatrix.Value;
+            var localMatrix = radialGradientBrush.LocalMatrix.Value;
 
-                if (!context.UseCompatMode)
-                {
-                    localMatrix = radialGradientBrush.WithTransXY(localMatrix, radialGradientBrush.Bounds.Location.X, radialGradientBrush.Bounds.Location.Y);
-                }
-
-                sb.Append($"  <RadialGradientBrush.Transform>{context.NewLine}");
-                sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{context.NewLine}");
-                sb.Append($"  </RadialGradientBrush.Transform>{context.NewLine}");
-            }
+            sb.Append($"  <RadialGradientBrush.Transform>{context.NewLine}");
+            sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{context.NewLine}");
+            sb.Append($"  </RadialGradientBrush.Transform>{context.NewLine}");
         }
 
         if (radialGradientBrush.GradientStops.Count > 0)
@@ -389,43 +301,6 @@ public class XamlGenerator : GeneratorBase
         var center = twoPointConicalGradientBrush.End;
         var gradientOrigin = twoPointConicalGradientBrush.Start;
 
-        if (!context.UseBrushTransform)
-        {
-            if (twoPointConicalGradientBrush.LocalMatrix is { })
-            {
-                var localMatrix = twoPointConicalGradientBrush.LocalMatrix.Value;
-
-                localMatrix.TransX = Math.Max(0f, localMatrix.TransX - twoPointConicalGradientBrush.Bounds.Location.X);
-                localMatrix.TransY = Math.Max(0f, localMatrix.TransY - twoPointConicalGradientBrush.Bounds.Location.Y);
-
-                center = localMatrix.MapPoint(center);
-                gradientOrigin = localMatrix.MapPoint(gradientOrigin);
-
-                var radiusMapped = localMatrix.MapVector(new SkiaSharp.SKPoint(endRadius, 0));
-                endRadius = radiusMapped.X;
-            }
-            else
-            {
-                center.X = Math.Max(0f, center.X - twoPointConicalGradientBrush.Bounds.Location.X);
-                center.Y = Math.Max(0f, center.Y - twoPointConicalGradientBrush.Bounds.Location.Y);
-                gradientOrigin.X = Math.Max(0f, gradientOrigin.X - twoPointConicalGradientBrush.Bounds.Location.X);
-                gradientOrigin.Y = Math.Max(0f, gradientOrigin.Y - twoPointConicalGradientBrush.Bounds.Location.Y);
-            }
-        }
-        else
-        {
-            if (!context.UseCompatMode)
-            {
-                if (twoPointConicalGradientBrush.LocalMatrix is null)
-                {
-                    center.X = Math.Max(0f, center.X - twoPointConicalGradientBrush.Bounds.Location.X);
-                    center.Y = Math.Max(0f, center.Y - twoPointConicalGradientBrush.Bounds.Location.Y);
-                    gradientOrigin.X = Math.Max(0f, gradientOrigin.X - twoPointConicalGradientBrush.Bounds.Location.X);
-                    gradientOrigin.Y = Math.Max(0f, gradientOrigin.Y - twoPointConicalGradientBrush.Bounds.Location.Y);
-                }
-            }
-        }
-
         if (!context.UseCompatMode)
         {
             endRadius = endRadius / twoPointConicalGradientBrush.Bounds.Width;
@@ -458,22 +333,13 @@ public class XamlGenerator : GeneratorBase
 
         sb.Append($">{context.NewLine}");
 
-        if (context.UseBrushTransform)
+        if (twoPointConicalGradientBrush.LocalMatrix is { })
         {
-            if (twoPointConicalGradientBrush.LocalMatrix is { })
-            {
-                // TODO: Missing Transform property on RadialGradientBrush
-                var localMatrix = twoPointConicalGradientBrush.LocalMatrix.Value;
+            var localMatrix = twoPointConicalGradientBrush.LocalMatrix.Value;
 
-                if (!context.UseCompatMode)
-                {
-                    localMatrix = twoPointConicalGradientBrush.WithTransXY(localMatrix, twoPointConicalGradientBrush.Bounds.Location.X, twoPointConicalGradientBrush.Bounds.Location.Y);
-                }
-
-                sb.Append($"  <RadialGradientBrush.Transform>{context.NewLine}");
-                sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{context.NewLine}");
-                sb.Append($"  </RadialGradientBrush.Transform>{context.NewLine}");
-            }
+            sb.Append($"  <RadialGradientBrush.Transform>{context.NewLine}");
+            sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{context.NewLine}");
+            sb.Append($"  </RadialGradientBrush.Transform>{context.NewLine}");
         }
 
         if (twoPointConicalGradientBrush.GradientStops.Count > 0)
@@ -503,23 +369,6 @@ public class XamlGenerator : GeneratorBase
         }
 
         var sb = new StringBuilder();
-
-        if (!context.UseBrushTransform)
-        {
-            if (pictureBrush.LocalMatrix is { })
-            {
-                var localMatrix = pictureBrush.LocalMatrix.Value;
-
-                if (!localMatrix.IsIdentity)
-                {
-                    // TODO: LocalMatrix
-                }
-            }
-            else
-            {
-                // TODO: Adjust using Bounds.Location ?
-            }
-        }
 
         var sourceRect = pictureBrush.CullRect;
         var destinationRect = pictureBrush.Tile;
@@ -559,22 +408,13 @@ public class XamlGenerator : GeneratorBase
 
         sb.Append($">{context.NewLine}");
 
-        if (context.UseBrushTransform)
+        if (pictureBrush.LocalMatrix is { })
         {
-            if (pictureBrush.LocalMatrix is { })
-            {
-                // TODO: Missing Transform property on VisualBrush
-                var localMatrix = pictureBrush.LocalMatrix.Value;
+            var localMatrix = pictureBrush.LocalMatrix.Value;
 
-                if (!context.UseCompatMode)
-                {
-                    localMatrix = pictureBrush.WithTransXY(localMatrix, pictureBrush.Bounds.Location.X, pictureBrush.Bounds.Location.Y);
-                }
-
-                sb.Append($"  <VisualBrush.Transform>{context.NewLine}");
-                sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{context.NewLine}");
-                sb.Append($"  </VisualBrush.Transform>{context.NewLine}");
-            }
+            sb.Append($"  <VisualBrush.Transform>{context.NewLine}");
+            sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{context.NewLine}");
+            sb.Append($"  </VisualBrush.Transform>{context.NewLine}");
         }
 
         if (pictureBrush.Picture is not null)

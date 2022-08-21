@@ -8,8 +8,6 @@ public record GeneratorContext
 
     public bool UseCompatMode { get; init; } = false;
 
-    public bool UseBrushTransform { get; init; } = false;
-
     public bool AddTransparentBackground { get; init; } = false;
 
     public bool ReuseExistingResources { get; init; } = false;

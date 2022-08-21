@@ -17,8 +17,6 @@ public class SvgToXamlConverter
 
     public bool UseCompatMode { get; set; }
 
-    public bool UseBrushTransform { get; set; }
-
     public bool AddTransparentBackground { get; set; }
 
     public bool ReuseExistingResources { get; set; }
@@ -33,7 +31,6 @@ public class SvgToXamlConverter
         {
             NewLine = NewLine,
             UseCompatMode = UseCompatMode,
-            UseBrushTransform = UseBrushTransform,
             AddTransparentBackground = AddTransparentBackground,
             ReuseExistingResources = ReuseExistingResources,
             WriteResources = false,
@@ -53,7 +50,6 @@ public class SvgToXamlConverter
         {
             NewLine = NewLine,
             UseCompatMode = UseCompatMode,
-            UseBrushTransform = UseBrushTransform,
             AddTransparentBackground = AddTransparentBackground,
             ReuseExistingResources = ReuseExistingResources,
             WriteResources = true,
@@ -105,7 +101,6 @@ public class SvgToXamlConverter
         {
             NewLine = NewLine,
             UseCompatMode = UseCompatMode,
-            UseBrushTransform = UseBrushTransform,
             AddTransparentBackground = AddTransparentBackground,
             ReuseExistingResources = ReuseExistingResources,
             WriteResources = false,

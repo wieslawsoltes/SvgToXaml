@@ -355,12 +355,6 @@
                               HorizontalContentAlignment="Stretch"
                               Margin="0"
                               Padding="6"/>
-                    <CheckBox IsChecked="{Binding UseBrushTransform}"
-                              Content="Use Brush Transform"
-                              HorizontalAlignment="Stretch"
-                              HorizontalContentAlignment="Stretch"
-                              Margin="0"
-                              Padding="6"/>
                     <Separator Background="{DynamicResource SystemChromeAltLowColor}" Opacity="0.3" Height="0.55"/>
                     <CheckBox IsChecked="{Binding AddTransparentBackground}"
                               Content="Add Transparent Background"
