@@ -7,17 +7,27 @@
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="480"
              x:DataType="vm:MainWindowViewModel" x:CompileBindings="True"
              x:Class="SvgToXaml.Views.MainView">
+
   <Design.DataContext>
     <vm:MainWindowViewModel />
   </Design.DataContext>
+
   <Grid ColumnDefinitions="300,8,*">
+
     <!-- Left Pane -->
-    <views:LeftPane  Grid.Column="0"/>
+
+    <views:LeftPane Grid.Column="0"/>
+
     <!-- Pane Splitter -->
+
     <GridSplitter Grid.Column="1"
                   Margin="0,0,0,0"
                   Background="{DynamicResource SystemChromeMediumColor}" />
+    
     <!-- Right Pane -->
+
     <views:RightPaneView Grid.Column="2" />
+
   </Grid>
+
 </UserControl>

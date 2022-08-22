@@ -1,0 +1,125 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:views="clr-namespace:SvgToXaml.Views"
+             xmlns:vm="using:SvgToXaml.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="36"
+             x:DataType="vm:MainWindowViewModel" x:CompileBindings="True"
+             x:Class="SvgToXaml.Views.ActionsView">
+
+  <Design.DataContext>
+    <vm:MainWindowViewModel />
+  </Design.DataContext>
+
+  <DockPanel HorizontalAlignment="Stretch" 
+             Background="Transparent"
+             LastChildFill="False">
+
+    <Button x:Name="Theme"
+            Background="Transparent"
+            Padding="6,6,6,7"
+            Margin="0,0,12,0"
+            DockPanel.Dock="Left"
+            ToolTip.Tip="Switch between the Light and Dark mode theme.">
+      <StackPanel Orientation="Horizontal">
+        <PathIcon Width="16" Height="16" 
+                  Margin="6,0,0,0"
+                  Opacity="0.6"
+                  Data="{DynamicResource DarkTheme}"/>
+      </StackPanel>
+    </Button>
+
+    <Button Margin="0,0,6,0" 
+            Padding="6,7,6,7"
+            DockPanel.Dock="Right"
+            ToolTip.Tip="Settings">
+      <Button.Flyout>
+        <Flyout ShowMode="TransientWithDismissOnPointerMoveAway" 
+                Placement="BottomEdgeAlignedRight">
+          <views:SettingsView DataContext="{Binding Project.Settings}" />
+        </Flyout>
+      </Button.Flyout>
+      <PathIcon Width="16" Height="16" 
+                Margin="6,0,6,0"
+                Data="{DynamicResource SettingsIcon}"/>
+    </Button>
+
+    <Button Command="{Binding CopySelectedCommand}"
+            CommandParameter="XAML"
+            Padding="6,6,6,7"
+            Margin="0,0,12,0"
+            DockPanel.Dock="Right"
+            ToolTip.Tip="Copy Selected">
+      <StackPanel Orientation="Horizontal">
+        <PathIcon Width="16" Height="16" 
+                  Margin="6,0,0,0"
+                  Data="{DynamicResource CopyIcon}"/>
+        <TextBlock Margin="0" Padding="12,0,12,0" Text="Selected"/>
+      </StackPanel>
+    </Button>
+
+    <Button Command="{Binding CopyAllCommand}"
+            CommandParameter="XAML"
+            Padding="6,6,6,7"
+            Margin="0,0,12,0"
+            DockPanel.Dock="Right"
+            ToolTip.Tip="Copy All">
+      <StackPanel Orientation="Horizontal">
+        <PathIcon Width="16" Height="16" 
+                  Margin="6,0,0,0"
+                  Data="{DynamicResource CopyIcon}"/>
+        <TextBlock Margin="0" Padding="12,0,12,0" Text="All"/>
+      </StackPanel>
+    </Button>
+
+    <Button Command="{Binding ClipboardCommand}"
+            CommandParameter="XAML"
+            Padding="6,6,6,7"
+            Margin="0,0,12,0"
+            DockPanel.Dock="Right"
+            ToolTip.Tip="Paste Svg from Clipboard and Copy as Xaml">
+      <StackPanel Orientation="Horizontal">
+        <PathIcon Width="16" Height="16" 
+                  Margin="6,0,0,0"
+                  Data="{DynamicResource PasteIcon}"/>
+        <PathIcon Width="16" Height="16" 
+                  Margin="6,0,6,0"
+                  Data="{DynamicResource ArrowIcon}"/>
+        <PathIcon Width="16" Height="16" 
+                  Margin="0,0,6,0"
+                  Data="{DynamicResource CopyIcon}"/>
+      </StackPanel>
+    </Button>
+
+    <Button Command="{Binding ExportSelectedCommand}"
+            CommandParameter="XAML"
+            Padding="6,6,6,7"
+            Margin="0,0,12,0"
+            DockPanel.Dock="Right"
+            ToolTip.Tip="Export Selected">
+      <StackPanel Orientation="Horizontal">
+        <PathIcon Width="16" Height="16" 
+                  Margin="6,0,0,0"
+                  Data="{DynamicResource SaveIcon}"/>
+        <TextBlock Margin="0" Padding="12,0,12,0" Text="Selected"/>
+      </StackPanel>
+    </Button>
+
+    <Button Command="{Binding ExportAllCommand}"
+            CommandParameter="XAML"
+            Padding="6,6,6,7"
+            Margin="0,0,12,0"
+            DockPanel.Dock="Right"
+            ToolTip.Tip="Export All">
+      <StackPanel Orientation="Horizontal">
+        <PathIcon Width="16" Height="16" 
+                  Margin="6,0,0,0"
+                  Data="{DynamicResource SaveIcon}"/>
+        <TextBlock Margin="0" Padding="12,0,12,0" Text="All"/>
+      </StackPanel>
+    </Button>
+
+  </DockPanel>
+
+</UserControl>

@@ -1,11 +1,11 @@
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
 namespace SvgToXaml.Views;
 
-public partial class LeftPane : UserControl
+public partial class ItemsView : UserControl
 {
-    public LeftPane()
+    public ItemsView()
     {
         InitializeComponent();
     }

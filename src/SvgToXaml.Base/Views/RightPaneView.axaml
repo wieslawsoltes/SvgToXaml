@@ -2,235 +2,47 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:views="clr-namespace:SvgToXaml.Views"
              xmlns:vm="using:SvgToXaml.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="vm:MainWindowViewModel" x:CompileBindings="True"
              x:Class="SvgToXaml.Views.RightPaneView">
+
   <Design.DataContext>
     <vm:MainWindowViewModel />
   </Design.DataContext>
+
   <DockPanel ClipToBounds="False">
+
+    <!-- Background -->
+    
     <Panel Background="{DynamicResource SystemChromeMediumColor}" 
            IsHitTestVisible="False"
            Height="36"
            DockPanel.Dock="Top"/>
+
+    <!-- Contents -->
+
     <Panel Background="{DynamicResource SystemChromeMediumColor}"
            ClipToBounds="False">
+
       <DockPanel Margin="6,0,6,6"
                  VerticalAlignment="Stretch"
                  HorizontalAlignment="Stretch"
                  ClipToBounds="False">
-        <!-- Main Action Buttons -->
-        <DockPanel
-              HorizontalAlignment="Stretch" 
-              Background="Transparent"
-              LastChildFill="False"
-              DockPanel.Dock="Top" 
-              Margin="0,0,0,12">
-          <!-- Theme -->
-          <Button x:Name="Theme"
-                  Background="Transparent"
-                  Padding="6,6,6,7"
-                  Margin="0,0,12,0"
-                  DockPanel.Dock="Left"
-                  ToolTip.Tip="Switch between the Light and Dark mode theme.">
-            <StackPanel Orientation="Horizontal">
-              <PathIcon Width="16" Height="16" 
-                        Margin="6,0,0,0"
-                        Opacity="0.6"
-                        Data="{DynamicResource DarkTheme}"/>
-            </StackPanel>
-          </Button>
 
-          <!-- Settings -->
-          <Button Margin="0,0,6,0" 
-                  Padding="6,7,6,7"
-                  DockPanel.Dock="Right"
-                  ToolTip.Tip="Settings">
-            <Button.Flyout>
-              <Flyout ShowMode="TransientWithDismissOnPointerMoveAway" 
-                      Placement="BottomEdgeAlignedRight">
-                <StackPanel Spacing="12" DataContext="{Binding Project.Settings}">
-                  <CheckBox IsChecked="{Binding EnableGenerateImage}"
-                            Content="Generate Image Control"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Margin="0"
-                            Padding="6"/>
-                  <CheckBox IsChecked="{Binding EnableGeneratePreview}"
-                            Content="Generate Preview Resources"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Margin="0"
-                            Padding="6"/>
-                  <Separator Background="{DynamicResource SystemChromeAltLowColor}" Opacity="0.3" Height="0.55"/>
-                  <CheckBox IsChecked="{Binding UseResources}"
-                            Content="Use Resources"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Margin="0"
-                            Padding="6"/>
-                  <CheckBox IsChecked="{Binding ReuseExistingResources}"
-                            Content="Reuse Existing Resources"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Margin="0"
-                            Padding="6"/>
-                  <CheckBox IsChecked="{Binding UseCompatMode}"
-                            Content="Use Compat Mode"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Margin="0"
-                            Padding="6"/>
-                  <Separator Background="{DynamicResource SystemChromeAltLowColor}" Opacity="0.3" Height="0.55"/>
-                  <CheckBox IsChecked="{Binding AddTransparentBackground}"
-                            Content="Add Transparent Background"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Margin="0"
-                            Padding="6"/>
-                  <Separator Background="{DynamicResource SystemChromeAltLowColor}" Opacity="0.3" Height="0.55"/>
-                  <CheckBox IsChecked="{Binding IgnoreOpacity}"
-                            Content="Ignore Opacity"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Margin="0"
-                            Padding="6"/>
-                  <CheckBox IsChecked="{Binding IgnoreFilter}"
-                            Content="Ignore Filter"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Margin="0"
-                            Padding="6"/>
-                  <CheckBox IsChecked="{Binding IgnoreClipPath}"
-                            Content="Ignore ClipPath"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Margin="0"
-                            Padding="6"/>
-                  <CheckBox IsChecked="{Binding IgnoreMask}"
-                            Content="Ignore Mask"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Margin="0"
-                            Padding="6"/>
-                </StackPanel>
-              </Flyout>
-            </Button.Flyout>
-            <PathIcon Width="16" Height="16" 
-                      Margin="6,0,6,0"
-                      Data="{DynamicResource SettingsIcon}"/>
-          </Button>
-          <!-- Copy Selected -->
-          <Button Command="{Binding CopySelectedCommand}"
-                  CommandParameter="XAML"
-                  Padding="6,6,6,7"
-                  Margin="0,0,12,0"
-                  DockPanel.Dock="Right"
-                  ToolTip.Tip="Copy Selected">
-            <StackPanel Orientation="Horizontal">
-              <PathIcon Width="16" Height="16" 
-                        Margin="6,0,0,0"
-                        Data="{DynamicResource CopyIcon}"/>
-              <TextBlock Margin="0" Padding="12,0,12,0" Text="Selected"/>
-            </StackPanel>
-          </Button>
-          <!-- Copy All -->
-          <Button Command="{Binding CopyAllCommand}"
-                  CommandParameter="XAML"
-                  Padding="6,6,6,7"
-                  Margin="0,0,12,0"
-                  DockPanel.Dock="Right"
-                  ToolTip.Tip="Copy All">
-            <StackPanel Orientation="Horizontal">
-              <PathIcon Width="16" Height="16" 
-                        Margin="6,0,0,0"
-                        Data="{DynamicResource CopyIcon}"/>
-              <TextBlock Margin="0" Padding="12,0,12,0" Text="All"/>
-            </StackPanel>
-          </Button>
-          <!-- Paste Svg -->
-          <Button Command="{Binding ClipboardCommand}"
-                  CommandParameter="XAML"
-                  Padding="6,6,6,7"
-                  Margin="0,0,12,0"
-                  DockPanel.Dock="Right"
-                  ToolTip.Tip="Paste Svg from Clipboard and Copy as Xaml">
-            <StackPanel Orientation="Horizontal">
-              <PathIcon Width="16" Height="16" 
-                        Margin="6,0,0,0"
-                        Data="{DynamicResource PasteIcon}"/>
-              <PathIcon Width="16" Height="16" 
-                        Margin="6,0,6,0"
-                        Data="{DynamicResource ArrowIcon}"/>
-              <PathIcon Width="16" Height="16" 
-                        Margin="0,0,6,0"
-                        Data="{DynamicResource CopyIcon}"/>
-            </StackPanel>
-          </Button>
-          <!-- Export Selected -->
-          <Button Command="{Binding ExportSelectedCommand}"
-                  CommandParameter="XAML"
-                  Padding="6,6,6,7"
-                  Margin="0,0,12,0"
-                  DockPanel.Dock="Right"
-                  ToolTip.Tip="Export Selected">
-            <StackPanel Orientation="Horizontal">
-              <PathIcon Width="16" Height="16" 
-                        Margin="6,0,0,0"
-                        Data="{DynamicResource SaveIcon}"/>
-              <TextBlock Margin="0" Padding="12,0,12,0" Text="Selected"/>
-            </StackPanel>
-          </Button>
-          <!-- Export All -->
-          <Button Command="{Binding ExportAllCommand}"
-                  CommandParameter="XAML"
-                  Padding="6,6,6,7"
-                  Margin="0,0,12,0"
-                  DockPanel.Dock="Right"
-                  ToolTip.Tip="Export All">
-            <StackPanel Orientation="Horizontal">
-              <PathIcon Width="16" Height="16" 
-                        Margin="6,0,0,0"
-                        Data="{DynamicResource SaveIcon}"/>
-              <TextBlock Margin="0" Padding="12,0,12,0" Text="All"/>
-            </StackPanel>
-          </Button>
-        </DockPanel>
-        <!-- Picture Contents -->
-        <Panel Margin="0,0,6,6">
-          <Panel.ContextFlyout>
-            <MenuFlyout Placement="Bottom">
-              <MenuItem Header="Copy Selected"
-                        Command="{Binding CopySelectedCommand}"
-                        CommandParameter="XAML" />
-              <MenuItem Header="Copy All"
-                        Command="{Binding CopyAllCommand}"
-                        CommandParameter="XAML" />
-              <MenuItem Header="Export Selected"
-                        Command="{Binding ExportSelectedCommand}"
-                        CommandParameter="XAML" />
-              <MenuItem Header="Export All"
-                        Command="{Binding ExportAllCommand}"
-                        CommandParameter="XAML" />
-            </MenuFlyout>
-          </Panel.ContextFlyout>
-          <Border BorderThickness="0" CornerRadius="0" Background="DarkGray" />
-          <Border BorderThickness="0" CornerRadius="0">
-            <Border.Background>
-              <VisualBrush TileMode="Tile" SourceRect="0,0,20,20" DestinationRect="0,0,20,20">
-                  <VisualBrush.Visual>
-                    <Path Data="M 0,0 L 0,10 L 10,10 L 10,0 Z M 10,10 L 10,20 L 20,20 L 20,10 Z" Fill="LightGray" />
-                  </VisualBrush.Visual>
-                </VisualBrush>
-            </Border.Background>
-          </Border>
-          <Viewbox>
-            <SKPictureControl Picture="{Binding Project.SelectedItem.Picture, FallbackValue={x:Null}}" />
-          </Viewbox>
-        </Panel>
+        <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Disabled"
+                      DockPanel.Dock="Top">
+          <views:ActionsView Margin="0,0,0,12"/>
+        </ScrollViewer>
+        
+        <views:PictureView Margin="0,0,6,6" />
+
       </DockPanel>
-    </Panel>
-  </DockPanel>
-</UserControl>
 
+    </Panel>
+
+  </DockPanel>
+
+</UserControl>

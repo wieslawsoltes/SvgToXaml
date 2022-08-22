@@ -1,0 +1,75 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="using:Avalonia.Xaml.Interactivity"
+             xmlns:ia="using:Avalonia.Xaml.Interactions.Core"
+             xmlns:rx="using:System.Reactive"
+             xmlns:vm="using:SvgToXaml.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="450"
+             x:DataType="vm:ProjectViewModel" x:CompileBindings="True"
+             x:Class="SvgToXaml.Views.ItemsView">
+
+  <Design.DataContext>
+    <vm:ProjectViewModel />
+  </Design.DataContext>
+
+  <ListBox Items="{Binding Items}"
+           Background="Transparent"
+           SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+
+    <ListBox.Styles>
+      <Style Selector="ListBoxItem">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="Padding" Value="0" />
+      </Style>
+    </ListBox.Styles>
+
+    <ListBox.ItemTemplate>
+      <DataTemplate>
+        <Panel Background="Transparent"
+               VerticalAlignment="Stretch"
+               HorizontalAlignment="Stretch"
+               ToolTip.Tip="{Binding Path}"
+               Focusable="True">
+          <i:Interaction.Behaviors>
+            <ia:EventTriggerBehavior EventName="DoubleTapped">
+              <ia:InvokeCommandAction Command="{Binding PreviewCommand}" CommandParameter="{x:Static rx:Unit.Default}"/>
+            </ia:EventTriggerBehavior>
+          </i:Interaction.Behaviors>
+          <Panel.KeyBindings>
+            <KeyBinding Gesture="Delete" Command="{Binding RemoveCommand}" />
+          </Panel.KeyBindings>
+          <Panel.ContextFlyout>
+            <MenuFlyout Placement="Bottom">
+              <MenuItem Command="{Binding PreviewCommand}">
+                <MenuItem.Header>
+                  <StackPanel Orientation="Horizontal">
+                    <PathIcon Width="16" Height="16" 
+                              Data="{DynamicResource PreviewIcon}"/>
+                    <TextBlock Margin="12,0,0,0" Text="Preview"/>
+                  </StackPanel>
+                </MenuItem.Header>
+              </MenuItem>
+              <MenuItem Command="{Binding RemoveCommand}">
+                <MenuItem.Header>
+                  <StackPanel Orientation="Horizontal">
+                    <PathIcon Width="16" Height="16" 
+                              Data="{DynamicResource DeleteIcon}"/>
+                    <TextBlock Margin="12,0,0,0" Text="Remove"/>
+                  </StackPanel>
+                </MenuItem.Header>
+              </MenuItem>
+            </MenuFlyout>
+          </Panel.ContextFlyout>
+          <TextBlock Text="{Binding Name}"
+                     Padding="12"
+                     IsHitTestVisible="False" />
+        </Panel>
+      </DataTemplate>
+    </ListBox.ItemTemplate>
+
+  </ListBox>
+
+</UserControl>

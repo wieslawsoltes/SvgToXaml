@@ -1,0 +1,51 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:SvgToXaml.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="640" d:DesignHeight="450"
+             x:DataType="vm:MainWindowViewModel" x:CompileBindings="True"
+             x:Class="SvgToXaml.Views.PictureView">
+
+  <Design.DataContext>
+    <vm:MainWindowViewModel />
+  </Design.DataContext>
+
+  <Panel>
+
+    <Panel.ContextFlyout>
+      <MenuFlyout Placement="Bottom">
+        <MenuItem Header="Copy Selected"
+                  Command="{Binding CopySelectedCommand}"
+                  CommandParameter="XAML" />
+        <MenuItem Header="Copy All"
+                  Command="{Binding CopyAllCommand}"
+                  CommandParameter="XAML" />
+        <MenuItem Header="Export Selected"
+                  Command="{Binding ExportSelectedCommand}"
+                  CommandParameter="XAML" />
+        <MenuItem Header="Export All"
+                  Command="{Binding ExportAllCommand}"
+                  CommandParameter="XAML" />
+      </MenuFlyout>
+    </Panel.ContextFlyout>
+
+    <Border BorderThickness="0" CornerRadius="0" Background="DarkGray" />
+
+    <Border BorderThickness="0" CornerRadius="0">
+      <Border.Background>
+        <VisualBrush TileMode="Tile" SourceRect="0,0,20,20" DestinationRect="0,0,20,20">
+          <VisualBrush.Visual>
+            <Path Data="M 0,0 L 0,10 L 10,10 L 10,0 Z M 10,10 L 10,20 L 20,20 L 20,10 Z" Fill="LightGray" />
+          </VisualBrush.Visual>
+        </VisualBrush>
+      </Border.Background>
+    </Border>
+
+    <Viewbox>
+      <SKPictureControl Picture="{Binding Project.SelectedItem.Picture, FallbackValue={x:Null}}" />
+    </Viewbox>
+
+  </Panel>
+
+</UserControl>
