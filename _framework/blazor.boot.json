@@ -62,9 +62,9 @@
       "Svg.Custom.dll": "sha256-uu7Odyyy9hBzCyW+F5SrExuiRqQpKiZa\/N6hxK0cZkk=",
       "Svg.Model.dll": "sha256-vgdA4VV+5hVZzLwuuKX9z36ZOQM2abR\/niKFc5yLgts=",
       "Svg.Skia.dll": "sha256-lkF+XGyjKyt2GJU7OHuMiLS5uN5KAjPM1vm+\/P\/GFhE=",
-      "SvgToXaml.Base.dll": "sha256-jWkUrv7DI2cCR07vW5TWPwLtddZ\/9\/Dj6rSaAB2Msg0=",
-      "SvgToXaml.Web.dll": "sha256-z9pq4PjVVp43cUh9b99bOxz+xyp6lALFzr41kMIIFB0=",
-      "SvgToXamlConverter.dll": "sha256-GlGQk\/E0iyEZSEabSSS016ESiv0ISW7H0AcrtQi4K3s=",
+      "SvgToXaml.Base.dll": "sha256-cx5i9dkA\/nOFsnYEjNVfTKOHIsMjAlnvGVxgieZ+sBo=",
+      "SvgToXaml.Web.dll": "sha256-jJTGAphZ8Y5pPFhSITBo6xwx7h6kQo8QSXRZZw\/hnT8=",
+      "SvgToXamlConverter.dll": "sha256-SxQfimyZASNAZE7rxnMgGmLYzCtIUpLfuadQSeBWQwY=",
       "System.Collections.Concurrent.dll": "sha256-3HtYaqz19pv9kj8iL7z8wM3akWn5ze4wryHHLQHJX2g=",
       "System.Collections.dll": "sha256-KDCt0+7q02iMuwV3KhBfPEl57LKXleM9AO2OTtiCFJ4=",
       "System.Collections.Immutable.dll": "sha256-WW0M9P8LO\/vt5nseDnXTeYNkU6TJ0ie0wkuKxHsxnQU=",
@@ -94,7 +94,7 @@
       "System.Net.Sockets.dll": "sha256-wSozn7WCvLFqeFykyW3RR6dVAlSXSmC2a3PpF8lJ0YE=",
       "System.Numerics.Vectors.dll": "sha256-7jSrn4OCcYCi0hMcjl1sBVxwwpDeEeg0sBtFSTUy2hM=",
       "System.ObjectModel.dll": "sha256-ZEZNdnNzf6aTZWn5RQSboP197g\/AoZ0UV9C75HwzOEw=",
-      "System.Private.CoreLib.dll": "sha256-6lo8YSz8ET9nE6hh\/5OwV7eZmCM\/u02qXYRImjb4iIQ=",
+      "System.Private.CoreLib.dll": "sha256-qmHucxtCzfHBfNjDNkHGnInAIRh2ydu1izch8eR2Sts=",
       "System.Private.DataContractSerialization.dll": "sha256-1RameX1A4N11AOyPKK9UeEmJiQU9cH3G3tgJgVkEHhk=",
       "System.Private.Runtime.InteropServices.JavaScript.dll": "sha256-iN5rfcOPxxRbsIl0T7SVpDinMY7uq0oINuAL2Vkq4sk=",
       "System.Private.Uri.dll": "sha256-SWPY5RFa5t7F85aQMXjjJfhJYRMBGcsa1gZ9hS9h8ww=",
@@ -133,7 +133,7 @@
     "pdb": null,
     "runtime": {
       "dotnet.6.0.8.65rfz9t89a.js": "sha256-7grQCwtP9OzOQQYFgUfi9z8sHSSkXPNrYf4VC+UZapM=",
-      "dotnet.wasm": "sha256-9URaqs2L15ZD2AY9g+0xPLfYa3ZPI5hjEzdrbJUfg6Y="
+      "dotnet.wasm": "sha256-XbfebSVY3LjDjl1gkKIn1egiTQKOXPHBVNwPIm3STrc="
     },
     "satelliteResources": {
       "cs": {
