@@ -587,23 +587,36 @@ public class MainWindowViewModel : ViewModelBase
                     Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
                 };
 
-                var xaml = converter.ToXamlImage(item.Svg.Model);
+                var image = converter.ToXamlImage(item.Svg.Model);
+
+                image = converter.Format(image);
 
                 var sb = new StringBuilder();
 
-                sb.Append($"<Viewbox xmlns=\"https://github.com/avaloniaui\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">");
-                sb.Append($"{xaml}");
-                sb.Append($"</Viewbox>");
+                sb.Append($"<TabControl xmlns=\"https://github.com/avaloniaui\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">");
 
-                var viewboxXaml = sb.ToString();
+                sb.Append($"<TabItem Header=\"Preview\">");
+                sb.Append($"<Viewbox>");
+                sb.Append($"{image}");
+                sb.Append($"</Viewbox>");
+                sb.Append($"</TabItem>");
+
+                sb.Append($"<TabItem Header=\"Xaml\">");
+                sb.Append($"<TextBox Text=\"{{Binding}}\" AcceptsReturn=\"True\" />");
+                sb.Append($"</TabItem>");
+
+                sb.Append($"</TabControl>");
+
+                var c = sb.ToString();
      
-                var viewbox = AvaloniaRuntimeXamlLoader.Parse<Viewbox>(viewboxXaml);
+                var content = AvaloniaRuntimeXamlLoader.Parse<TabControl>(c);
                     
                 var window = new PreviewWindow()
                 {
-                    Content = viewbox,
+                    Content = content,
                     Width = 800,
-                    Height = 600
+                    Height = 600,
+                    DataContext = image
                 };
 
                 var owner = (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
@@ -612,9 +625,9 @@ public class MainWindowViewModel : ViewModelBase
                     await window.ShowDialog(owner);
                 }
             }
-            catch
+            catch (Exception exception)
             {
-                // ignored
+                Debug.WriteLine(exception);
             }
         });
     }
