@@ -564,70 +564,96 @@ public class MainWindowViewModel : ViewModelBase
         Project.Items.Add(item);
     }
 
+    public record PreviewItem(string Image, string TabControl);
+
+    public async Task<PreviewItem?> GetPreview(FileItemViewModel item)
+    {
+        if (item.Svg is null)
+        {
+            await item.Load(Project.GetIgnoreAttributes());
+        }
+
+        if (item.Svg is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            var converter = new SvgToXamlConverter.SvgToXamlConverter()
+            {
+                UseCompatMode = Project.Settings.UseCompatMode,
+                ReuseExistingResources = Project.Settings.ReuseExistingResources,
+                Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
+            };
+
+            var image = converter.ToXamlImage(item.Svg.Model);
+
+            image = converter.Format(image);
+
+            var sb = new StringBuilder();
+
+            sb.Append($"<TabControl xmlns=\"https://github.com/avaloniaui\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">");
+
+            sb.Append($"<TabItem Header=\"Preview\">");
+            sb.Append($"<Panel>");
+            sb.Append($"<Border BorderThickness=\"0\" CornerRadius=\"0\" Background=\"DarkGray\" />");
+            sb.Append($"<Border>");
+            sb.Append($"<Border.Background>");
+            sb.Append($"<VisualBrush TileMode=\"Tile\" SourceRect=\"0,0,20,20\" DestinationRect=\"0,0,20,20\">");
+            sb.Append($"<VisualBrush.Visual>");
+            sb.Append($"<Path Data=\"M 0,0 L 0,10 L 10,10 L 10,0 Z M 10,10 L 10,20 L 20,20 L 20,10 Z\" Fill=\"LightGray\" />");
+            sb.Append($"</VisualBrush.Visual>");
+            sb.Append($"</VisualBrush>");
+            sb.Append($"</Border.Background>");
+            sb.Append($"</Border>");
+            sb.Append($"<Viewbox Margin=\"30\">");
+            sb.Append($"{image}");
+            sb.Append($"</Viewbox>");
+            sb.Append($"</Panel>");
+            sb.Append($"</TabItem>");
+
+            sb.Append($"<TabItem Header=\"Xaml\">");
+            sb.Append($"<TextBox Text=\"{{Binding}}\" IsReadOnly=\"True\" />");
+            sb.Append($"</TabItem>");
+
+            sb.Append($"</TabControl>");
+
+            return new PreviewItem(image, sb.ToString());
+        }
+        catch (Exception exception)
+        {
+            Debug.WriteLine(exception);
+        }
+
+        return null;
+    }
+
     private async Task Preview(FileItemViewModel item)
     {
         await Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            if (item.Svg is null)
-            {
-                await item.Load(Project.GetIgnoreAttributes());
-            }
-
-            if (item.Svg is null)
+            var previewItem = await GetPreview(item);
+            if (previewItem is null)
             {
                 return;
             }
 
-            try
+            var content = AvaloniaRuntimeXamlLoader.Parse<TabControl>(previewItem.TabControl);
+
+            content.DataContext = previewItem.Image;
+
+            var window = new PreviewWindow()
             {
-                var converter = new SvgToXamlConverter.SvgToXamlConverter()
-                {
-                    UseCompatMode = Project.Settings.UseCompatMode,
-                    ReuseExistingResources = Project.Settings.ReuseExistingResources,
-                    Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
-                };
+                Content = content,
+                Width = 800,
+                Height = 600,
+            };
 
-                var image = converter.ToXamlImage(item.Svg.Model);
-
-                image = converter.Format(image);
-
-                var sb = new StringBuilder();
-
-                sb.Append($"<TabControl xmlns=\"https://github.com/avaloniaui\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">");
-
-                sb.Append($"<TabItem Header=\"Preview\">");
-                sb.Append($"<Viewbox>");
-                sb.Append($"{image}");
-                sb.Append($"</Viewbox>");
-                sb.Append($"</TabItem>");
-
-                sb.Append($"<TabItem Header=\"Xaml\">");
-                sb.Append($"<TextBox Text=\"{{Binding}}\" AcceptsReturn=\"True\" />");
-                sb.Append($"</TabItem>");
-
-                sb.Append($"</TabControl>");
-
-                var c = sb.ToString();
-     
-                var content = AvaloniaRuntimeXamlLoader.Parse<TabControl>(c);
-                    
-                var window = new PreviewWindow()
-                {
-                    Content = content,
-                    Width = 800,
-                    Height = 600,
-                    DataContext = image
-                };
-
-                var owner = (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
-                if (owner is { })
-                {
-                    await window.ShowDialog(owner);
-                }
-            }
-            catch (Exception exception)
+            var owner = (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+            if (owner is { })
             {
-                Debug.WriteLine(exception);
+                await window.ShowDialog(owner);
             }
         });
     }

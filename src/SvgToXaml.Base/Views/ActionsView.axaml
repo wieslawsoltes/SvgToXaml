@@ -45,8 +45,25 @@
                 Data="{DynamicResource SettingsIcon}"/>
     </Button>
 
+    <Button Margin="0,0,12,0" 
+            Padding="6,7,6,7"
+            IsEnabled="{Binding !!Project.SelectedItem}"
+            DockPanel.Dock="Right"
+            ToolTip.Tip="Preview">
+      <Button.Flyout>
+        <Flyout ShowMode="TransientWithDismissOnPointerMoveAway" 
+                Placement="BottomEdgeAlignedRight">
+          <views:PreviewView MaxHeight="400" MaxWidth="400" />
+        </Flyout>
+      </Button.Flyout>
+      <PathIcon Width="16" Height="16" 
+                Margin="6,0,6,0"
+                Data="{DynamicResource PreviewIcon}"/>
+    </Button>
+
     <Button Command="{Binding CopySelectedCommand}"
             CommandParameter="XAML"
+            IsEnabled="{Binding !!Project.SelectedItem}"
             Padding="6,6,6,7"
             Margin="0,0,12,0"
             DockPanel.Dock="Right"
@@ -59,8 +76,24 @@
       </StackPanel>
     </Button>
 
+    <Button Command="{Binding ExportSelectedCommand}"
+            CommandParameter="XAML"
+            IsEnabled="{Binding !!Project.SelectedItem}"
+            Padding="6,6,6,7"
+            Margin="0,0,12,0"
+            DockPanel.Dock="Right"
+            ToolTip.Tip="Export Selected">
+      <StackPanel Orientation="Horizontal">
+        <PathIcon Width="16" Height="16" 
+                  Margin="6,0,0,0"
+                  Data="{DynamicResource SaveIcon}"/>
+        <TextBlock Margin="0" Padding="12,0,12,0" Text="Selected"/>
+      </StackPanel>
+    </Button>
+
     <Button Command="{Binding CopyAllCommand}"
             CommandParameter="XAML"
+            IsEnabled="{Binding !!Project.Items.Count}"
             Padding="6,6,6,7"
             Margin="0,0,12,0"
             DockPanel.Dock="Right"
@@ -69,6 +102,21 @@
         <PathIcon Width="16" Height="16" 
                   Margin="6,0,0,0"
                   Data="{DynamicResource CopyIcon}"/>
+        <TextBlock Margin="0" Padding="12,0,12,0" Text="All"/>
+      </StackPanel>
+    </Button>
+
+    <Button Command="{Binding ExportAllCommand}"
+            CommandParameter="XAML"
+            IsEnabled="{Binding !!Project.Items.Count}"
+            Padding="6,6,6,7"
+            Margin="0,0,12,0"
+            DockPanel.Dock="Right"
+            ToolTip.Tip="Export All">
+      <StackPanel Orientation="Horizontal">
+        <PathIcon Width="16" Height="16" 
+                  Margin="6,0,0,0"
+                  Data="{DynamicResource SaveIcon}"/>
         <TextBlock Margin="0" Padding="12,0,12,0" Text="All"/>
       </StackPanel>
     </Button>
@@ -89,34 +137,6 @@
         <PathIcon Width="16" Height="16" 
                   Margin="0,0,6,0"
                   Data="{DynamicResource CopyIcon}"/>
-      </StackPanel>
-    </Button>
-
-    <Button Command="{Binding ExportSelectedCommand}"
-            CommandParameter="XAML"
-            Padding="6,6,6,7"
-            Margin="0,0,12,0"
-            DockPanel.Dock="Right"
-            ToolTip.Tip="Export Selected">
-      <StackPanel Orientation="Horizontal">
-        <PathIcon Width="16" Height="16" 
-                  Margin="6,0,0,0"
-                  Data="{DynamicResource SaveIcon}"/>
-        <TextBlock Margin="0" Padding="12,0,12,0" Text="Selected"/>
-      </StackPanel>
-    </Button>
-
-    <Button Command="{Binding ExportAllCommand}"
-            CommandParameter="XAML"
-            Padding="6,6,6,7"
-            Margin="0,0,12,0"
-            DockPanel.Dock="Right"
-            ToolTip.Tip="Export All">
-      <StackPanel Orientation="Horizontal">
-        <PathIcon Width="16" Height="16" 
-                  Margin="6,0,0,0"
-                  Data="{DynamicResource SaveIcon}"/>
-        <TextBlock Margin="0" Padding="12,0,12,0" Text="All"/>
       </StackPanel>
     </Button>
 
