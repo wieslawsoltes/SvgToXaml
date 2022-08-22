@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -18,6 +19,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using ReactiveMarbles.PropertyChanged;
 using SvgToXaml.Views;
+using SvgToXamlConverter.Model;
 using ResourceDictionary = SvgToXamlConverter.Model.Resources.ResourceDictionary;
 
 namespace SvgToXaml.ViewModels;
@@ -152,6 +154,7 @@ public class MainWindowViewModel : ViewModelBase
         return new List<FilePickerFileType>
         {
             StorageService.ImageSvg,
+            StorageService.ImageSvgz,
             StorageService.All
         };
     }
@@ -160,7 +163,8 @@ public class MainWindowViewModel : ViewModelBase
     {
         return new List<FilePickerFileType>
         {
-            StorageService.ImageSvg,
+            StorageService.Axaml,
+            StorageService.Xaml,
             StorageService.All
         };
     }
@@ -245,26 +249,57 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
+    private async Task<Stream> LoadFromStream(Stream stream, string name)
+    {
+        var extension = Path.GetExtension(name);
+        var memoryStream = new MemoryStream();
+        
+        if (extension == "svgz")
+        {
+            await using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
+            await gzipStream.CopyToAsync(memoryStream);
+        }
+        else
+        {
+            await stream.CopyToAsync(memoryStream);
+        }
+
+        memoryStream.Position = 0;
+        return memoryStream;
+    }
+    
     private async Task Add()
     {
-        var window = (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
-        if (window is null)
+        var storageProvider = StorageService.GetStorageProvider();
+        if (storageProvider is null)
         {
             return;
         }
-        var dlg = new OpenFileDialog { AllowMultiple = true };
-        dlg.Filters.Add(new FileDialogFilter() { Name = "Supported Files (*.svg;*.svgz)", Extensions = new List<string> { "svg", "svgz" } });
-        dlg.Filters.Add(new FileDialogFilter() { Name = "SVG Files (*.svg)", Extensions = new List<string> { "svg" } });
-        dlg.Filters.Add(new FileDialogFilter() { Name = "SVGZ Files (*.svgz)", Extensions = new List<string> { "svgz" } });
-        dlg.Filters.Add(new FileDialogFilter() { Name = "All Files (*.*)", Extensions = new List<string> { "*" } });
-        var result = await dlg.ShowAsync(window);
-        if (result is { })
-        {
-            var paths = result.ToList();
 
-            foreach (var path in paths)
+        var result = await storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Import svgs",
+            FileTypeFilter = GetImportFileTypes(),
+            AllowMultiple = true
+        });
+
+        foreach (var file in result)
+        {
+            if (!file.CanOpenRead)
             {
-                await Add(path);
+                continue;
+            }
+
+            try
+            {
+                await using var stream = await file.OpenReadAsync();
+                var ms = await LoadFromStream(stream, file.Name);
+                await Add(ms, Path.GetFileName(file.Name));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
             }
         }
     }
@@ -288,8 +323,8 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        var paths = Project.Items.Select(x => x.Path).ToList();
-        var xaml = await ToXamlStyles(paths);
+        var inputItems = Project.Items.Select(x => new InputItem(x.Name, x.Content)).ToList();
+        var xaml = await ToXamlStyles(inputItems);
         await SetClipboard(xaml);
     }
 
@@ -300,29 +335,34 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        var window = (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
-        if (window is null)
+        var storageProvider = StorageService.GetStorageProvider();
+        if (storageProvider is null)
         {
             return;
         }
 
-        var dlg = new SaveFileDialog();
-        dlg.Filters.Add(new FileDialogFilter() { Name = "AXAML Files (*.axaml)", Extensions = new List<string> { "axaml" } });
-        dlg.Filters.Add(new FileDialogFilter() { Name = "XAML Files (*.xaml)", Extensions = new List<string> { "xaml" } });
-        dlg.Filters.Add(new FileDialogFilter() { Name = "All Files (*.*)", Extensions = new List<string> { "*" } });
-        dlg.InitialFileName = Path.GetFileNameWithoutExtension(Project.SelectedItem.Path);
-        var result = await dlg.ShowAsync(window);
-        if (result is { })
+        var file = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            var xaml = await ToXaml(Project.SelectedItem, Project.Settings.EnableGenerateImage);
+            Title = "Save xaml",
+            FileTypeChoices = GetExportFileTypes(),
+            SuggestedFileName = Path.GetFileNameWithoutExtension(Project.SelectedItem.Name) + ".axaml",
+            DefaultExtension = "axaml",
+            ShowOverwritePrompt = true
+        });
 
+        if (file is not null && file.CanOpenWrite)
+        {
             try
             {
-                await Task.Run(() => File.WriteAllText(result, xaml));
+                var xaml = await ToXaml(Project.SelectedItem, Project.Settings.EnableGenerateImage);
+                await using var stream = await file.OpenWriteAsync();
+                await using var writer = new StreamWriter(stream);
+                await writer.WriteAsync(xaml);
             }
-            catch
+            catch (Exception ex)
             {
-                // ignored
+                Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
             }
         }
     }
@@ -334,32 +374,38 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        var window = (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
-        if (window is null)
+        var storageProvider = StorageService.GetStorageProvider();
+        if (storageProvider is null)
         {
             return;
         }
 
-        var dlg = new SaveFileDialog();
-        dlg.Filters.Add(new FileDialogFilter() { Name = "AXAML Files (*.axaml)", Extensions = new List<string> { "axaml" } });
-        dlg.Filters.Add(new FileDialogFilter() { Name = "XAML Files (*.xaml)", Extensions = new List<string> { "xaml" } });
-        dlg.Filters.Add(new FileDialogFilter() { Name = "All Files (*.*)", Extensions = new List<string> { "*" } });
-        dlg.InitialFileName = Path.GetFileNameWithoutExtension("Svg");
-        var result = await dlg.ShowAsync(window);
-        if (result is { })
+        var file = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            var paths = Project.Items.Select(x => x.Path).ToList();
-            if (paths.Count > 0)
+            Title = "Save xaml",
+            FileTypeChoices = GetExportFileTypes(),
+            SuggestedFileName = "Styles.axaml",
+            DefaultExtension = "axaml",
+            ShowOverwritePrompt = true
+        });
+
+        if (file is not null && file.CanOpenWrite)
+        {
+            try
             {
-                try
+                var paths = Project.Items.Select(x => new InputItem(x.Name, x.Content)).ToList();
+                if (paths.Count > 0)
                 {
                     var xaml = await ToXamlStyles(paths);
-                    await Task.Run(() => File.WriteAllText(result, xaml));
+                    await using var stream = await file.OpenWriteAsync();
+                    await using var writer = new StreamWriter(stream);
+                    await writer.WriteAsync(xaml);
                 }
-                catch
-                {
-                    // ignored
-                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
             }
         }
     }
@@ -518,7 +564,7 @@ public class MainWindowViewModel : ViewModelBase
         });
     }
 
-    private async Task<string> ToXamlStyles(List<string> paths)
+    private async Task<string> ToXamlStyles(List<InputItem> inputItems)
     {
         return await Task.Run(() =>
         {
@@ -529,7 +575,7 @@ public class MainWindowViewModel : ViewModelBase
                 Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
             };
 
-            var xaml = converter.ToXamlStyles(paths, Project.Settings.EnableGenerateImage, Project.Settings.EnableGeneratePreview);
+            var xaml = converter.ToXamlStyles(inputItems, Project.Settings.EnableGenerateImage, Project.Settings.EnableGeneratePreview);
             return converter.Format(xaml);
         });
     }
@@ -552,15 +598,22 @@ public class MainWindowViewModel : ViewModelBase
             {
                 case ".svg":
                 case ".svgz":
-                    await Add(path);
+                {
+                    await using var stream = File.OpenRead(path);
+                    var ms = await LoadFromStream(stream, path);
+                    var name = Path.GetFileName(path);
+                    await Add(ms, name);
                     break;
+                }
             }
         }
     }
 
-    private async Task Add(string path)
+    private async Task Add(Stream stream, string name)
     {
-        var item = await Task.Run(() => new FileItemViewModel(Path.GetFileName(path), path, Preview, Remove));
+        using var reader = new StreamReader(stream);
+        var content = await reader.ReadToEndAsync();
+        var item = await Task.Run(() => new FileItemViewModel(name, content, Preview, Remove));
         Project.Items.Add(item);
     }
 
@@ -669,14 +722,5 @@ public class MainWindowViewModel : ViewModelBase
     public void Initialize(FileItemViewModel item)
     {
         item.Initialize(Preview, Remove);
-    }
-        
-    public void Add(IEnumerable<string> paths)
-    {
-        foreach (var path in paths)
-        {
-            var item = new FileItemViewModel(Path.GetFileName(path), path, Preview, Remove);
-            Project.Items.Add(item);
-        }
     }
 }

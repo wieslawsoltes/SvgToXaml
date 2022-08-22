@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -11,7 +12,7 @@ public class FileItemViewModel : ViewModelBase
 {
     private bool _isLoading;
     private string _name;
-    private string _path;
+    private string _content;
     private SvgViewModel? _svg;
     private SkiaSharp.SKPicture? _picture;
 
@@ -23,10 +24,10 @@ public class FileItemViewModel : ViewModelBase
     }
 
     [JsonInclude]
-    public string Path
+    public string Content
     {
-        get => _path;
-        private set => SetProperty(ref _path, value);
+        get => _content;
+        private set => SetProperty(ref _content, value);
     }
 
     [JsonIgnore]
@@ -50,14 +51,14 @@ public class FileItemViewModel : ViewModelBase
     public ICommand? RemoveCommand { get; private set; }
 
     [JsonConstructor]
-    public FileItemViewModel(string name, string path)
+    public FileItemViewModel(string name, string content)
     {
         _name = name;
-        _path = path;
+        _content = content;
     }
         
-    public FileItemViewModel(string name, string path, Func<FileItemViewModel, Task> preview, Func<FileItemViewModel, Task> remove) 
-        : this(name, path)
+    public FileItemViewModel(string name, string content, Func<FileItemViewModel, Task> preview, Func<FileItemViewModel, Task> remove) 
+        : this(name, content)
     {
         Initialize(preview, remove);
     }
@@ -83,7 +84,7 @@ public class FileItemViewModel : ViewModelBase
             await Task.Run(() =>
             {
                 Svg = new SvgViewModel();
-                Picture = Svg.Load(Path, ignoreAttribute);
+                Picture = Svg.FromSvg(Content, ignoreAttribute);
             });
         }
 

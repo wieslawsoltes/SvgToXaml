@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using Svg.Skia;
-using SvgToXamlConverter;
+using SvgToXamlConverter.Model;
 
 namespace svgxaml;
 
@@ -28,6 +29,25 @@ class Program
                 paths.Add(path);
                 break;
         }
+    }
+
+    static Stream LoadFromStream(Stream stream, string name)
+    {
+        var extension = Path.GetExtension(name);
+        var memoryStream = new MemoryStream();
+        
+        if (extension == "svgz")
+        { 
+            using var gzipStream = new GZipStream(stream, CompressionMode.Decompress); 
+            gzipStream.CopyTo(memoryStream);
+        }
+        else
+        {
+            stream.CopyTo(memoryStream);
+        }
+
+        memoryStream.Position = 0;
+        return memoryStream;
     }
 
     static void Main(string[] args)
@@ -62,7 +82,14 @@ class Program
                     Resources = null
                 };
 
-                var xaml = converter.ToXamlStyles(paths);
+                var xaml = converter.ToXamlStyles(paths.Select(x =>
+                {
+                    using var stream = File.OpenRead(x);
+                    var ms = LoadFromStream(stream, x);
+                    using var reader = new StreamReader(ms);
+                    var content = reader.ReadToEnd();
+                    return new InputItem(Path.GetFileName(x), content);
+                }).ToList());
 
                 if (args.Length == 1)
                 {

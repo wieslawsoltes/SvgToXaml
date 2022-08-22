@@ -1,3 +1,4 @@
+using System.IO;
 using Svg.Model;
 using ShimSkiaSharp;
 using Svg.Skia;
@@ -28,10 +29,10 @@ public class SvgViewModel : ViewModelBase
         Reset();
     }
         
-    public SkiaSharp.SKPicture? Load(string path, DrawAttributes ignoreAttributes)
+    public SkiaSharp.SKPicture? Load(Stream stream, DrawAttributes ignoreAttributes)
     {
         Reset();
-        var svgDocument = SvgExtensions.Open(path);
+        var svgDocument = SvgExtensions.Open(stream);
         if (svgDocument is { })
         {
             Model = SvgExtensions.ToModel(svgDocument, s_assetLoader, out var drawable, out _, ignoreAttributes);

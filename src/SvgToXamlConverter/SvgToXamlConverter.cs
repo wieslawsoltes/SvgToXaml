@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using SvgToXamlConverter.Generator;
+using SvgToXamlConverter.Model;
 using SvgToXamlConverter.Model.Containers;
 using SvgToXamlConverter.Model.Drawing;
 using SvgToXamlConverter.Model.Resources;
@@ -59,33 +60,33 @@ public class SvgToXamlConverter
         return new XamlGenerator().Generate(image, context);
     }
 
-    public string ToXamlStyles(List<string> paths, bool generateImage = false, bool generatePreview = true)
+    public string ToXamlStyles(List<InputItem> inputItems, bool generateImage = false, bool generatePreview = true)
     {
         var results = new List<(string Path, string Key, Model.Resources.Resource Resource)>();
  
-        foreach (var path in paths)
+        foreach (var inputItem in inputItems)
         {
             try
             {
                 var svg = new Svg.Skia.SKSvg();
-                svg.Load(path);
+                svg.FromSvg(inputItem.Content);
                 if (svg.Model is null)
                 {
                     continue;
                 }
 
-                var key = $"_{CreateKey(path)}";
+                var key = $"_{CreateKey(inputItem.Name)}";
                 if (generateImage)
                 {
                     var drawingGroup = new DrawingGroup(svg.Model, Resources);
                     var drawingImage = new DrawingImage(drawingGroup);
                     var image = new Image(drawingImage, key);
-                    results.Add((path, key, image));
+                    results.Add((inputItem.Name, key, image));
                 }
                 else
                 {
                     var drawingGroup = new DrawingGroup(svg.Model, Resources, key);
-                    results.Add((path, key, drawingGroup));
+                    results.Add((inputItem.Name, key, drawingGroup));
                 }
             }
             catch

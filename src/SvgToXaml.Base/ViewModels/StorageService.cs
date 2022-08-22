@@ -28,6 +28,33 @@ internal static class StorageService
         MimeTypes = new[] { "image/svg+xml" }
     };
 
+    public static FilePickerFileType ImageSvgz { get; } = new("Svgz")
+    {
+        Patterns = new[] { "*.svgz" },
+        // TODO:
+        AppleUniformTypeIdentifiers = new[] { "public.svg-image" },
+        // TODO:
+        MimeTypes = new[] { "image/svg+xml" }
+    };
+
+    public static FilePickerFileType Xaml { get; } = new("Xaml")
+    {
+        Patterns = new[] { "*.xaml" },
+        // TODO:
+        AppleUniformTypeIdentifiers = new[] { "public.xaml" },
+        // TODO:
+        MimeTypes = new[] { "application/xaml" }
+    };
+
+    public static FilePickerFileType Axaml { get; } = new("Axaml")
+    {
+        Patterns = new[] { "*.axaml" },
+        // TODO:
+        AppleUniformTypeIdentifiers = new[] { "public.axaml" },
+        // TODO:
+        MimeTypes = new[] { "application/axaml" }
+    };
+
     public static IStorageProvider? GetStorageProvider()
     {
         if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: { } window })

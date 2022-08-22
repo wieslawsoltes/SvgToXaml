@@ -31,7 +31,6 @@
         <Panel Background="Transparent"
                VerticalAlignment="Stretch"
                HorizontalAlignment="Stretch"
-               ToolTip.Tip="{Binding Path}"
                Focusable="True">
           <i:Interaction.Behaviors>
             <ia:EventTriggerBehavior EventName="DoubleTapped">
