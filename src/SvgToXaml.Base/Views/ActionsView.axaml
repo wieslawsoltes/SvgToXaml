@@ -24,7 +24,7 @@
             ToolTip.Tip="Switch between the Light and Dark mode theme.">
       <StackPanel Orientation="Horizontal">
         <PathIcon Width="16" Height="16" 
-                  Margin="6,0,0,0"
+                  Margin="6,0,6,0"
                   Opacity="0.6"
                   Data="{DynamicResource DarkTheme}"/>
       </StackPanel>
