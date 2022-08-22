@@ -607,7 +607,7 @@ public class MainWindowViewModel : ViewModelBase
             sb.Append($"</VisualBrush>");
             sb.Append($"</Border.Background>");
             sb.Append($"</Border>");
-            sb.Append($"<Viewbox Margin=\"30\">");
+            sb.Append($"<Viewbox Margin=\"0\">");
             sb.Append($"{image}");
             sb.Append($"</Viewbox>");
             sb.Append($"</Panel>");
