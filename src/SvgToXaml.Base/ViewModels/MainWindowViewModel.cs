@@ -269,7 +269,7 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
-    private async Task CopySelected(string format)
+    private async Task CopySelected(string? format)
     {
         if (Project.SelectedItem is null || string.IsNullOrWhiteSpace(format))
         {
@@ -281,7 +281,7 @@ public class MainWindowViewModel : ViewModelBase
         await SetClipboard(xaml);
     }
 
-    private async Task CopyAll(string format)
+    private async Task CopyAll(string? format)
     {
         if (string.IsNullOrWhiteSpace(format))
         {
@@ -293,7 +293,7 @@ public class MainWindowViewModel : ViewModelBase
         await SetClipboard(xaml);
     }
 
-    private async Task ExportSelected(string format)
+    private async Task ExportSelected(string? format)
     {
         if (Project.SelectedItem is null || string.IsNullOrWhiteSpace(format))
         {
@@ -327,7 +327,7 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
-    private async Task ExportAll(string format)
+    private async Task ExportAll(string? format)
     {
         if (string.IsNullOrWhiteSpace(format))
         {
@@ -364,7 +364,7 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
-    private async Task Clipboard(string format)
+    private async Task Clipboard(string? format)
     {
         if (string.IsNullOrWhiteSpace(format))
         {
