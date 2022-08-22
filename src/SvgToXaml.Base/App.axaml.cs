@@ -24,7 +24,7 @@ public class App : Application
         ThemeManager = new SimpleThemeManager();
 #endif
         ThemeManager.Initialize(this);
-        ThemeManager?.Switch(1);
+        ThemeManager.Switch(1);
 
         AvaloniaXamlLoader.Load(this);
     }
