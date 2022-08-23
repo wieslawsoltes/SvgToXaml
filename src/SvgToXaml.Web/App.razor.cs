@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Web.Blazor;
 
 namespace SvgToXaml.Web;
@@ -9,6 +10,8 @@ public partial class App
         base.OnParametersSet();
 
         WebAppBuilder.Configure<SvgToXaml.App>()
+            // Uncomment to disable GPU
+            // .With(new SkiaOptions { CustomGpuFactory = null })
             .SetupWithSingleViewLifetime();
     }
 }
