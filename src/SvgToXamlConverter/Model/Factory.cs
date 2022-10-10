@@ -6,6 +6,8 @@ namespace SvgToXamlConverter.Model;
 
 internal static class Factory
 {
+    internal static Svg.Skia.SkiaModel s_model = new Svg.Skia.SkiaModel(new Svg.Skia.SKSvgSettings());
+
     public static Brush CreateBrush(ShimSkiaSharp.ColorShader colorShader, SkiaSharp.SKRect skBounds, string? key = null)
     {
         var brush = new SolidColorBrush
@@ -27,9 +29,9 @@ internal static class Factory
             Bounds = skBounds,
             LocalMatrix = linearGradientShader.LocalMatrix is null
                 ? null
-                : Svg.Skia.SkiaModelExtensions.ToSKMatrix(linearGradientShader.LocalMatrix.Value),
-            Start = Svg.Skia.SkiaModelExtensions.ToSKPoint(linearGradientShader.Start),
-            End = Svg.Skia.SkiaModelExtensions.ToSKPoint(linearGradientShader.End),
+                : s_model.ToSKMatrix(linearGradientShader.LocalMatrix.Value),
+            Start = s_model.ToSKPoint(linearGradientShader.Start),
+            End = s_model.ToSKPoint(linearGradientShader.End),
             Mode = linearGradientShader.Mode
         };
 
@@ -54,8 +56,8 @@ internal static class Factory
             Bounds = skBounds,
             LocalMatrix = radialGradientShader.LocalMatrix is null
                 ? null
-                : Svg.Skia.SkiaModelExtensions.ToSKMatrix(radialGradientShader.LocalMatrix.Value),
-            Center = Svg.Skia.SkiaModelExtensions.ToSKPoint(radialGradientShader.Center),
+                : s_model.ToSKMatrix(radialGradientShader.LocalMatrix.Value),
+            Center = s_model.ToSKPoint(radialGradientShader.Center),
             Radius = radialGradientShader.Radius,
             Mode = radialGradientShader.Mode
         };
@@ -81,9 +83,9 @@ internal static class Factory
             Bounds = skBounds,
             LocalMatrix = twoPointConicalGradientShader.LocalMatrix is null
                 ? null
-                : Svg.Skia.SkiaModelExtensions.ToSKMatrix(twoPointConicalGradientShader.LocalMatrix.Value),
-            Start = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.Start),
-            End = Svg.Skia.SkiaModelExtensions.ToSKPoint(twoPointConicalGradientShader.End),
+                : s_model.ToSKMatrix(twoPointConicalGradientShader.LocalMatrix.Value),
+            Start = s_model.ToSKPoint(twoPointConicalGradientShader.Start),
+            End = s_model.ToSKPoint(twoPointConicalGradientShader.End),
             StartRadius = twoPointConicalGradientShader.StartRadius,
             EndRadius = twoPointConicalGradientShader.EndRadius,
             Mode = twoPointConicalGradientShader.Mode
@@ -108,7 +110,7 @@ internal static class Factory
         {
             Key = key,
             Bounds = skBounds,
-            LocalMatrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(pictureShader.LocalMatrix),
+            LocalMatrix = s_model.ToSKMatrix(pictureShader.LocalMatrix),
             Picture = new Image(new DrawingImage(new DrawingGroup(pictureShader.Src))),
             CullRect =  pictureShader.Src?.CullRect ?? ShimSkiaSharp.SKRect.Empty,
             Tile = pictureShader.Tile,

@@ -7,13 +7,20 @@ namespace SvgToXaml.ViewModels;
 
 public class SvgViewModel : ViewModelBase
 {
-    private static readonly IAssetLoader s_assetLoader = new SkiaAssetLoader();
+    private static readonly SkiaModel s_model;
+    private static readonly IAssetLoader s_assetLoader;
 
     public SKDrawable? Drawable { get; private set; }
 
     public SKPicture? Model { get; private set; }
 
     public SkiaSharp.SKPicture? Picture { get; private set; }
+
+    static SvgViewModel()
+    {
+        s_model = new SkiaModel(new SKSvgSettings());
+        s_assetLoader = new SkiaAssetLoader(new SkiaModel(new SKSvgSettings()));
+    }
 
     private void Reset()
     {
@@ -37,7 +44,7 @@ public class SvgViewModel : ViewModelBase
         {
             Model = SvgExtensions.ToModel(svgDocument, s_assetLoader, out var drawable, out _, ignoreAttributes);
             Drawable = drawable;
-            Picture = Model?.ToSKPicture();
+            Picture = s_model.ToSKPicture(Model);
             return Picture;
         }
         return null;
@@ -51,7 +58,7 @@ public class SvgViewModel : ViewModelBase
         {
             Model = SvgExtensions.ToModel(svgDocument, s_assetLoader, out var drawable, out _, ignoreAttributes);
             Drawable = drawable;
-            Picture = Model?.ToSKPicture();
+            Picture = s_model.ToSKPicture(Model);
             return Picture;
         }
         return null;

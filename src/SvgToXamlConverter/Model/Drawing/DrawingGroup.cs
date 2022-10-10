@@ -91,7 +91,7 @@ public record DrawingGroup : Drawing
             {
                 case ShimSkiaSharp.ClipPathCanvasCommand(var clipPath, _, _):
                 {
-                    var path = Svg.Skia.SkiaModelExtensions.ToSKPath(clipPath);
+                    var path = Factory.s_model.ToSKPath(clipPath);
                     if (path is null)
                     {
                         break;
@@ -111,7 +111,7 @@ public record DrawingGroup : Drawing
                 }
                 case ShimSkiaSharp.ClipRectCanvasCommand(var skRect, _, _):
                 {
-                    var rect = Svg.Skia.SkiaModelExtensions.ToSKRect(skRect);
+                    var rect = Factory.s_model.ToSKRect(skRect);
                     var path = new SkiaSharp.SKPath();
                     path.AddRect(rect);
 
@@ -129,7 +129,7 @@ public record DrawingGroup : Drawing
                 }
                 case ShimSkiaSharp.SetMatrixCanvasCommand(var skMatrix):
                 {
-                    var matrix = Svg.Skia.SkiaModelExtensions.ToSKMatrix(skMatrix);
+                    var matrix = Factory.s_model.ToSKMatrix(skMatrix);
                     if (matrix.IsIdentity)
                     {
                         break;
@@ -291,7 +291,7 @@ public record DrawingGroup : Drawing
                 }
                 case ShimSkiaSharp.DrawPathCanvasCommand(var skPath, var skPaint):
                 {
-                    var path = Svg.Skia.SkiaModelExtensions.ToSKPath(skPath);
+                    var path = Factory.s_model.ToSKPath(skPath);
                     if (path.IsEmpty)
                     {
                         break;
@@ -306,7 +306,7 @@ public record DrawingGroup : Drawing
                 }
                 case ShimSkiaSharp.DrawTextCanvasCommand(var text, var x, var y, var skPaint):
                 {
-                    var paint = Svg.Skia.SkiaModelExtensions.ToSKPaint(skPaint);
+                    var paint = Factory.s_model.ToSKPaint(skPaint);
                     var path = paint.GetTextPath(text, x, y);
                     if (path.IsEmpty)
                     {
