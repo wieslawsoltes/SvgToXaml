@@ -291,6 +291,10 @@ public record DrawingGroup : Drawing
                 }
                 case ShimSkiaSharp.DrawPathCanvasCommand(var skPath, var skPaint):
                 {
+                    if (skPath is null)
+                    {
+                        break;
+                    }
                     var path = Factory.s_model.ToSKPath(skPath);
                     if (path.IsEmpty)
                     {
@@ -306,7 +310,15 @@ public record DrawingGroup : Drawing
                 }
                 case ShimSkiaSharp.DrawTextCanvasCommand(var text, var x, var y, var skPaint):
                 {
+                    if (skPaint is null)
+                    {
+                        break;
+                    }
                     var paint = Factory.s_model.ToSKPaint(skPaint);
+                    if (paint is null)
+                    {
+                        break;
+                    }
                     var path = paint.GetTextPath(text, x, y);
                     if (path.IsEmpty)
                     {

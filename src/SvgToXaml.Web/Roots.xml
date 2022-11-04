@@ -1,0 +1,14 @@
+<linker>
+
+  <!-- App -->
+
+  <assembly fullname="SvgToXaml.Base" preserve="All" />
+  <assembly fullname="SvgToXaml.Web" preserve="All" />
+  <assembly fullname="Avalonia.Xaml.Interactions" preserve="All" />
+  <assembly fullname="Avalonia.Xaml.Interactivity" preserve="All" />
+
+  <!-- Avalonia Themes -->
+
+  <assembly fullname="Avalonia.Themes.Fluent" preserve="All" />
+
+</linker>

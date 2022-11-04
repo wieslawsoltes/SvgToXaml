@@ -59,11 +59,11 @@ ProjectSection(SolutionItems) = preProject
 	build\Avalonia.Xaml.Behaviors.props = build\Avalonia.Xaml.Behaviors.props
 	build\Svg.Skia.props = build\Svg.Skia.props
 	build\System.Text.Json.props = build\System.Text.Json.props
-	build\Avalonia.Web.Blazor.props = build\Avalonia.Web.Blazor.props
 	build\Avalonia.Themes.Fluent.props = build\Avalonia.Themes.Fluent.props
 	build\CommunityToolkit.Mvvm.props = build\CommunityToolkit.Mvvm.props
 	build\ReactiveMarbles.PropertyChanged.props = build\ReactiveMarbles.PropertyChanged.props
 	build\Avalonia.ThemeManager.props = build\Avalonia.ThemeManager.props
+	build\Avalonia.Web.props = build\Avalonia.Web.props
 EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_build", "build\build\_build.csproj", "{E9A88CB0-B853-44C3-8A7E-F67DAD2A7F9B}"
