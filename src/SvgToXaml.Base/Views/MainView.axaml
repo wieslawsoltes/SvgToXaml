@@ -6,7 +6,8 @@
              xmlns:views="clr-namespace:SvgToXaml.Views"
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="480"
              x:DataType="vm:MainWindowViewModel" x:CompileBindings="True"
-             x:Class="SvgToXaml.Views.MainView">
+             x:Class="SvgToXaml.Views.MainView"
+             FontFamily="avares://Avalonia.Themes.Fluent/Assets#Inter">
 
   <Design.DataContext>
     <vm:MainWindowViewModel />
