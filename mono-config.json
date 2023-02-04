@@ -9,6 +9,10 @@
     },
     {
       "behavior": "assembly",
+      "name": "Avalonia.Browser.dll"
+    },
+    {
+      "behavior": "assembly",
       "name": "Avalonia.Controls.dll"
     },
     {
@@ -46,10 +50,6 @@
     {
       "behavior": "assembly",
       "name": "Avalonia.Themes.Fluent.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "Avalonia.Web.dll"
     },
     {
       "behavior": "assembly",
@@ -218,10 +218,6 @@
     {
       "behavior": "assembly",
       "name": "System.Runtime.InteropServices.JavaScript.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Runtime.Serialization.Primitives.dll"
     },
     {
       "behavior": "assembly",
