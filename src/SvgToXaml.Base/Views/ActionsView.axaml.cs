@@ -1,5 +1,4 @@
 ﻿using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 
 namespace SvgToXaml.Views;
 
@@ -9,11 +8,6 @@ public partial class ActionsView : UserControl
     {
         InitializeComponent();
         InitializeThemes();
-    }
-
-    private void InitializeComponent()
-    {
-        AvaloniaXamlLoader.Load(this);
     }
 
     private void InitializeThemes()

@@ -5,7 +5,7 @@
         xmlns:views="clr-namespace:SvgToXaml.Views"
         mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="480"
         x:Class="SvgToXaml.Views.MainWindow"
-        x:Name="MainWindow"
+        x:Name="MainWindowView"
         MinWidth="900"
         MinHeight="480"
         WindowStartupLocation="CenterScreen"
@@ -17,7 +17,7 @@
         Icon="/Assets/Icon.ico"
         Title="SvgToXaml"
         DragDrop.AllowDrop="True">
-  <Panel Margin="{Binding #MainWindow.OffScreenMargin}">
+  <Panel Margin="{Binding #MainWindowView.OffScreenMargin}">
     <views:MainView/>
     <!-- <views:SandBox Margin="0,36,0,0"/> -->
   </Panel>

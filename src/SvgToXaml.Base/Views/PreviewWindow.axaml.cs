@@ -1,10 +1,9 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 
 namespace SvgToXaml.Views;
 
-public class PreviewWindow : Window
+public partial class PreviewWindow : Window
 {
     public PreviewWindow()
     {
@@ -12,10 +11,5 @@ public class PreviewWindow : Window
 #if DEBUG
         this.AttachDevTools();
 #endif
-    }
-
-    private void InitializeComponent()
-    {
-        AvaloniaXamlLoader.Load(this);
     }
 }

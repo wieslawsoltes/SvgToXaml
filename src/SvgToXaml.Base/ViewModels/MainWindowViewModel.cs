@@ -186,7 +186,7 @@ public class MainWindowViewModel : ViewModelBase
 
         var file = result.FirstOrDefault();
 
-        if (file is not null && file.CanOpenRead)
+        if (file is not null)
         {
             try
             {
@@ -232,7 +232,7 @@ public class MainWindowViewModel : ViewModelBase
             ShowOverwritePrompt = true
         });
 
-        if (file is not null && file.CanOpenWrite)
+        if (file is not null)
         {
             try
             {
@@ -285,11 +285,6 @@ public class MainWindowViewModel : ViewModelBase
 
         foreach (var file in result)
         {
-            if (!file.CanOpenRead)
-            {
-                continue;
-            }
-
             try
             {
                 await using var stream = await file.OpenReadAsync();
@@ -350,7 +345,7 @@ public class MainWindowViewModel : ViewModelBase
             ShowOverwritePrompt = true
         });
 
-        if (file is not null && file.CanOpenWrite)
+        if (file is not null)
         {
             try
             {
@@ -389,7 +384,7 @@ public class MainWindowViewModel : ViewModelBase
             ShowOverwritePrompt = true
         });
 
-        if (file is not null && file.CanOpenWrite)
+        if (file is not null)
         {
             try
             {

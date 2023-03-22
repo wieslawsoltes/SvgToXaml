@@ -2,7 +2,6 @@ using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Markup.Xaml;
 using SvgToXaml.ViewModels;
 
 namespace SvgToXaml.Views;
@@ -19,16 +18,11 @@ public partial class MainWindow : Window
         AddHandler(DragDrop.DragOverEvent, DragOver);
     }
 
-    private void InitializeComponent()
-    {
-        AvaloniaXamlLoader.Load(this);
-    }
-
     private void DragOver(object? sender, DragEventArgs e)
     {
         e.DragEffects = e.DragEffects & (DragDropEffects.Copy | DragDropEffects.Link);
 
-        if (!e.Data.Contains(DataFormats.FileNames))
+        if (!e.Data.Contains(DataFormats.Files))
         {
             e.DragEffects = DragDropEffects.None;
         }
@@ -36,7 +30,7 @@ public partial class MainWindow : Window
 
     private void Drop(object? sender, DragEventArgs e)
     {
-        if (e.Data.Contains(DataFormats.FileNames))
+        if (e.Data.Contains(DataFormats.Files))
         {
             var paths = e.Data.GetFileNames();
             if (paths is { })
