@@ -14,7 +14,7 @@
     <vm:ProjectViewModel />
   </Design.DataContext>
 
-  <ListBox Items="{Binding Items}"
+  <ListBox ItemsSource="{Binding Items}"
            Background="Transparent"
            SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
 

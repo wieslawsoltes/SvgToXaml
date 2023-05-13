@@ -416,9 +416,12 @@ public class MainWindowViewModel : ViewModelBase
         {
             try
             {
-                if (Application.Current?.Clipboard is { } clipboard)
+                if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime)
                 {
-                    return await clipboard.GetTextAsync();
+                    if (lifetime.MainWindow?.Clipboard is {} clipboard)
+                    {
+                        return await clipboard.GetTextAsync();
+                    }
                 }
             }
             catch
@@ -482,9 +485,12 @@ public class MainWindowViewModel : ViewModelBase
         {
             try
             {
-                if (Application.Current?.Clipboard is { } clipboard)
+                if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime)
                 {
-                    await clipboard.SetTextAsync(xaml);
+                    if (lifetime.MainWindow?.Clipboard is {} clipboard)
+                    {
+                        await clipboard.SetTextAsync(xaml);
+                    }
                 }
             }
             catch
