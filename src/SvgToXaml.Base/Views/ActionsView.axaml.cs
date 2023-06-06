@@ -13,14 +13,11 @@ public partial class ActionsView : UserControl
     private void InitializeThemes()
     {
         var dark = true;
-        var theme = this.Find<Button>("Theme");
-        if (theme is { })
+
+        ThemeButton.Click += (_, _) =>
         {
-            theme.Click += (_, _) =>
-            {
-                dark = !dark;
-                App.ThemeManager?.Switch(dark ? 1 : 0);
-            };
-        }
+            dark = !dark;
+            App.ThemeManager?.Switch(dark ? 1 : 0);
+        };
     }
 }

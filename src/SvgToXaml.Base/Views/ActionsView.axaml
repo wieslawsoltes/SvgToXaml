@@ -16,7 +16,7 @@
              Background="Transparent"
              LastChildFill="False">
 
-    <Button x:Name="Theme"
+    <Button x:Name="ThemeButton"
             Background="Transparent"
             Padding="6,6,6,7"
             Margin="0,0,12,0"
