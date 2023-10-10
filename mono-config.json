@@ -73,10 +73,6 @@
     },
     {
       "behavior": "assembly",
-      "name": "Fizzler.dll"
-    },
-    {
-      "behavior": "assembly",
       "name": "HarfBuzzSharp.dll"
     },
     {
