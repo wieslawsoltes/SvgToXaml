@@ -142,31 +142,31 @@ public class XamlGenerator
         }
     }
 
-    private string GenerateBrush(Brush brush, GeneratorContext context)
+    private string GenerateBrush(Brush brush, XamlGeneratorSettings settings)
     {
         return brush switch
         {
-            SolidColorBrush solidColorBrush => GenerateSolidColorBrush(solidColorBrush, context),
-            LinearGradientBrush linearGradientBrush => GenerateLinearGradientBrush(linearGradientBrush, context),
-            RadialGradientBrush radialGradientBrush => GenerateRadialGradientBrush(radialGradientBrush, context),
-            TwoPointConicalGradientBrush twoPointConicalGradientBrush => GenerateTwoPointConicalGradientBrush(twoPointConicalGradientBrush, context),
-            PictureBrush pictureBrush => GeneratePictureBrush(pictureBrush, context),
+            SolidColorBrush solidColorBrush => GenerateSolidColorBrush(solidColorBrush, settings),
+            LinearGradientBrush linearGradientBrush => GenerateLinearGradientBrush(linearGradientBrush, settings),
+            RadialGradientBrush radialGradientBrush => GenerateRadialGradientBrush(radialGradientBrush, settings),
+            TwoPointConicalGradientBrush twoPointConicalGradientBrush => GenerateTwoPointConicalGradientBrush(twoPointConicalGradientBrush, settings),
+            PictureBrush pictureBrush => GeneratePictureBrush(pictureBrush, settings),
             _ => ""
         };
     }
 
-    private string GenerateSolidColorBrush(SolidColorBrush solidColorBrush, GeneratorContext context)
+    private string GenerateSolidColorBrush(SolidColorBrush solidColorBrush, XamlGeneratorSettings settings)
     {
         var sb = new StringBuilder();
 
         sb.Append($"<SolidColorBrush{ToKey(solidColorBrush.Key)}");
         sb.Append($" Color=\"{ToHexColor(solidColorBrush.Color)}\"");
-        sb.Append($"/>{context.NewLine}");
+        sb.Append($"/>{settings.NewLine}");
 
         return sb.ToString();
     }
 
-    private string GenerateLinearGradientBrush(LinearGradientBrush linearGradientBrush, GeneratorContext context)
+    private string GenerateLinearGradientBrush(LinearGradientBrush linearGradientBrush, XamlGeneratorSettings settings)
     {
         var sb = new StringBuilder();
 
@@ -183,42 +183,42 @@ public class XamlGenerator
             sb.Append($" SpreadMethod=\"{ToGradientSpreadMethod(linearGradientBrush.Mode)}\"");
         }
 
-        if (context.UseCompatMode)
+        if (settings.UseCompatMode)
         {
             sb.Append($" MappingMode=\"Absolute\"");
         }
 
-        sb.Append($">{context.NewLine}");
+        sb.Append($">{settings.NewLine}");
 
         if (linearGradientBrush.LocalMatrix is { })
         {
             var localMatrix = linearGradientBrush.LocalMatrix.Value;
 
-            sb.Append($"  <LinearGradientBrush.Transform>{context.NewLine}");
-            sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{context.NewLine}");
-            sb.Append($"  </LinearGradientBrush.Transform>{context.NewLine}");
+            sb.Append($"  <LinearGradientBrush.Transform>{settings.NewLine}");
+            sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{settings.NewLine}");
+            sb.Append($"  </LinearGradientBrush.Transform>{settings.NewLine}");
         }
 
         if (linearGradientBrush.GradientStops.Count > 0)
         {
-            sb.Append($"  <LinearGradientBrush.GradientStops>{context.NewLine}");
+            sb.Append($"  <LinearGradientBrush.GradientStops>{settings.NewLine}");
 
             foreach (var stop in linearGradientBrush.GradientStops)
             {
                 var color = ToHexColor(stop.Color);
                 var offset = ToXamlString(stop.Offset);
-                sb.Append($"    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{context.NewLine}");
+                sb.Append($"    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{settings.NewLine}");
             }
 
-            sb.Append($"  </LinearGradientBrush.GradientStops>{context.NewLine}");
+            sb.Append($"  </LinearGradientBrush.GradientStops>{settings.NewLine}");
         }
 
-        sb.Append($"</LinearGradientBrush>{context.NewLine}");
+        sb.Append($"</LinearGradientBrush>{settings.NewLine}");
 
         return sb.ToString();
     }
 
-    private string GenerateRadialGradientBrush(RadialGradientBrush radialGradientBrush, GeneratorContext context)
+    private string GenerateRadialGradientBrush(RadialGradientBrush radialGradientBrush, XamlGeneratorSettings settings)
     {
         var sb = new StringBuilder();
 
@@ -227,7 +227,7 @@ public class XamlGenerator
         var center = radialGradientBrush.Center;
         var gradientOrigin = radialGradientBrush.Center;
 
-        if (!context.UseCompatMode)
+        if (!settings.UseCompatMode)
         {
             radius = radius / radialGradientBrush.Bounds.Width;
         }
@@ -237,7 +237,7 @@ public class XamlGenerator
         sb.Append($" Center=\"{ToPoint(center)}\"");
         sb.Append($" GradientOrigin=\"{ToPoint(gradientOrigin)}\"");
 
-        if (context.UseCompatMode)
+        if (settings.UseCompatMode)
         {
             sb.Append($" RadiusX=\"{ToXamlString(radius)}\"");
             sb.Append($" RadiusY=\"{ToXamlString(radius)}\"");
@@ -247,7 +247,7 @@ public class XamlGenerator
             sb.Append($" Radius=\"{ToXamlString(radius)}\"");
         }
 
-        if (context.UseCompatMode)
+        if (settings.UseCompatMode)
         {
             sb.Append($" MappingMode=\"Absolute\"");
         }
@@ -257,37 +257,37 @@ public class XamlGenerator
             sb.Append($" SpreadMethod=\"{ToGradientSpreadMethod(radialGradientBrush.Mode)}\"");
         }
 
-        sb.Append($">{context.NewLine}");
+        sb.Append($">{settings.NewLine}");
 
         if (radialGradientBrush.LocalMatrix is { })
         {
             var localMatrix = radialGradientBrush.LocalMatrix.Value;
 
-            sb.Append($"  <RadialGradientBrush.Transform>{context.NewLine}");
-            sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{context.NewLine}");
-            sb.Append($"  </RadialGradientBrush.Transform>{context.NewLine}");
+            sb.Append($"  <RadialGradientBrush.Transform>{settings.NewLine}");
+            sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{settings.NewLine}");
+            sb.Append($"  </RadialGradientBrush.Transform>{settings.NewLine}");
         }
 
         if (radialGradientBrush.GradientStops.Count > 0)
         {
-            sb.Append($"  <RadialGradientBrush.GradientStops>{context.NewLine}");
+            sb.Append($"  <RadialGradientBrush.GradientStops>{settings.NewLine}");
 
             foreach (var stop in radialGradientBrush.GradientStops)
             {
                 var color = ToHexColor(stop.Color);
                 var offset = ToXamlString(stop.Offset);
-                sb.Append($"    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{context.NewLine}");
+                sb.Append($"    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{settings.NewLine}");
             }
 
-            sb.Append($"  </RadialGradientBrush.GradientStops>{context.NewLine}");
+            sb.Append($"  </RadialGradientBrush.GradientStops>{settings.NewLine}");
         }
 
-        sb.Append($"</RadialGradientBrush>{context.NewLine}");
+        sb.Append($"</RadialGradientBrush>{settings.NewLine}");
 
         return sb.ToString();
     }
 
-    private string GenerateTwoPointConicalGradientBrush(TwoPointConicalGradientBrush twoPointConicalGradientBrush, GeneratorContext context)
+    private string GenerateTwoPointConicalGradientBrush(TwoPointConicalGradientBrush twoPointConicalGradientBrush, XamlGeneratorSettings settings)
     {
         var sb = new StringBuilder();
 
@@ -302,7 +302,7 @@ public class XamlGenerator
         var center = twoPointConicalGradientBrush.End;
         var gradientOrigin = twoPointConicalGradientBrush.Start;
 
-        if (!context.UseCompatMode)
+        if (!settings.UseCompatMode)
         {
             endRadius = endRadius / twoPointConicalGradientBrush.Bounds.Width;
         }
@@ -312,7 +312,7 @@ public class XamlGenerator
         sb.Append($" Center=\"{ToPoint(center)}\"");
         sb.Append($" GradientOrigin=\"{ToPoint(gradientOrigin)}\"");
 
-        if (context.UseCompatMode)
+        if (settings.UseCompatMode)
         {
             sb.Append($" RadiusX=\"{ToXamlString(endRadius)}\"");
             sb.Append($" RadiusY=\"{ToXamlString(endRadius)}\"");
@@ -322,7 +322,7 @@ public class XamlGenerator
             sb.Append($" Radius=\"{ToXamlString(endRadius)}\"");
         }
 
-        if (context.UseCompatMode)
+        if (settings.UseCompatMode)
         {
             sb.Append($" MappingMode=\"Absolute\"");
         }
@@ -332,37 +332,37 @@ public class XamlGenerator
             sb.Append($" SpreadMethod=\"{ToGradientSpreadMethod(twoPointConicalGradientBrush.Mode)}\"");
         }
 
-        sb.Append($">{context.NewLine}");
+        sb.Append($">{settings.NewLine}");
 
         if (twoPointConicalGradientBrush.LocalMatrix is { })
         {
             var localMatrix = twoPointConicalGradientBrush.LocalMatrix.Value;
 
-            sb.Append($"  <RadialGradientBrush.Transform>{context.NewLine}");
-            sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{context.NewLine}");
-            sb.Append($"  </RadialGradientBrush.Transform>{context.NewLine}");
+            sb.Append($"  <RadialGradientBrush.Transform>{settings.NewLine}");
+            sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{settings.NewLine}");
+            sb.Append($"  </RadialGradientBrush.Transform>{settings.NewLine}");
         }
 
         if (twoPointConicalGradientBrush.GradientStops.Count > 0)
         {
-            sb.Append($"  <RadialGradientBrush.GradientStops>{context.NewLine}");
+            sb.Append($"  <RadialGradientBrush.GradientStops>{settings.NewLine}");
 
             foreach (var stop in twoPointConicalGradientBrush.GradientStops)
             {
                 var color = ToHexColor(stop.Color);
                 var offset = ToXamlString(stop.Offset);
-                sb.Append($"    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{context.NewLine}");
+                sb.Append($"    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{settings.NewLine}");
             }
 
-            sb.Append($"  </RadialGradientBrush.GradientStops>{context.NewLine}");
+            sb.Append($"  </RadialGradientBrush.GradientStops>{settings.NewLine}");
         }
 
-        sb.Append($"</RadialGradientBrush>{context.NewLine}");
+        sb.Append($"</RadialGradientBrush>{settings.NewLine}");
 
         return sb.ToString();
     }
 
-    private string GeneratePictureBrush(PictureBrush pictureBrush, GeneratorContext context)
+    private string GeneratePictureBrush(PictureBrush pictureBrush, XamlGeneratorSettings settings)
     {
         if (pictureBrush.Picture is null)
         {
@@ -382,7 +382,7 @@ public class XamlGenerator
             sb.Append($" TileMode=\"{ToTileMode(pictureBrush.TileMode)}\"");
         }
 
-        if (context.UseCompatMode)
+        if (settings.UseCompatMode)
         {
             if (!sourceRect.IsEmpty)
             {
@@ -407,31 +407,31 @@ public class XamlGenerator
             }
         }
 
-        sb.Append($">{context.NewLine}");
+        sb.Append($">{settings.NewLine}");
 
         if (pictureBrush.LocalMatrix is { })
         {
             var localMatrix = pictureBrush.LocalMatrix.Value;
 
-            sb.Append($"  <VisualBrush.Transform>{context.NewLine}");
-            sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{context.NewLine}");
-            sb.Append($"  </VisualBrush.Transform>{context.NewLine}");
+            sb.Append($"  <VisualBrush.Transform>{settings.NewLine}");
+            sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{settings.NewLine}");
+            sb.Append($"  </VisualBrush.Transform>{settings.NewLine}");
         }
 
         if (pictureBrush.Picture is not null)
         {
-            sb.Append($"  <VisualBrush.Visual>{context.NewLine}");
-            sb.Append(GenerateImage(pictureBrush.Picture, context with { WriteResources = false, AddTransparentBackground = false }, SkiaSharp.SKMatrix.CreateIdentity()));
-            sb.Append($"{context.NewLine}");
-            sb.Append($"  </VisualBrush.Visual>{context.NewLine}");
+            sb.Append($"  <VisualBrush.Visual>{settings.NewLine}");
+            sb.Append(GenerateImage(pictureBrush.Picture, settings with { WriteResources = false, AddTransparentBackground = false }, SkiaSharp.SKMatrix.CreateIdentity()));
+            sb.Append($"{settings.NewLine}");
+            sb.Append($"  </VisualBrush.Visual>{settings.NewLine}");
         }
 
-        sb.Append($"</VisualBrush>{context.NewLine}");
+        sb.Append($"</VisualBrush>{settings.NewLine}");
 
         return sb.ToString();
     }
 
-    private string GeneratePen(Pen pen, GeneratorContext context)
+    private string GeneratePen(Pen pen, XamlGeneratorSettings settings)
     {
         if (pen.Brush is null)
         {
@@ -455,7 +455,7 @@ public class XamlGenerator
 
         if (pen.StrokeCap != ShimSkiaSharp.SKStrokeCap.Butt)
         {
-            if (context.UseCompatMode)
+            if (settings.UseCompatMode)
             {
                 sb.Append($" StartLineCap=\"{ToPenLineCap(pen.StrokeCap)}\"");
                 sb.Append($" EndLineCap=\"{ToPenLineCap(pen.StrokeCap)}\"");
@@ -466,7 +466,7 @@ public class XamlGenerator
             }
         }
 
-        if (context.UseCompatMode)
+        if (settings.UseCompatMode)
         {
             if (pen.Dashes is { Intervals: { } })
             {
@@ -489,7 +489,7 @@ public class XamlGenerator
             }
         }
 
-        if (context.UseCompatMode)
+        if (settings.UseCompatMode)
         {
             var miterLimit = pen.StrokeMiter;
             var strokeWidth = pen.StrokeWidth;
@@ -523,11 +523,11 @@ public class XamlGenerator
 
         if (pen.Brush is not SolidColorBrush || pen.Dashes is { Intervals: { } })
         {
-            sb.Append($">{context.NewLine}");
+            sb.Append($">{settings.NewLine}");
         }
         else
         {
-            sb.Append($"/>{context.NewLine}");
+            sb.Append($"/>{settings.NewLine}");
         }
 
         if (pen.Dashes is { Intervals: { } })
@@ -541,38 +541,38 @@ public class XamlGenerator
 
             var offset = pen.Dashes.Phase / pen.StrokeWidth;
 
-            sb.Append($"  <Pen.DashStyle>{context.NewLine}");
-            sb.Append($"    <DashStyle Dashes=\"{string.Join(",", dashes.Select(ToXamlString))}\" Offset=\"{ToXamlString(offset)}\"/>{context.NewLine}");
-            sb.Append($"  </Pen.DashStyle>{context.NewLine}");
+            sb.Append($"  <Pen.DashStyle>{settings.NewLine}");
+            sb.Append($"    <DashStyle Dashes=\"{string.Join(",", dashes.Select(ToXamlString))}\" Offset=\"{ToXamlString(offset)}\"/>{settings.NewLine}");
+            sb.Append($"  </Pen.DashStyle>{settings.NewLine}");
         }
 
         if (pen.Brush is not SolidColorBrush)
         {
-            sb.Append($"  <Pen.Brush>{context.NewLine}");
-            sb.Append(GenerateBrush(pen.Brush, context));
-            sb.Append($"  </Pen.Brush>{context.NewLine}");
+            sb.Append($"  <Pen.Brush>{settings.NewLine}");
+            sb.Append(GenerateBrush(pen.Brush, settings));
+            sb.Append($"  </Pen.Brush>{settings.NewLine}");
         }
 
         if (pen.Brush is not SolidColorBrush || pen.Dashes is { Intervals: { } })
         {
-            sb.Append($"</Pen>{context.NewLine}");
+            sb.Append($"</Pen>{settings.NewLine}");
         }
 
         return sb.ToString();
     }
 
-    private string GenerateDrawing(Drawing drawing, GeneratorContext context, SkiaSharp.SKMatrix? matrix)
+    private string GenerateDrawing(Drawing drawing, XamlGeneratorSettings settings, SkiaSharp.SKMatrix? matrix)
     {
         return drawing switch
         {
-            GeometryDrawing geometryDrawing => GenerateGeometryDrawing(geometryDrawing, context, matrix),
-            DrawingGroup drawingGroup => GenerateDrawingGroup(drawingGroup, context),
-            DrawingImage drawingImage => GenerateDrawingImage(drawingImage, context, matrix),
+            GeometryDrawing geometryDrawing => GenerateGeometryDrawing(geometryDrawing, settings, matrix),
+            DrawingGroup drawingGroup => GenerateDrawingGroup(drawingGroup, settings),
+            DrawingImage drawingImage => GenerateDrawingImage(drawingImage, settings, matrix),
             _ => ""
         };
     }
 
-    private string GenerateGeometryDrawing(GeometryDrawing geometryDrawing, GeneratorContext context, SkiaSharp.SKMatrix? matrix)
+    private string GenerateGeometryDrawing(GeometryDrawing geometryDrawing, XamlGeneratorSettings settings, SkiaSharp.SKMatrix? matrix)
     {
         if (geometryDrawing.Paint is null || geometryDrawing.Geometry is null)
         {
@@ -586,7 +586,7 @@ public class XamlGenerator
         var isFilled = geometryDrawing.Brush is { };
         var isStroked = geometryDrawing.Pen is { };
 
-        if (isFilled && geometryDrawing.Brush is SolidColorBrush solidColorBrush && context.Resources is null)
+        if (isFilled && geometryDrawing.Brush is SolidColorBrush solidColorBrush && settings.Resources is null)
         {
             sb.Append($" Brush=\"{ToHexColor(solidColorBrush.Color)}\"");
         }
@@ -594,18 +594,18 @@ public class XamlGenerator
         var brush = default(Brush);
         var pen = default(Pen);
 
-        if (isFilled && geometryDrawing.Brush is { } and not SolidColorBrush && context.Resources is null)
+        if (isFilled && geometryDrawing.Brush is { } and not SolidColorBrush && settings.Resources is null)
         {
             brush =geometryDrawing. Brush;
         }
 
-        if (isFilled && geometryDrawing.Paint is { } && context.Resources is { })
+        if (isFilled && geometryDrawing.Paint is { } && settings.Resources is { })
         {
             bool haveBrush = false;
 
-            if (context.ReuseExistingResources)
+            if (settings.ReuseExistingResources)
             {
-                var existingBrush = context.Resources.Brushes.FirstOrDefault(x =>
+                var existingBrush = settings.Resources.Brushes.FirstOrDefault(x =>
                 {
                     if (x.Value.Paint.Shader is { } && x.Value.Paint.Shader.Equals(geometryDrawing.Paint.Shader))
                     {
@@ -617,7 +617,7 @@ public class XamlGenerator
 
                 if (!string.IsNullOrEmpty(existingBrush.Key))
                 {
-                    context.Resources.UseBrushes.Add(existingBrush.Value.Brush);
+                    settings.Resources.UseBrushes.Add(existingBrush.Value.Brush);
                     sb.Append($" Brush=\"{{DynamicResource {existingBrush.Key}}}\"");
                     haveBrush = true;
                 }
@@ -625,9 +625,9 @@ public class XamlGenerator
 
             if (!haveBrush)
             {
-                if (geometryDrawing.Brush is { } && context.Resources is { } && geometryDrawing.Brush.Key is { })
+                if (geometryDrawing.Brush is { } && settings.Resources is { } && geometryDrawing.Brush.Key is { })
                 {
-                    context.Resources.UseBrushes.Add(geometryDrawing.Brush);
+                    settings.Resources.UseBrushes.Add(geometryDrawing.Brush);
                     sb.Append($" Brush=\"{{DynamicResource {geometryDrawing.Brush.Key}}}\"");
                     haveBrush = true;
                 }
@@ -639,18 +639,18 @@ public class XamlGenerator
             }
         }
 
-        if (isStroked && geometryDrawing.Pen is { } && context.Resources is null)
+        if (isStroked && geometryDrawing.Pen is { } && settings.Resources is null)
         {
             pen = geometryDrawing.Pen;
         }
 
-        if (isStroked && geometryDrawing.Paint is { } && context.Resources is { })
+        if (isStroked && geometryDrawing.Paint is { } && settings.Resources is { })
         {
             bool havePen = false;
 
-            if (context.ReuseExistingResources)
+            if (settings.ReuseExistingResources)
             {
-                var existingPen = context.Resources.Pens.FirstOrDefault(x =>
+                var existingPen = settings.Resources.Pens.FirstOrDefault(x =>
                 {
                     if (x.Value.Paint.Shader is { } 
                         && x.Value.Paint.Shader.Equals(geometryDrawing.Paint.Shader)
@@ -668,7 +668,7 @@ public class XamlGenerator
 
                 if (!string.IsNullOrEmpty(existingPen.Key))
                 {
-                    context.Resources.UsePens.Add(existingPen.Value.Pen);
+                    settings.Resources.UsePens.Add(existingPen.Value.Pen);
                     sb.Append($" Pen=\"{{DynamicResource {existingPen.Key}}}\"");
                     havePen = true;
                 }
@@ -676,9 +676,9 @@ public class XamlGenerator
 
             if (!havePen)
             {
-                if (geometryDrawing.Pen is { } && context.Resources is { } && geometryDrawing.Pen.Key is { })
+                if (geometryDrawing.Pen is { } && settings.Resources is { } && geometryDrawing.Pen.Key is { })
                 {
-                    context.Resources.UsePens.Add(geometryDrawing.Pen);
+                    settings.Resources.UsePens.Add(geometryDrawing.Pen);
                     sb.Append($" Pen=\"{{DynamicResource {geometryDrawing.Pen.Key}}}\"");
                     havePen = true;
                 }
@@ -697,36 +697,36 @@ public class XamlGenerator
 
         if (brush is { } || pen is { })
         {
-            sb.Append($">{context.NewLine}");
+            sb.Append($">{settings.NewLine}");
         }
         else
         {
-            sb.Append($"/>{context.NewLine}");
+            sb.Append($"/>{settings.NewLine}");
         }
 
         if (brush is { })
         {
-            sb.Append($"  <GeometryDrawing.Brush>{context.NewLine}");
-            sb.Append(GenerateBrush(brush, context));
-            sb.Append($"  </GeometryDrawing.Brush>{context.NewLine}");
+            sb.Append($"  <GeometryDrawing.Brush>{settings.NewLine}");
+            sb.Append(GenerateBrush(brush, settings));
+            sb.Append($"  </GeometryDrawing.Brush>{settings.NewLine}");
         }
 
         if (pen is { })
         {
-            sb.Append($"  <GeometryDrawing.Pen>{context.NewLine}");
-            sb.Append(GeneratePen(pen, context));
-            sb.Append($"  </GeometryDrawing.Pen>{context.NewLine}");
+            sb.Append($"  <GeometryDrawing.Pen>{settings.NewLine}");
+            sb.Append(GeneratePen(pen, settings));
+            sb.Append($"  </GeometryDrawing.Pen>{settings.NewLine}");
         }
 
         if (brush is { } || pen is { })
         {
-            sb.Append($"</GeometryDrawing>{context.NewLine}");
+            sb.Append($"</GeometryDrawing>{settings.NewLine}");
         }
 
         return sb.ToString();
     }
 
-    public string GenerateDrawingGroup(DrawingGroup drawingGroup, GeneratorContext context)
+    public string GenerateDrawingGroup(DrawingGroup drawingGroup, XamlGeneratorSettings settings)
     {
         var sb = new StringBuilder();
 
@@ -737,34 +737,34 @@ public class XamlGenerator
             sb.Append($" Opacity=\"{ToXamlString(drawingGroup.Opacity.Value)}\"");
         }
 
-        sb.Append($">{context.NewLine}");
+        sb.Append($">{settings.NewLine}");
 
         if (drawingGroup.ClipGeometry is { })
         {
             var clipGeometry = ToSvgPathData(drawingGroup.ClipGeometry, SkiaSharp.SKMatrix.CreateIdentity());
 
-            sb.Append($"  <DrawingGroup.ClipGeometry>{context.NewLine}");
-            sb.Append($"    <StreamGeometry>{clipGeometry}</StreamGeometry>{context.NewLine}");
-            sb.Append($"  </DrawingGroup.ClipGeometry>{context.NewLine}");
+            sb.Append($"  <DrawingGroup.ClipGeometry>{settings.NewLine}");
+            sb.Append($"    <StreamGeometry>{clipGeometry}</StreamGeometry>{settings.NewLine}");
+            sb.Append($"  </DrawingGroup.ClipGeometry>{settings.NewLine}");
         }
 
-        if (drawingGroup.Transform is { } && !context.TransformGeometry)
+        if (drawingGroup.Transform is { } && !settings.TransformGeometry)
         {
             var matrix = drawingGroup.Transform.Value;
 
-            sb.Append($"  <DrawingGroup.Transform>{context.NewLine}");
-            sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(matrix)}\"/>{context.NewLine}");
-            sb.Append($"  </DrawingGroup.Transform>{context.NewLine}");
+            sb.Append($"  <DrawingGroup.Transform>{settings.NewLine}");
+            sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(matrix)}\"/>{settings.NewLine}");
+            sb.Append($"  </DrawingGroup.Transform>{settings.NewLine}");
         }
 
         if (drawingGroup.OpacityMask is { })
         {
-            sb.Append($"<DrawingGroup.OpacityMask>{context.NewLine}");
-            sb.Append(GenerateBrush(drawingGroup.OpacityMask, context));
-            sb.Append($"</DrawingGroup.OpacityMask>{context.NewLine}");
+            sb.Append($"<DrawingGroup.OpacityMask>{settings.NewLine}");
+            sb.Append(GenerateBrush(drawingGroup.OpacityMask, settings));
+            sb.Append($"</DrawingGroup.OpacityMask>{settings.NewLine}");
         }
 
-        if (context.AddTransparentBackground && drawingGroup.Picture is { })
+        if (settings.AddTransparentBackground && drawingGroup.Picture is { })
         {
             var left = drawingGroup.Picture.CullRect.Left;
             var top = drawingGroup.Picture.CullRect.Top;
@@ -777,12 +777,12 @@ public class XamlGenerator
             sb.Append($"L{ToXamlString(right)},{ToXamlString(bottom)}");
             sb.Append($"L{ToXamlString(left)},{ToXamlString(bottom)}");
             sb.Append($"z\" ");
-            sb.Append($"/>{context.NewLine}");
+            sb.Append($"/>{settings.NewLine}");
         }
 
         foreach (var child in drawingGroup.Children)
         {
-            sb.Append(GenerateDrawing(child, context, context.TransformGeometry ? drawingGroup.Transform : null));
+            sb.Append(GenerateDrawing(child, settings, settings.TransformGeometry ? drawingGroup.Transform : null));
         }
 
         sb.Append($"</DrawingGroup>");
@@ -790,7 +790,7 @@ public class XamlGenerator
         return sb.ToString();
     }
 
-    private string GenerateDrawingImage(DrawingImage drawingImage, GeneratorContext context, SkiaSharp.SKMatrix? matrix)
+    private string GenerateDrawingImage(DrawingImage drawingImage, XamlGeneratorSettings settings, SkiaSharp.SKMatrix? matrix)
     {
         if (drawingImage.Drawing is null)
         {
@@ -799,76 +799,76 @@ public class XamlGenerator
 
         var sb = new StringBuilder();
 
-        sb.Append($"<DrawingImage>{context.NewLine}");
+        sb.Append($"<DrawingImage>{settings.NewLine}");
 
-        if (context.UseCompatMode)
+        if (settings.UseCompatMode)
         {
-            sb.Append($"  <DrawingImage.Drawing>{context.NewLine}");
+            sb.Append($"  <DrawingImage.Drawing>{settings.NewLine}");
         }
 
-        sb.Append(GenerateDrawing(drawingImage.Drawing, context, matrix));
+        sb.Append(GenerateDrawing(drawingImage.Drawing, settings, matrix));
 
-        if (context.UseCompatMode)
+        if (settings.UseCompatMode)
         {
-            sb.Append($"  </DrawingImage.Drawing>{context.NewLine}");
+            sb.Append($"  </DrawingImage.Drawing>{settings.NewLine}");
         }
 
-        sb.Append($"</DrawingImage>{context.NewLine}");
+        sb.Append($"</DrawingImage>{settings.NewLine}");
 
         return sb.ToString();
     }
 
-    private string GenerateResource(Resource resource, GeneratorContext context, SkiaSharp.SKMatrix? matrix)
+    private string GenerateResource(Resource resource, XamlGeneratorSettings settings, SkiaSharp.SKMatrix? matrix)
     {
         return resource switch
         {
-            SolidColorBrush solidColorBrush => GenerateSolidColorBrush(solidColorBrush, context),
-            LinearGradientBrush linearGradientBrush => GenerateLinearGradientBrush(linearGradientBrush, context),
-            RadialGradientBrush radialGradientBrush => GenerateRadialGradientBrush(radialGradientBrush, context),
-            TwoPointConicalGradientBrush twoPointConicalGradientBrush => GenerateTwoPointConicalGradientBrush(twoPointConicalGradientBrush, context),
-            PictureBrush pictureBrush => GeneratePictureBrush(pictureBrush, context),
-            Pen pen => GeneratePen(pen, context),
-            GeometryDrawing geometryDrawing => GenerateGeometryDrawing(geometryDrawing, context, matrix),
-            DrawingGroup drawingGroup => GenerateDrawingGroup(drawingGroup, context),
-            DrawingImage drawingImage => GenerateDrawingImage(drawingImage, context, matrix),
-            Image image => GenerateImage(image, context, matrix),
+            SolidColorBrush solidColorBrush => GenerateSolidColorBrush(solidColorBrush, settings),
+            LinearGradientBrush linearGradientBrush => GenerateLinearGradientBrush(linearGradientBrush, settings),
+            RadialGradientBrush radialGradientBrush => GenerateRadialGradientBrush(radialGradientBrush, settings),
+            TwoPointConicalGradientBrush twoPointConicalGradientBrush => GenerateTwoPointConicalGradientBrush(twoPointConicalGradientBrush, settings),
+            PictureBrush pictureBrush => GeneratePictureBrush(pictureBrush, settings),
+            Pen pen => GeneratePen(pen, settings),
+            GeometryDrawing geometryDrawing => GenerateGeometryDrawing(geometryDrawing, settings, matrix),
+            DrawingGroup drawingGroup => GenerateDrawingGroup(drawingGroup, settings),
+            DrawingImage drawingImage => GenerateDrawingImage(drawingImage, settings, matrix),
+            Image image => GenerateImage(image, settings, matrix),
             _ => ""
         };
     }
 
-    private string GenerateResourceDictionary(ResourceDictionary resourceDictionary, GeneratorContext context)
+    private string GenerateResourceDictionary(ResourceDictionary resourceDictionary, XamlGeneratorSettings settings)
     {
         var sb = new StringBuilder();
 
-        if (context.ReuseExistingResources)
+        if (settings.ReuseExistingResources)
         {
             foreach (var resource in resourceDictionary.UseBrushes)
             {
-                sb.Append(GenerateBrush(resource, context));
+                sb.Append(GenerateBrush(resource, settings));
             }
 
             foreach (var resource in resourceDictionary.UsePens)
             {
-                sb.Append(GeneratePen(resource, context));
+                sb.Append(GeneratePen(resource, settings));
             }
         }
         else
         {
             foreach (var resource in resourceDictionary.Brushes)
             {
-                sb.Append(GenerateBrush(resource.Value.Brush, context));
+                sb.Append(GenerateBrush(resource.Value.Brush, settings));
             }
 
             foreach (var resource in resourceDictionary.Pens)
             {
-                sb.Append(GeneratePen(resource.Value.Pen, context));
+                sb.Append(GeneratePen(resource.Value.Pen, settings));
             }               
         }
 
         return sb.ToString();
     }
 
-    public string GenerateImage(Image image, GeneratorContext context, SkiaSharp.SKMatrix? matrix)
+    public string GenerateImage(Image image, XamlGeneratorSettings settings, SkiaSharp.SKMatrix? matrix)
     {
         if (image.Source is null)
         {
@@ -877,37 +877,37 @@ public class XamlGenerator
 
         var sb = new StringBuilder();
 
-        var content = GenerateDrawingImage(image.Source, context, matrix);
+        var content = GenerateDrawingImage(image.Source, settings, matrix);
 
         sb.Append($"<Image{ToKey(image.Key)}");
 
-        if (context.Resources is { } && (context.Resources.Brushes.Count > 0 || context.Resources.Pens.Count > 0) && context.WriteResources)
+        if (settings.Resources is { } && (settings.Resources.Brushes.Count > 0 || settings.Resources.Pens.Count > 0) && settings.WriteResources)
         {
-            // sb.Append(context.UseCompatMode
+            // sb.Append(settings.UseCompatMode
             //     ? $" xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\""
             //     : $" xmlns=\"https://github.com/avaloniaui\"");
             // sb.Append($" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\"");
         }
 
-        sb.Append($">{context.NewLine}");
+        sb.Append($">{settings.NewLine}");
 
-        if (context.Resources is { } && (context.Resources.Brushes.Count > 0 || context.Resources.Pens.Count > 0) && context.WriteResources)
+        if (settings.Resources is { } && (settings.Resources.Brushes.Count > 0 || settings.Resources.Pens.Count > 0) && settings.WriteResources)
         {
-            sb.Append($"<Image.Resources>{context.NewLine}");
-            sb.Append(GenerateResourceDictionary(context.Resources, context with { WriteResources = false, AddTransparentBackground = false }));
-            sb.Append($"</Image.Resources>{context.NewLine}");
+            sb.Append($"<Image.Resources>{settings.NewLine}");
+            sb.Append(GenerateResourceDictionary(settings.Resources, settings with { WriteResources = false, AddTransparentBackground = false }));
+            sb.Append($"</Image.Resources>{settings.NewLine}");
         }
 
-        if (context.UseCompatMode)
+        if (settings.UseCompatMode)
         {
-            sb.Append($"<Image.Source>{context.NewLine}");
+            sb.Append($"<Image.Source>{settings.NewLine}");
         }
 
         sb.Append(content);
 
-        if (context.UseCompatMode)
+        if (settings.UseCompatMode)
         {
-            sb.Append($"</Image.Source>{context.NewLine}");
+            sb.Append($"</Image.Source>{settings.NewLine}");
         }
 
         sb.Append($"</Image>");
@@ -915,7 +915,7 @@ public class XamlGenerator
         return sb.ToString();
     }
 
-    public string GenerateStyles(Styles styles, GeneratorContext context)
+    public string GenerateStyles(Styles styles, XamlGeneratorSettings settings)
     {
         if (styles.Resources is null)
         {
@@ -928,80 +928,80 @@ public class XamlGenerator
 
         foreach (var result in styles.Resources)
         {
-            content.Append(GenerateResource(result, context with { WriteResources = false, AddTransparentBackground = false }, SkiaSharp.SKMatrix.CreateIdentity()));
-            content.Append(context.NewLine);
+            content.Append(GenerateResource(result, settings with { WriteResources = false, AddTransparentBackground = false }, SkiaSharp.SKMatrix.CreateIdentity()));
+            content.Append(settings.NewLine);
         }
 
-        if (context.UseCompatMode)
+        if (settings.UseCompatMode)
         {
-            sb.Append($"<ResourceDictionary xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"{context.NewLine}");
-            sb.Append($"                    xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">{context.NewLine}");
+            sb.Append($"<ResourceDictionary xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"{settings.NewLine}");
+            sb.Append($"                    xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">{settings.NewLine}");
         }
         else
         {
-            sb.Append($"<Styles xmlns=\"https://github.com/avaloniaui\"{context.NewLine}");
-            sb.Append($"        xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">{context.NewLine}");
+            sb.Append($"<Styles xmlns=\"https://github.com/avaloniaui\"{settings.NewLine}");
+            sb.Append($"        xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">{settings.NewLine}");
         }
 
-        if (styles.GeneratePreview && !context.UseCompatMode)
+        if (styles.GeneratePreview && !settings.UseCompatMode)
         {
-            sb.Append($"  <Design.PreviewWith>{context.NewLine}");
-            sb.Append($"    <ScrollViewer HorizontalScrollBarVisibility=\"Auto\" VerticalScrollBarVisibility=\"Auto\">{context.NewLine}");
-            sb.Append($"      <WrapPanel ItemWidth=\"50\" ItemHeight=\"50\" MaxWidth=\"400\">{context.NewLine}");
+            sb.Append($"  <Design.PreviewWith>{settings.NewLine}");
+            sb.Append($"    <ScrollViewer HorizontalScrollBarVisibility=\"Auto\" VerticalScrollBarVisibility=\"Auto\">{settings.NewLine}");
+            sb.Append($"      <WrapPanel ItemWidth=\"50\" ItemHeight=\"50\" MaxWidth=\"400\">{settings.NewLine}");
 
             foreach (var result in styles.Resources)
             {
                 if (styles.GenerateImage)
                 {
-                    sb.Append($"        <ContentControl Content=\"{{DynamicResource {result.Key}}}\"/>{context.NewLine}");
+                    sb.Append($"        <ContentControl Content=\"{{DynamicResource {result.Key}}}\"/>{settings.NewLine}");
                 }
                 else
                 {
-                    sb.Append($"        <Image>{context.NewLine}");
+                    sb.Append($"        <Image>{settings.NewLine}");
 
-                    if (context.UseCompatMode)
+                    if (settings.UseCompatMode)
                     {
-                        sb.Append($"            <Image.Source>{context.NewLine}");
+                        sb.Append($"            <Image.Source>{settings.NewLine}");
                     }
 
-                    sb.Append($"                <DrawingImage Drawing=\"{{DynamicResource {result.Key}}}\"/>{context.NewLine}");
+                    sb.Append($"                <DrawingImage Drawing=\"{{DynamicResource {result.Key}}}\"/>{settings.NewLine}");
 
-                    if (context.UseCompatMode)
+                    if (settings.UseCompatMode)
                     {
-                        sb.Append($"            </Image.Source>{context.NewLine}");
+                        sb.Append($"            </Image.Source>{settings.NewLine}");
                     }
 
-                    sb.Append($"        </Image>{context.NewLine}");
+                    sb.Append($"        </Image>{settings.NewLine}");
                 }
             }
 
-            sb.Append($"      </WrapPanel>{context.NewLine}");
-            sb.Append($"    </ScrollViewer>{context.NewLine}");
-            sb.Append($"  </Design.PreviewWith>{context.NewLine}");
+            sb.Append($"      </WrapPanel>{settings.NewLine}");
+            sb.Append($"    </ScrollViewer>{settings.NewLine}");
+            sb.Append($"  </Design.PreviewWith>{settings.NewLine}");
         }
 
-        if (!context.UseCompatMode)
+        if (!settings.UseCompatMode)
         {
-            sb.Append($"  <Style>{context.NewLine}");
-            sb.Append($"    <Style.Resources>{context.NewLine}");
+            sb.Append($"  <Style>{settings.NewLine}");
+            sb.Append($"    <Style.Resources>{settings.NewLine}");
         }
 
-        if (context.Resources is { } && (context.Resources.Brushes.Count > 0 || context.Resources.Pens.Count > 0))
+        if (settings.Resources is { } && (settings.Resources.Brushes.Count > 0 || settings.Resources.Pens.Count > 0))
         {
-            sb.Append(GenerateResourceDictionary(context.Resources, context with { WriteResources = false, AddTransparentBackground = false }));
+            sb.Append(GenerateResourceDictionary(settings.Resources, settings with { WriteResources = false, AddTransparentBackground = false }));
         }
 
         sb.Append(content);
 
-        if (context.UseCompatMode)
+        if (settings.UseCompatMode)
         {
             sb.Append($"</ResourceDictionary>");
         }
         else
         {
-            sb.Append($"    </Style.Resources>{context.NewLine}");
-            sb.Append($"  </Style>{context.NewLine}");
-            sb.Append($"</Styles>{context.NewLine}");
+            sb.Append($"    </Style.Resources>{settings.NewLine}");
+            sb.Append($"  </Style>{settings.NewLine}");
+            sb.Append($"</Styles>{settings.NewLine}");
         }
 
         return sb.ToString();

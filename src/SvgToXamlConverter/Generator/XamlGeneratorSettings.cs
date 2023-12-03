@@ -2,7 +2,7 @@
 
 namespace SvgToXamlConverter.Generator;
 
-public record GeneratorContext
+public record XamlGeneratorSettings
 {
     public string NewLine { get; init; } = "\r\n";
 

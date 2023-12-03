@@ -30,7 +30,7 @@ public class SvgToXamlConverter
     {
         var drawingGroup = new DrawingGroup(skPicture, Resources, key);
 
-        var context = new GeneratorContext
+        var context = new XamlGeneratorSettings
         {
             NewLine = NewLine,
             UseCompatMode = UseCompatMode,
@@ -50,7 +50,7 @@ public class SvgToXamlConverter
         var drawingImage = new DrawingImage(drawingGroup);
         var image = new Image(drawingImage, key);
 
-        var context = new GeneratorContext
+        var context = new XamlGeneratorSettings
         {
             NewLine = NewLine,
             UseCompatMode = UseCompatMode,
@@ -102,7 +102,7 @@ public class SvgToXamlConverter
         var resources = results.Select(x => x.Resource).ToList();
         var styles = new Styles(resources, generateImage, generatePreview);
 
-        var context = new GeneratorContext
+        var context = new XamlGeneratorSettings
         {
             NewLine = NewLine,
             UseCompatMode = UseCompatMode,
