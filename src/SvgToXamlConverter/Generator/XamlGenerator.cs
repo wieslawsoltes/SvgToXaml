@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -10,7 +9,7 @@ using SvgToXamlConverter.Model.Resources;
 
 namespace SvgToXamlConverter.Generator;
 
-public class XamlGenerator : GeneratorBase
+public class XamlGenerator
 {
     private static string ToKey(string? key)
     {
@@ -121,14 +120,16 @@ public class XamlGenerator : GeneratorBase
         return sb.ToString();
     }
 
-    private static string ToSvgPathData(SkiaSharp.SKPath path)
+    private static string ToSvgPathData(SkiaSharp.SKPath path, SkiaSharp.SKMatrix matrix)
     {
-        if (path.FillType == SkiaSharp.SKPathFillType.EvenOdd)
+        var transformedPath = new SkiaSharp.SKPath(path);
+        transformedPath.Transform(matrix);
+        if (transformedPath.FillType == SkiaSharp.SKPathFillType.EvenOdd)
         {
             // EvenOdd
             var sb = new StringBuilder();
             sb.Append("F0 ");
-            sb.Append(path.ToSvgPathData());
+            sb.Append(transformedPath.ToSvgPathData());
             return sb.ToString();
         }
         else
@@ -136,25 +137,25 @@ public class XamlGenerator : GeneratorBase
             // Nonzero 
             var sb = new StringBuilder();
             sb.Append("F1 ");
-            sb.Append(path.ToSvgPathData());
+            sb.Append(transformedPath.ToSvgPathData());
             return sb.ToString();
         }
     }
 
-    public override string Generate(Brush brush, GeneratorContext context)
+    private string GenerateBrush(Brush brush, GeneratorContext context)
     {
         return brush switch
         {
-            SolidColorBrush solidColorBrush => Generate(solidColorBrush, context),
-            LinearGradientBrush linearGradientBrush => Generate(linearGradientBrush, context),
-            RadialGradientBrush radialGradientBrush => Generate(radialGradientBrush, context),
-            TwoPointConicalGradientBrush twoPointConicalGradientBrush => Generate(twoPointConicalGradientBrush, context),
-            PictureBrush pictureBrush => Generate(pictureBrush, context),
+            SolidColorBrush solidColorBrush => GenerateSolidColorBrush(solidColorBrush, context),
+            LinearGradientBrush linearGradientBrush => GenerateLinearGradientBrush(linearGradientBrush, context),
+            RadialGradientBrush radialGradientBrush => GenerateRadialGradientBrush(radialGradientBrush, context),
+            TwoPointConicalGradientBrush twoPointConicalGradientBrush => GenerateTwoPointConicalGradientBrush(twoPointConicalGradientBrush, context),
+            PictureBrush pictureBrush => GeneratePictureBrush(pictureBrush, context),
             _ => ""
         };
     }
 
-    public override string Generate(SolidColorBrush solidColorBrush, GeneratorContext context)
+    private string GenerateSolidColorBrush(SolidColorBrush solidColorBrush, GeneratorContext context)
     {
         var sb = new StringBuilder();
 
@@ -165,7 +166,7 @@ public class XamlGenerator : GeneratorBase
         return sb.ToString();
     }
 
-    public override string Generate(LinearGradientBrush linearGradientBrush, GeneratorContext context)
+    private string GenerateLinearGradientBrush(LinearGradientBrush linearGradientBrush, GeneratorContext context)
     {
         var sb = new StringBuilder();
 
@@ -217,7 +218,7 @@ public class XamlGenerator : GeneratorBase
         return sb.ToString();
     }
 
-    public override string Generate(RadialGradientBrush radialGradientBrush, GeneratorContext context)
+    private string GenerateRadialGradientBrush(RadialGradientBrush radialGradientBrush, GeneratorContext context)
     {
         var sb = new StringBuilder();
 
@@ -286,7 +287,7 @@ public class XamlGenerator : GeneratorBase
         return sb.ToString();
     }
 
-    public override string Generate(TwoPointConicalGradientBrush twoPointConicalGradientBrush, GeneratorContext context)
+    private string GenerateTwoPointConicalGradientBrush(TwoPointConicalGradientBrush twoPointConicalGradientBrush, GeneratorContext context)
     {
         var sb = new StringBuilder();
 
@@ -361,7 +362,7 @@ public class XamlGenerator : GeneratorBase
         return sb.ToString();
     }
 
-    public override string Generate(PictureBrush pictureBrush, GeneratorContext context)
+    private string GeneratePictureBrush(PictureBrush pictureBrush, GeneratorContext context)
     {
         if (pictureBrush.Picture is null)
         {
@@ -420,7 +421,7 @@ public class XamlGenerator : GeneratorBase
         if (pictureBrush.Picture is not null)
         {
             sb.Append($"  <VisualBrush.Visual>{context.NewLine}");
-            sb.Append(Generate(pictureBrush.Picture, context with { WriteResources = false, AddTransparentBackground = false }));
+            sb.Append(GenerateImage(pictureBrush.Picture, context with { WriteResources = false, AddTransparentBackground = false }, SkiaSharp.SKMatrix.CreateIdentity()));
             sb.Append($"{context.NewLine}");
             sb.Append($"  </VisualBrush.Visual>{context.NewLine}");
         }
@@ -430,7 +431,7 @@ public class XamlGenerator : GeneratorBase
         return sb.ToString();
     }
 
-    public override string Generate(Pen pen, GeneratorContext context)
+    private string GeneratePen(Pen pen, GeneratorContext context)
     {
         if (pen.Brush is null)
         {
@@ -548,7 +549,7 @@ public class XamlGenerator : GeneratorBase
         if (pen.Brush is not SolidColorBrush)
         {
             sb.Append($"  <Pen.Brush>{context.NewLine}");
-            sb.Append(Generate(pen.Brush, context));
+            sb.Append(GenerateBrush(pen.Brush, context));
             sb.Append($"  </Pen.Brush>{context.NewLine}");
         }
 
@@ -560,18 +561,18 @@ public class XamlGenerator : GeneratorBase
         return sb.ToString();
     }
 
-    public override string Generate(Drawing drawing, GeneratorContext context)
+    private string GenerateDrawing(Drawing drawing, GeneratorContext context, SkiaSharp.SKMatrix? matrix)
     {
         return drawing switch
         {
-            GeometryDrawing geometryDrawing => Generate(geometryDrawing, context),
-            DrawingGroup drawingGroup => Generate(drawingGroup, context),
-            DrawingImage drawingImage => Generate(drawingImage, context),
+            GeometryDrawing geometryDrawing => GenerateGeometryDrawing(geometryDrawing, context, matrix),
+            DrawingGroup drawingGroup => GenerateDrawingGroup(drawingGroup, context),
+            DrawingImage drawingImage => GenerateDrawingImage(drawingImage, context, matrix),
             _ => ""
         };
     }
 
-    public override string Generate(GeometryDrawing geometryDrawing, GeneratorContext context)
+    private string GenerateGeometryDrawing(GeometryDrawing geometryDrawing, GeneratorContext context, SkiaSharp.SKMatrix? matrix)
     {
         if (geometryDrawing.Paint is null || geometryDrawing.Geometry is null)
         {
@@ -691,7 +692,7 @@ public class XamlGenerator : GeneratorBase
 
         if (geometryDrawing.Geometry is { })
         {
-            sb.Append($" Geometry=\"{ToSvgPathData(geometryDrawing.Geometry)}\"");
+            sb.Append($" Geometry=\"{ToSvgPathData(geometryDrawing.Geometry, matrix ?? SkiaSharp.SKMatrix.CreateIdentity())}\"");
         }
 
         if (brush is { } || pen is { })
@@ -706,14 +707,14 @@ public class XamlGenerator : GeneratorBase
         if (brush is { })
         {
             sb.Append($"  <GeometryDrawing.Brush>{context.NewLine}");
-            sb.Append(Generate(brush, context));
+            sb.Append(GenerateBrush(brush, context));
             sb.Append($"  </GeometryDrawing.Brush>{context.NewLine}");
         }
 
         if (pen is { })
         {
             sb.Append($"  <GeometryDrawing.Pen>{context.NewLine}");
-            sb.Append(Generate(pen, context));
+            sb.Append(GeneratePen(pen, context));
             sb.Append($"  </GeometryDrawing.Pen>{context.NewLine}");
         }
 
@@ -725,7 +726,7 @@ public class XamlGenerator : GeneratorBase
         return sb.ToString();
     }
 
-    public override string Generate(DrawingGroup drawingGroup, GeneratorContext context)
+    public string GenerateDrawingGroup(DrawingGroup drawingGroup, GeneratorContext context)
     {
         var sb = new StringBuilder();
 
@@ -740,14 +741,14 @@ public class XamlGenerator : GeneratorBase
 
         if (drawingGroup.ClipGeometry is { })
         {
-            var clipGeometry = ToSvgPathData(drawingGroup.ClipGeometry);
+            var clipGeometry = ToSvgPathData(drawingGroup.ClipGeometry, SkiaSharp.SKMatrix.CreateIdentity());
 
             sb.Append($"  <DrawingGroup.ClipGeometry>{context.NewLine}");
             sb.Append($"    <StreamGeometry>{clipGeometry}</StreamGeometry>{context.NewLine}");
             sb.Append($"  </DrawingGroup.ClipGeometry>{context.NewLine}");
         }
 
-        if (drawingGroup.Transform is { })
+        if (drawingGroup.Transform is { } && !context.TransformGeometry)
         {
             var matrix = drawingGroup.Transform.Value;
 
@@ -759,7 +760,7 @@ public class XamlGenerator : GeneratorBase
         if (drawingGroup.OpacityMask is { })
         {
             sb.Append($"<DrawingGroup.OpacityMask>{context.NewLine}");
-            sb.Append(Generate(drawingGroup.OpacityMask, context));
+            sb.Append(GenerateBrush(drawingGroup.OpacityMask, context));
             sb.Append($"</DrawingGroup.OpacityMask>{context.NewLine}");
         }
 
@@ -781,7 +782,7 @@ public class XamlGenerator : GeneratorBase
 
         foreach (var child in drawingGroup.Children)
         {
-            sb.Append(Generate(child, context));
+            sb.Append(GenerateDrawing(child, context, context.TransformGeometry ? drawingGroup.Transform : null));
         }
 
         sb.Append($"</DrawingGroup>");
@@ -789,7 +790,7 @@ public class XamlGenerator : GeneratorBase
         return sb.ToString();
     }
 
-    public override string Generate(DrawingImage drawingImage, GeneratorContext context)
+    private string GenerateDrawingImage(DrawingImage drawingImage, GeneratorContext context, SkiaSharp.SKMatrix? matrix)
     {
         if (drawingImage.Drawing is null)
         {
@@ -805,7 +806,7 @@ public class XamlGenerator : GeneratorBase
             sb.Append($"  <DrawingImage.Drawing>{context.NewLine}");
         }
 
-        sb.Append(Generate(drawingImage.Drawing, context));
+        sb.Append(GenerateDrawing(drawingImage.Drawing, context, matrix));
 
         if (context.UseCompatMode)
         {
@@ -817,25 +818,25 @@ public class XamlGenerator : GeneratorBase
         return sb.ToString();
     }
 
-    public override string Generate(Resource resource, GeneratorContext context)
+    private string GenerateResource(Resource resource, GeneratorContext context, SkiaSharp.SKMatrix? matrix)
     {
         return resource switch
         {
-            SolidColorBrush solidColorBrush => Generate(solidColorBrush, context),
-            LinearGradientBrush linearGradientBrush => Generate(linearGradientBrush, context),
-            RadialGradientBrush radialGradientBrush => Generate(radialGradientBrush, context),
-            TwoPointConicalGradientBrush twoPointConicalGradientBrush => Generate(twoPointConicalGradientBrush, context),
-            PictureBrush pictureBrush => Generate(pictureBrush, context),
-            Pen pen => Generate(pen, context),
-            GeometryDrawing geometryDrawing => Generate(geometryDrawing, context),
-            DrawingGroup drawingGroup => Generate(drawingGroup, context),
-            DrawingImage drawingImage => Generate(drawingImage, context),
-            Image image => Generate(image, context),
+            SolidColorBrush solidColorBrush => GenerateSolidColorBrush(solidColorBrush, context),
+            LinearGradientBrush linearGradientBrush => GenerateLinearGradientBrush(linearGradientBrush, context),
+            RadialGradientBrush radialGradientBrush => GenerateRadialGradientBrush(radialGradientBrush, context),
+            TwoPointConicalGradientBrush twoPointConicalGradientBrush => GenerateTwoPointConicalGradientBrush(twoPointConicalGradientBrush, context),
+            PictureBrush pictureBrush => GeneratePictureBrush(pictureBrush, context),
+            Pen pen => GeneratePen(pen, context),
+            GeometryDrawing geometryDrawing => GenerateGeometryDrawing(geometryDrawing, context, matrix),
+            DrawingGroup drawingGroup => GenerateDrawingGroup(drawingGroup, context),
+            DrawingImage drawingImage => GenerateDrawingImage(drawingImage, context, matrix),
+            Image image => GenerateImage(image, context, matrix),
             _ => ""
         };
     }
 
-    public override string Generate(ResourceDictionary resourceDictionary, GeneratorContext context)
+    private string GenerateResourceDictionary(ResourceDictionary resourceDictionary, GeneratorContext context)
     {
         var sb = new StringBuilder();
 
@@ -843,31 +844,31 @@ public class XamlGenerator : GeneratorBase
         {
             foreach (var resource in resourceDictionary.UseBrushes)
             {
-                sb.Append(Generate(resource, context));
+                sb.Append(GenerateBrush(resource, context));
             }
 
             foreach (var resource in resourceDictionary.UsePens)
             {
-                sb.Append(Generate(resource, context));
+                sb.Append(GeneratePen(resource, context));
             }
         }
         else
         {
             foreach (var resource in resourceDictionary.Brushes)
             {
-                sb.Append(Generate(resource.Value.Brush, context));
+                sb.Append(GenerateBrush(resource.Value.Brush, context));
             }
 
             foreach (var resource in resourceDictionary.Pens)
             {
-                sb.Append(Generate(resource.Value.Pen, context));
+                sb.Append(GeneratePen(resource.Value.Pen, context));
             }               
         }
 
         return sb.ToString();
     }
 
-    public override string Generate(Image image, GeneratorContext context)
+    public string GenerateImage(Image image, GeneratorContext context, SkiaSharp.SKMatrix? matrix)
     {
         if (image.Source is null)
         {
@@ -876,7 +877,7 @@ public class XamlGenerator : GeneratorBase
 
         var sb = new StringBuilder();
 
-        var content = Generate(image.Source, context);
+        var content = GenerateDrawingImage(image.Source, context, matrix);
 
         sb.Append($"<Image{ToKey(image.Key)}");
 
@@ -893,7 +894,7 @@ public class XamlGenerator : GeneratorBase
         if (context.Resources is { } && (context.Resources.Brushes.Count > 0 || context.Resources.Pens.Count > 0) && context.WriteResources)
         {
             sb.Append($"<Image.Resources>{context.NewLine}");
-            sb.Append(Generate(context.Resources, context with { WriteResources = false, AddTransparentBackground = false }));
+            sb.Append(GenerateResourceDictionary(context.Resources, context with { WriteResources = false, AddTransparentBackground = false }));
             sb.Append($"</Image.Resources>{context.NewLine}");
         }
 
@@ -914,7 +915,7 @@ public class XamlGenerator : GeneratorBase
         return sb.ToString();
     }
 
-    public override string Generate(Styles styles, GeneratorContext context)
+    public string GenerateStyles(Styles styles, GeneratorContext context)
     {
         if (styles.Resources is null)
         {
@@ -927,7 +928,7 @@ public class XamlGenerator : GeneratorBase
 
         foreach (var result in styles.Resources)
         {
-            content.Append(Generate(result, context with { WriteResources = false, AddTransparentBackground = false }));
+            content.Append(GenerateResource(result, context with { WriteResources = false, AddTransparentBackground = false }, SkiaSharp.SKMatrix.CreateIdentity()));
             content.Append(context.NewLine);
         }
 
@@ -987,7 +988,7 @@ public class XamlGenerator : GeneratorBase
 
         if (context.Resources is { } && (context.Resources.Brushes.Count > 0 || context.Resources.Pens.Count > 0))
         {
-            sb.Append(Generate(context.Resources, context with { WriteResources = false, AddTransparentBackground = false }));
+            sb.Append(GenerateResourceDictionary(context.Resources, context with { WriteResources = false, AddTransparentBackground = false }));
         }
 
         sb.Append(content);

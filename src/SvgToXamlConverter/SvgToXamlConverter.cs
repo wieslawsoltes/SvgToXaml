@@ -22,6 +22,8 @@ public class SvgToXamlConverter
 
     public bool ReuseExistingResources { get; set; }
 
+    public  bool TransformGeometry { get; set; }
+
     public ResourceDictionary? Resources { get; set; }
 
     public string ToXamlDrawingGroup(ShimSkiaSharp.SKPicture? skPicture, string? key = null)
@@ -34,11 +36,12 @@ public class SvgToXamlConverter
             UseCompatMode = UseCompatMode,
             AddTransparentBackground = AddTransparentBackground,
             ReuseExistingResources = ReuseExistingResources,
+            TransformGeometry = TransformGeometry,
             WriteResources = false,
             Resources = Resources
         };
 
-        return new XamlGenerator().Generate(drawingGroup, context);
+        return new XamlGenerator().GenerateDrawingGroup(drawingGroup, context);
     }
 
     public string ToXamlImage(ShimSkiaSharp.SKPicture? skPicture, string? key = null)
@@ -53,11 +56,12 @@ public class SvgToXamlConverter
             UseCompatMode = UseCompatMode,
             AddTransparentBackground = AddTransparentBackground,
             ReuseExistingResources = ReuseExistingResources,
+            TransformGeometry = TransformGeometry,
             WriteResources = true,
             Resources = Resources
         };
 
-        return new XamlGenerator().Generate(image, context);
+        return new XamlGenerator().GenerateImage(image, context, null);
     }
 
     public string ToXamlStyles(List<InputItem> inputItems, bool generateImage = false, bool generatePreview = true)
@@ -104,11 +108,12 @@ public class SvgToXamlConverter
             UseCompatMode = UseCompatMode,
             AddTransparentBackground = AddTransparentBackground,
             ReuseExistingResources = ReuseExistingResources,
+            TransformGeometry = TransformGeometry,
             WriteResources = false,
             Resources = Resources
         };
 
-        return new XamlGenerator().Generate(styles, context);
+        return new XamlGenerator().GenerateStyles(styles, context);
     }
 
     public virtual string CreateKey(string path)

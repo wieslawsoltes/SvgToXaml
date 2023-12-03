@@ -33,6 +33,7 @@ try
         {
             UseCompatMode = false,
             ReuseExistingResources = false,
+            TransformGeometry = false,
             Resources = null
         };
 
@@ -63,6 +64,7 @@ try
         {
             UseCompatMode = false,
             ReuseExistingResources = false,
+            TransformGeometry = false,
             Resources = null
         };
 

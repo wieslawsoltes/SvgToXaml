@@ -12,6 +12,8 @@ public record GeneratorContext
 
     public bool ReuseExistingResources { get; init; } = false;
 
+    public  bool TransformGeometry { get; init; } = true;
+
     public  bool WriteResources { get; init; } = false;
 
     public ResourceDictionary? Resources { get; init; }
