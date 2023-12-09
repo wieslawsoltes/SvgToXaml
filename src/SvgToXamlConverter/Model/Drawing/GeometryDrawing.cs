@@ -13,7 +13,10 @@ public record GeometryDrawing : Drawing
 
     public Pen? Pen { get; }
 
-    public GeometryDrawing(ShimSkiaSharp.SKPaint? paint = null, SkiaSharp.SKPath? geometry = null, ResourceDictionary? resources = null)
+    public GeometryDrawing(
+        ShimSkiaSharp.SKPaint? paint = null, 
+        SkiaSharp.SKPath? geometry = null, 
+        ResourceDictionary? resources = null)
     {
         Paint = paint;
         Geometry = geometry;

@@ -8,6 +8,7 @@ public class SettingsViewModel : ViewModelBase
     private bool _enableGeneratePreview;
     private bool _useResources;
     private bool _reuseExistingResources;
+    private bool _transformGeometry;
     private bool _useCompatMode;
     private bool _addTransparentBackground;
     private bool _ignoreOpacity;
@@ -41,6 +42,13 @@ public class SettingsViewModel : ViewModelBase
     {
         get => _reuseExistingResources;
         set => SetProperty(ref _reuseExistingResources, value);
+    }
+
+    [JsonInclude]
+    public bool TransformGeometry
+    {
+        get => _transformGeometry;
+        set => SetProperty(ref _transformGeometry, value);
     }
 
     [JsonInclude]

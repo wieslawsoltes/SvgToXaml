@@ -451,6 +451,7 @@ public class MainWindowViewModel : ViewModelBase
                 {
                     UseCompatMode = Project.Settings.UseCompatMode,
                     ReuseExistingResources = Project.Settings.ReuseExistingResources,
+                    TransformGeometry = Project.Settings.TransformGeometry,
                     Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
                 };
 
@@ -463,6 +464,7 @@ public class MainWindowViewModel : ViewModelBase
                 {
                     UseCompatMode = Project.Settings.UseCompatMode,
                     ReuseExistingResources = Project.Settings.ReuseExistingResources,
+                    TransformGeometry = Project.Settings.TransformGeometry,
                     Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
                 };
 
@@ -540,6 +542,7 @@ public class MainWindowViewModel : ViewModelBase
                         UseCompatMode = Project.Settings.UseCompatMode,
                         AddTransparentBackground = Project.Settings.AddTransparentBackground,
                         ReuseExistingResources = Project.Settings.ReuseExistingResources,
+                        TransformGeometry = Project.Settings.TransformGeometry,
                         Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
                     };
 
@@ -553,6 +556,7 @@ public class MainWindowViewModel : ViewModelBase
                         UseCompatMode = Project.Settings.UseCompatMode,
                         AddTransparentBackground = Project.Settings.AddTransparentBackground,
                         ReuseExistingResources = Project.Settings.ReuseExistingResources,
+                        TransformGeometry = Project.Settings.TransformGeometry,
                         Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
                     };
 
@@ -573,6 +577,7 @@ public class MainWindowViewModel : ViewModelBase
             {
                 UseCompatMode = Project.Settings.UseCompatMode, 
                 ReuseExistingResources = Project.Settings.ReuseExistingResources,
+                TransformGeometry = Project.Settings.TransformGeometry,
                 Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
             };
 
@@ -638,6 +643,7 @@ public class MainWindowViewModel : ViewModelBase
             {
                 UseCompatMode = Project.Settings.UseCompatMode,
                 ReuseExistingResources = Project.Settings.ReuseExistingResources,
+                TransformGeometry = Project.Settings.TransformGeometry,
                 Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
             };
 

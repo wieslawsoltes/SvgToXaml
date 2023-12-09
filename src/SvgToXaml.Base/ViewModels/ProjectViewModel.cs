@@ -42,6 +42,7 @@ public class ProjectViewModel : ViewModelBase
             EnableGeneratePreview = true,
             UseResources = true,
             ReuseExistingResources = true,
+            TransformGeometry = true,
             UseCompatMode = false,
             AddTransparentBackground = true,
             IgnoreOpacity = false,

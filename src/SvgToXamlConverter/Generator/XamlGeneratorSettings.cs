@@ -2,7 +2,7 @@
 
 namespace SvgToXamlConverter.Generator;
 
-public record GeneratorContext
+public record XamlGeneratorSettings
 {
     public string NewLine { get; init; } = "\r\n";
 
@@ -12,7 +12,9 @@ public record GeneratorContext
 
     public bool ReuseExistingResources { get; init; } = false;
 
-    public  bool WriteResources { get; init; } = false;
+    public bool TransformGeometry { get; init; } = true;
+
+    public bool WriteResources { get; init; } = false;
 
     public ResourceDictionary? Resources { get; init; }
 }
