@@ -12,9 +12,9 @@ public record XamlGeneratorSettings
 
     public bool ReuseExistingResources { get; init; } = false;
 
-    public  bool TransformGeometry { get; init; } = true;
+    public bool TransformGeometry { get; init; } = true;
 
-    public  bool WriteResources { get; init; } = false;
+    public bool WriteResources { get; init; } = false;
 
     public ResourceDictionary? Resources { get; init; }
 }
