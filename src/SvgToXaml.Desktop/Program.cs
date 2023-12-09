@@ -23,15 +23,7 @@ class Program
         return AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .LogToTrace()
-            .UseSkia()
-            .With(new Win32PlatformOptions()
-            {
-            })
-            .With(new X11PlatformOptions()
-            {
-            })
-            .With(new AvaloniaNativePlatformOptions()
-            {
-            });
+            .WithInterFont()
+            .UseSkia();
     }
 }
