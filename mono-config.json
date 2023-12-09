@@ -25,6 +25,10 @@
     },
     {
       "behavior": "assembly",
+      "name": "Avalonia.Fonts.Inter.dll"
+    },
+    {
+      "behavior": "assembly",
       "name": "Avalonia.Markup.dll"
     },
     {
