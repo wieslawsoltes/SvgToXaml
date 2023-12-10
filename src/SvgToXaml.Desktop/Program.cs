@@ -1,7 +1,6 @@
 ﻿using System;
 using Avalonia;
 using Avalonia.Controls.Skia;
-using Avalonia.Xaml.Interactions.Core;
 using Avalonia.Xaml.Interactivity;
 
 namespace SvgToXaml;
