@@ -4,7 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using Svg.Skia;
-using SvgToXamlConverter.Model;
+using SvgToXaml.Model;
 
 if (args.Length != 1 && args.Length != 2)
 {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SvgToXamlConverter.Model.Paint;
+namespace SvgToXaml.Model.Paint;
 
 public abstract record GradientBrush : Brush
 {

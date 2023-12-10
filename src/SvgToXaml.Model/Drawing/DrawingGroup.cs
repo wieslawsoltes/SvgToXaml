@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using SvgToXamlConverter.Model.Containers;
-using SvgToXamlConverter.Model.Paint;
-using SvgToXamlConverter.Model.Resources;
+using SvgToXaml.Model.Containers;
+using SvgToXaml.Model.Paint;
+using SvgToXaml.Model.Resources;
 
-namespace SvgToXamlConverter.Model.Drawing;
+namespace SvgToXaml.Model.Drawing;
 
 public record DrawingGroup : Drawing
 {

@@ -1,4 +1,4 @@
-﻿namespace SvgToXamlConverter.Model.Drawing;
+﻿namespace SvgToXaml.Model.Drawing;
 
 public record DrawingImage : Drawing
 {

@@ -1,5 +1,5 @@
-﻿using SvgToXamlConverter.Model.Resources;
+﻿using SvgToXaml.Model.Resources;
 
-namespace SvgToXamlConverter.Model.Drawing;
+namespace SvgToXaml.Model.Drawing;
 
 public abstract record Drawing : Resource;

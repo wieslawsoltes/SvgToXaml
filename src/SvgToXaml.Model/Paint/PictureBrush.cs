@@ -1,6 +1,6 @@
-﻿using SvgToXamlConverter.Model.Containers;
+﻿using SvgToXaml.Model.Containers;
 
-namespace SvgToXamlConverter.Model.Paint;
+namespace SvgToXaml.Model.Paint;
 
 public record PictureBrush : GradientBrush
 {

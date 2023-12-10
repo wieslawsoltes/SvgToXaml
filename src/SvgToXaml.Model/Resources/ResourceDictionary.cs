@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using SvgToXamlConverter.Model.Paint;
+using SvgToXaml.Model.Paint;
 
-namespace SvgToXamlConverter.Model.Resources;
+namespace SvgToXaml.Model.Resources;
 
 public record ResourceDictionary
 {

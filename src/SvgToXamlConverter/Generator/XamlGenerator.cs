@@ -2,10 +2,10 @@
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using SvgToXamlConverter.Model.Containers;
-using SvgToXamlConverter.Model.Drawing;
-using SvgToXamlConverter.Model.Paint;
-using SvgToXamlConverter.Model.Resources;
+using SvgToXaml.Model.Containers;
+using SvgToXaml.Model.Drawing;
+using SvgToXaml.Model.Paint;
+using SvgToXaml.Model.Resources;
 
 namespace SvgToXamlConverter.Generator;
 

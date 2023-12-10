@@ -1,6 +1,6 @@
-﻿using SvgToXamlConverter.Model.Resources;
+﻿using SvgToXaml.Model.Resources;
 
-namespace SvgToXamlConverter.Model.Paint;
+namespace SvgToXaml.Model.Paint;
 
 public record Pen : Resource
 {

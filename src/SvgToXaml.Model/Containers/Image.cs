@@ -1,7 +1,7 @@
-﻿using SvgToXamlConverter.Model.Drawing;
-using SvgToXamlConverter.Model.Resources;
+﻿using SvgToXaml.Model.Drawing;
+using SvgToXaml.Model.Resources;
 
-namespace SvgToXamlConverter.Model.Containers;
+namespace SvgToXaml.Model.Containers;
 
 public record Image : Resource
 {

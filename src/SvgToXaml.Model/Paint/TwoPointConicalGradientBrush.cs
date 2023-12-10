@@ -1,4 +1,4 @@
-﻿namespace SvgToXamlConverter.Model.Paint;
+﻿namespace SvgToXaml.Model.Paint;
 
 public record TwoPointConicalGradientBrush : GradientBrush
 {

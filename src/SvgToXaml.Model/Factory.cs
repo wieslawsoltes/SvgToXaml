@@ -1,8 +1,8 @@
-﻿using SvgToXamlConverter.Model.Containers;
-using SvgToXamlConverter.Model.Drawing;
-using SvgToXamlConverter.Model.Paint;
+﻿using SvgToXaml.Model.Containers;
+using SvgToXaml.Model.Drawing;
+using SvgToXaml.Model.Paint;
 
-namespace SvgToXamlConverter.Model;
+namespace SvgToXaml.Model;
 
 internal static class Factory
 {

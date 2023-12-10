@@ -1,4 +1,4 @@
-﻿using SvgToXamlConverter.Model.Resources;
+﻿using SvgToXaml.Model.Resources;
 
 namespace SvgToXamlConverter.Generator;
 

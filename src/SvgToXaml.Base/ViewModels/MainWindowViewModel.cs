@@ -11,16 +11,12 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using ReactiveMarbles.PropertyChanged;
-using SvgToXaml.Views;
-using SvgToXamlConverter.Model;
-using ResourceDictionary = SvgToXamlConverter.Model.Resources.ResourceDictionary;
+using SvgToXaml.Model;
 
 namespace SvgToXaml.ViewModels;
 
@@ -452,7 +448,7 @@ public class MainWindowViewModel : ViewModelBase
                     UseCompatMode = Project.Settings.UseCompatMode,
                     ReuseExistingResources = Project.Settings.ReuseExistingResources,
                     TransformGeometry = Project.Settings.TransformGeometry,
-                    Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
+                    Resources = Project.Settings.UseResources ? new SvgToXaml.Model.Resources.ResourceDictionary() : null
                 };
 
                 var xaml = converter.ToXamlImage(skSvg.Model);
@@ -465,7 +461,7 @@ public class MainWindowViewModel : ViewModelBase
                     UseCompatMode = Project.Settings.UseCompatMode,
                     ReuseExistingResources = Project.Settings.ReuseExistingResources,
                     TransformGeometry = Project.Settings.TransformGeometry,
-                    Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
+                    Resources = Project.Settings.UseResources ? new SvgToXaml.Model.Resources.ResourceDictionary() : null
                 };
 
                 var xaml = converter.ToXamlDrawingGroup(skSvg.Model);
@@ -543,7 +539,7 @@ public class MainWindowViewModel : ViewModelBase
                         AddTransparentBackground = Project.Settings.AddTransparentBackground,
                         ReuseExistingResources = Project.Settings.ReuseExistingResources,
                         TransformGeometry = Project.Settings.TransformGeometry,
-                        Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
+                        Resources = Project.Settings.UseResources ? new SvgToXaml.Model.Resources.ResourceDictionary() : null
                     };
 
                     var xaml = converter.ToXamlImage(fileItemViewModel.Svg.Model);
@@ -557,7 +553,7 @@ public class MainWindowViewModel : ViewModelBase
                         AddTransparentBackground = Project.Settings.AddTransparentBackground,
                         ReuseExistingResources = Project.Settings.ReuseExistingResources,
                         TransformGeometry = Project.Settings.TransformGeometry,
-                        Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
+                        Resources = Project.Settings.UseResources ? new SvgToXaml.Model.Resources.ResourceDictionary() : null
                     };
 
                     var xaml = converter.ToXamlDrawingGroup(fileItemViewModel.Svg.Model);
@@ -578,7 +574,7 @@ public class MainWindowViewModel : ViewModelBase
                 UseCompatMode = Project.Settings.UseCompatMode, 
                 ReuseExistingResources = Project.Settings.ReuseExistingResources,
                 TransformGeometry = Project.Settings.TransformGeometry,
-                Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
+                Resources = Project.Settings.UseResources ? new SvgToXaml.Model.Resources.ResourceDictionary() : null
             };
 
             var xaml = converter.ToXamlStyles(inputItems, Project.Settings.EnableGenerateImage, Project.Settings.EnableGeneratePreview);
@@ -644,7 +640,7 @@ public class MainWindowViewModel : ViewModelBase
                 UseCompatMode = Project.Settings.UseCompatMode,
                 ReuseExistingResources = Project.Settings.ReuseExistingResources,
                 TransformGeometry = Project.Settings.TransformGeometry,
-                Resources = Project.Settings.UseResources ? new ResourceDictionary() : null
+                Resources = Project.Settings.UseResources ? new SvgToXaml.Model.Resources.ResourceDictionary() : null
             };
 
             var image = converter.ToXamlImage(item.Svg.Model);

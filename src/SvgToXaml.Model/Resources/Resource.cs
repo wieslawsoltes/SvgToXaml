@@ -1,4 +1,4 @@
-﻿namespace SvgToXamlConverter.Model.Resources;
+﻿namespace SvgToXaml.Model.Resources;
 
 public abstract record Resource
 {

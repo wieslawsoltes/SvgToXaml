@@ -5,10 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using SvgToXamlConverter.Generator;
-using SvgToXamlConverter.Model;
-using SvgToXamlConverter.Model.Containers;
-using SvgToXamlConverter.Model.Drawing;
-using SvgToXamlConverter.Model.Resources;
 
 namespace SvgToXamlConverter;
 
@@ -24,11 +20,11 @@ public class SvgToXamlConverter
 
     public  bool TransformGeometry { get; set; }
 
-    public ResourceDictionary? Resources { get; set; }
+    public SvgToXaml.Model.Resources.ResourceDictionary? Resources { get; set; }
 
     public string ToXamlDrawingGroup(ShimSkiaSharp.SKPicture? skPicture, string? key = null)
     {
-        var drawingGroup = new DrawingGroup(skPicture, Resources, key);
+        var drawingGroup = new SvgToXaml.Model.Drawing.DrawingGroup(skPicture, Resources, key);
 
         var context = new XamlGeneratorSettings
         {
@@ -46,9 +42,9 @@ public class SvgToXamlConverter
 
     public string ToXamlImage(ShimSkiaSharp.SKPicture? skPicture, string? key = null)
     {
-        var drawingGroup = new DrawingGroup(skPicture, Resources);
-        var drawingImage = new DrawingImage(drawingGroup);
-        var image = new Image(drawingImage, key);
+        var drawingGroup = new SvgToXaml.Model.Drawing.DrawingGroup(skPicture, Resources);
+        var drawingImage = new SvgToXaml.Model.Drawing.DrawingImage(drawingGroup);
+        var image = new SvgToXaml.Model.Containers.Image(drawingImage, key);
 
         var context = new XamlGeneratorSettings
         {
@@ -64,9 +60,9 @@ public class SvgToXamlConverter
         return new XamlGenerator().GenerateImage(image, context, null);
     }
 
-    public string ToXamlStyles(List<InputItem> inputItems, bool generateImage = false, bool generatePreview = true)
+    public string ToXamlStyles(List<SvgToXaml.Model.InputItem> inputItems, bool generateImage = false, bool generatePreview = true)
     {
-        var results = new List<(string Path, string Key, Model.Resources.Resource Resource)>();
+        var results = new List<(string Path, string Key, SvgToXaml.Model.Resources.Resource Resource)>();
  
         foreach (var inputItem in inputItems)
         {
@@ -82,14 +78,14 @@ public class SvgToXamlConverter
                 var key = $"_{CreateKey(inputItem.Name)}";
                 if (generateImage)
                 {
-                    var drawingGroup = new DrawingGroup(svg.Model, Resources);
-                    var drawingImage = new DrawingImage(drawingGroup);
-                    var image = new Image(drawingImage, key);
+                    var drawingGroup = new SvgToXaml.Model.Drawing.DrawingGroup(svg.Model, Resources);
+                    var drawingImage = new SvgToXaml.Model.Drawing.DrawingImage(drawingGroup);
+                    var image = new SvgToXaml.Model.Containers.Image(drawingImage, key);
                     results.Add((inputItem.Name, key, image));
                 }
                 else
                 {
-                    var drawingGroup = new DrawingGroup(svg.Model, Resources, key);
+                    var drawingGroup = new SvgToXaml.Model.Drawing.DrawingGroup(svg.Model, Resources, key);
                     results.Add((inputItem.Name, key, drawingGroup));
                 }
             }
@@ -100,7 +96,7 @@ public class SvgToXamlConverter
         }
 
         var resources = results.Select(x => x.Resource).ToList();
-        var styles = new Styles(resources, generateImage, generatePreview);
+        var styles = new SvgToXaml.Model.Containers.Styles(resources, generateImage, generatePreview);
 
         var context = new XamlGeneratorSettings
         {

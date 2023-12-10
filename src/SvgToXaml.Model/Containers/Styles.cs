@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using SvgToXamlConverter.Model.Resources;
+using SvgToXaml.Model.Resources;
 
-namespace SvgToXamlConverter.Model.Containers;
+namespace SvgToXaml.Model.Containers;
 
 public record Styles
 {
