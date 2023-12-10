@@ -109,15 +109,15 @@
     },
     {
       "behavior": "assembly",
+      "name": "SvgToXaml.Converter.dll"
+    },
+    {
+      "behavior": "assembly",
       "name": "SvgToXaml.Model.dll"
     },
     {
       "behavior": "assembly",
       "name": "SvgToXaml.Web.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "SvgToXamlConverter.dll"
     },
     {
       "behavior": "assembly",
