@@ -36,6 +36,60 @@
                       DockPanel.Dock="Top">
           <views:ActionsView Margin="0,0,0,12"/>
         </ScrollViewer>
+
+        <Expander IsExpanded="True"
+                  Background="{DynamicResource SystemChromeMediumColor}"
+                  DockPanel.Dock="Right">
+          <Expander.Styles>
+            <Style Selector="Expander">
+              <Setter Property="ExpandDirection" Value="Left" />
+              <Setter Property="HorizontalAlignment" Value="Stretch" />
+              <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+              <Setter Property="VerticalAlignment" Value="Stretch" />
+              <Setter Property="VerticalContentAlignment" Value="Top" />
+              <Setter Property="MinHeight" Value="0" />
+              <Setter Property="MinWidth" Value="0" />
+              <Setter Property="BorderBrush" Value="Transparent" />
+              <Setter Property="BorderThickness" Value="0" />
+              <Setter Property="Padding" Value="6" />
+              <Setter Property="Background" Value="{DynamicResource SystemChromeMediumColor}" />
+            </Style>
+            <Style Selector="Expander:left /template/ ToggleButton#ExpanderHeader">
+              <Setter Property="CornerRadius" Value="3" />
+              <Setter Property="BorderThickness" Value="0" />
+              <Setter Property="Background" Value="Transparent" />
+              <Setter Property="Margin" Value="0" />
+              <Setter Property="Padding" Value="6" />
+              <Setter Property="VerticalAlignment" Value="Top" />
+              <Setter Property="VerticalContentAlignment" Value="Top" />
+            </Style>
+            <Style Selector="Expander /template/ ToggleButton Border#ExpandCollapseChevronBorder">
+              <Setter Property="Width" Value="0" />
+              <Setter Property="Margin" Value="0" />
+              <Setter Property="IsVisible" Value="False" />
+            </Style>
+          </Expander.Styles>
+          <Expander.Header>
+            <StackPanel VerticalAlignment="Top">
+              <PathIcon Width="16" Height="16" 
+                        Margin="0,0,0,0"
+                        Data="{DynamicResource SettingsIcon}"/>
+              <LayoutTransformControl>
+                <LayoutTransformControl.LayoutTransform>
+                  <RotateTransform Angle="90" />
+                </LayoutTransformControl.LayoutTransform>
+                <TextBlock Text=" Settings"
+                           Margin="0,0,0,1"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+              </LayoutTransformControl>
+            </StackPanel>
+          </Expander.Header>
+          <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Auto">
+            <views:SettingsView DataContext="{Binding Project.Settings}" />
+          </ScrollViewer>
+        </Expander>
         
         <views:PictureView Margin="0,0,6,6" />
 
