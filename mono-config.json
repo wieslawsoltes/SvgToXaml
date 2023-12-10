@@ -61,6 +61,10 @@
     },
     {
       "behavior": "assembly",
+      "name": "Avalonia.Xaml.Interactions.Custom.dll"
+    },
+    {
+      "behavior": "assembly",
       "name": "Avalonia.Xaml.Interactions.dll"
     },
     {
