@@ -7,7 +7,7 @@
     <local:ViewLocator />
   </Application.DataTemplates>
   <Application.Styles>
-    <StyleInclude Source="/Views/Styles.axaml" />
+    <StyleInclude Source="/Views/Sandbox/Styles.axaml" />
   </Application.Styles>
   <Application.Resources>
     <ResourceDictionary>
