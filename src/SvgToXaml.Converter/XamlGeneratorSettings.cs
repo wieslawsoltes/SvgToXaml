@@ -1,6 +1,6 @@
 ﻿using SvgToXaml.Model.Resources;
 
-namespace SvgToXamlConverter.Generator;
+namespace SvgToXaml.Converter;
 
 public record XamlGeneratorSettings
 {

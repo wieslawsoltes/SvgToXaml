@@ -38,7 +38,7 @@
   <Import Project="..\..\build\ReactiveMarbles.PropertyChanged.props" />
 
   <ItemGroup>
-    <ProjectReference Include="..\SvgToXamlConverter\SvgToXamlConverter.csproj" />
+    <ProjectReference Include="..\SvgToXaml.Converter\SvgToXaml.Converter.csproj" />
   </ItemGroup>
 
 </Project>

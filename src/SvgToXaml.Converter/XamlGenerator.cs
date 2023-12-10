@@ -7,7 +7,7 @@ using SvgToXaml.Model.Drawing;
 using SvgToXaml.Model.Paint;
 using SvgToXaml.Model.Resources;
 
-namespace SvgToXamlConverter.Generator;
+namespace SvgToXaml.Converter;
 
 public class XamlGenerator
 {

@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SvgToXamlConverter\SvgToXamlConverter.csproj" />
+    <ProjectReference Include="..\SvgToXaml.Converter\SvgToXaml.Converter.csproj" />
   </ItemGroup>
 
   <Import Project="..\..\build\Base.props" />

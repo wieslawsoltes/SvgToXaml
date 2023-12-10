@@ -4,9 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using SvgToXamlConverter.Generator;
 
-namespace SvgToXamlConverter;
+namespace SvgToXaml.Converter;
 
 public class SvgToXamlConverter
 {

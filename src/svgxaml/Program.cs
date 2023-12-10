@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using Svg.Skia;
+using SvgToXaml.Converter;
 using SvgToXaml.Model;
 
 if (args.Length != 1 && args.Length != 2)
@@ -29,7 +30,7 @@ try
             return;
         }
 
-        var converter = new SvgToXamlConverter.SvgToXamlConverter()
+        var converter = new SvgToXamlConverter()
         {
             UseCompatMode = false,
             ReuseExistingResources = false,
@@ -60,7 +61,7 @@ try
     }
     else
     {
-        var converter = new SvgToXamlConverter.SvgToXamlConverter()
+        var converter = new SvgToXamlConverter()
         {
             UseCompatMode = false,
             ReuseExistingResources = false,

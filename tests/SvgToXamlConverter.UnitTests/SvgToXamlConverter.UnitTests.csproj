@@ -12,7 +12,7 @@
   <Import Project="..\..\build\XUnit.props" />
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\SvgToXamlConverter\SvgToXamlConverter.csproj" />
+    <ProjectReference Include="..\..\src\SvgToXaml.Converter\SvgToXaml.Converter.csproj" />
   </ItemGroup>
 
 </Project>

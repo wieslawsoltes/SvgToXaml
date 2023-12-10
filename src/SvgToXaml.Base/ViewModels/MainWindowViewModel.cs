@@ -16,6 +16,7 @@ using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using ReactiveMarbles.PropertyChanged;
+using SvgToXaml.Converter;
 using SvgToXaml.Model;
 
 namespace SvgToXaml.ViewModels;
@@ -443,7 +444,7 @@ public class MainWindowViewModel : ViewModelBase
         {
             if (Project.Settings.EnableGenerateImage)
             {
-                var converter = new SvgToXamlConverter.SvgToXamlConverter()
+                var converter = new SvgToXamlConverter()
                 {
                     UseCompatMode = Project.Settings.UseCompatMode,
                     ReuseExistingResources = Project.Settings.ReuseExistingResources,
@@ -456,7 +457,7 @@ public class MainWindowViewModel : ViewModelBase
             }
             else
             {
-                var converter = new SvgToXamlConverter.SvgToXamlConverter()
+                var converter = new SvgToXamlConverter()
                 {
                     UseCompatMode = Project.Settings.UseCompatMode,
                     ReuseExistingResources = Project.Settings.ReuseExistingResources,
@@ -533,7 +534,7 @@ public class MainWindowViewModel : ViewModelBase
             {
                 if (enableGenerateImage)
                 {
-                    var converter = new SvgToXamlConverter.SvgToXamlConverter()
+                    var converter = new SvgToXamlConverter()
                     {
                         UseCompatMode = Project.Settings.UseCompatMode,
                         AddTransparentBackground = Project.Settings.AddTransparentBackground,
@@ -547,7 +548,7 @@ public class MainWindowViewModel : ViewModelBase
                 }
                 else
                 {
-                    var converter = new SvgToXamlConverter.SvgToXamlConverter()
+                    var converter = new SvgToXamlConverter()
                     {
                         UseCompatMode = Project.Settings.UseCompatMode,
                         AddTransparentBackground = Project.Settings.AddTransparentBackground,
@@ -569,7 +570,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         return await Task.Run(() =>
         {
-            var converter = new SvgToXamlConverter.SvgToXamlConverter()
+            var converter = new SvgToXamlConverter()
             {
                 UseCompatMode = Project.Settings.UseCompatMode, 
                 ReuseExistingResources = Project.Settings.ReuseExistingResources,
@@ -635,7 +636,7 @@ public class MainWindowViewModel : ViewModelBase
 
         try
         {
-            var converter = new SvgToXamlConverter.SvgToXamlConverter()
+            var converter = new SvgToXamlConverter()
             {
                 UseCompatMode = Project.Settings.UseCompatMode,
                 ReuseExistingResources = Project.Settings.ReuseExistingResources,
