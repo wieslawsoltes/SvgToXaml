@@ -12,75 +12,79 @@
   </Design.DataContext>
 
   <StackPanel Spacing="12">
-    <CheckBox IsChecked="{Binding EnableGenerateImage}"
-              Content="Generate Image Control"
-              HorizontalAlignment="Stretch"
-              HorizontalContentAlignment="Stretch"
-              Margin="0"
-              Padding="6"/>
-    <CheckBox IsChecked="{Binding EnableGeneratePreview}"
-              Content="Generate Preview Resources"
-              HorizontalAlignment="Stretch"
-              HorizontalContentAlignment="Stretch"
-              Margin="0"
-              Padding="6"/>
+
+    <ToggleSwitch OnContent="Generate Image Control"
+                  OffContent="Generate Image Control"
+                  HorizontalAlignment="Stretch"
+                  Background="Transparent"
+                  IsChecked="{Binding EnableGenerateImage}"/>
+
+    <ToggleSwitch OnContent="Generate Preview Resources"
+                  OffContent="Generate Preview Resources"
+                  HorizontalAlignment="Stretch"
+                  Background="Transparent"
+                  IsChecked="{Binding EnableGeneratePreview}"/>
+
     <Separator Background="{DynamicResource SystemChromeAltLowColor}" Opacity="0.3" Height="0.55"/>
-    <CheckBox IsChecked="{Binding UseResources}"
-              Content="Use Resources"
-              HorizontalAlignment="Stretch"
-              HorizontalContentAlignment="Stretch"
-              Margin="0"
-              Padding="6"/>
-    <CheckBox IsChecked="{Binding ReuseExistingResources}"
-              Content="Reuse Existing Resources"
-              HorizontalAlignment="Stretch"
-              HorizontalContentAlignment="Stretch"
-              Margin="0"
-              Padding="6"/>
-    <CheckBox IsChecked="{Binding TransformGeometry}"
-              Content="Transform Geometry"
-              HorizontalAlignment="Stretch"
-              HorizontalContentAlignment="Stretch"
-              Margin="0"
-              Padding="6"/>
-    <CheckBox IsChecked="{Binding UseCompatMode}"
-              Content="Use Compat Mode"
-              HorizontalAlignment="Stretch"
-              HorizontalContentAlignment="Stretch"
-              Margin="0"
-              Padding="6"/>
+    
+    <ToggleSwitch OnContent="Use Resources"
+                  OffContent="Use Resources"
+                  HorizontalAlignment="Stretch"
+                  Background="Transparent"
+                  IsChecked="{Binding UseResources}"/>
+    
+    <ToggleSwitch OnContent="Reuse Existing Resources"
+                  OffContent="Reuse Existing Resources"
+                  HorizontalAlignment="Stretch"
+                  Background="Transparent"
+                  IsChecked="{Binding ReuseExistingResources}"/>
+    
+    <ToggleSwitch OnContent="Transform Geometry"
+                  OffContent="Transform Geometry"
+                  HorizontalAlignment="Stretch"
+                  Background="Transparent"
+                  IsChecked="{Binding TransformGeometry}"/>
+    
+    <ToggleSwitch OnContent="Use Compat Mode"
+                  OffContent="Use Compat Mode"
+                  HorizontalAlignment="Stretch"
+                  Background="Transparent"
+                  IsChecked="{Binding UseCompatMode}"/>
+
     <Separator Background="{DynamicResource SystemChromeAltLowColor}" Opacity="0.3" Height="0.55"/>
-    <CheckBox IsChecked="{Binding AddTransparentBackground}"
-              Content="Add Transparent Background"
-              HorizontalAlignment="Stretch"
-              HorizontalContentAlignment="Stretch"
-              Margin="0"
-              Padding="6"/>
+  
+    <ToggleSwitch OnContent="Add Transparent Background"
+                  OffContent="Add Transparent Background"
+                  HorizontalAlignment="Stretch"
+                  Background="Transparent"
+                  IsChecked="{Binding AddTransparentBackground}"/>
+
     <Separator Background="{DynamicResource SystemChromeAltLowColor}" Opacity="0.3" Height="0.55"/>
-    <CheckBox IsChecked="{Binding IgnoreOpacity}"
-              Content="Ignore Opacity"
-              HorizontalAlignment="Stretch"
-              HorizontalContentAlignment="Stretch"
-              Margin="0"
-              Padding="6"/>
-    <CheckBox IsChecked="{Binding IgnoreFilter}"
-              Content="Ignore Filter"
-              HorizontalAlignment="Stretch"
-              HorizontalContentAlignment="Stretch"
-              Margin="0"
-              Padding="6"/>
-    <CheckBox IsChecked="{Binding IgnoreClipPath}"
-              Content="Ignore ClipPath"
-              HorizontalAlignment="Stretch"
-              HorizontalContentAlignment="Stretch"
-              Margin="0"
-              Padding="6"/>
-    <CheckBox IsChecked="{Binding IgnoreMask}"
-              Content="Ignore Mask"
-              HorizontalAlignment="Stretch"
-              HorizontalContentAlignment="Stretch"
-              Margin="0"
-              Padding="6"/>
+
+    <ToggleSwitch OnContent="Ignore Opacity"
+                  OffContent="Ignore Opacity"
+                  HorizontalAlignment="Stretch"
+                  Background="Transparent"
+                  IsChecked="{Binding IgnoreOpacity}"/>
+    
+    <ToggleSwitch OnContent="Ignore Filter"
+                  OffContent="Ignore Filter"
+                  HorizontalAlignment="Stretch"
+                  Background="Transparent"
+                  IsChecked="{Binding IgnoreFilter}"/>
+    
+    <ToggleSwitch OnContent="Ignore ClipPath"
+                  OffContent="Ignore ClipPath"
+                  HorizontalAlignment="Stretch"
+                  Background="Transparent"
+                  IsChecked="{Binding IgnoreClipPath}"/>
+    
+    <ToggleSwitch OnContent="Ignore Mask"
+                  OffContent="Ignore Mask"
+                  HorizontalAlignment="Stretch"
+                  Background="Transparent"
+                  IsChecked="{Binding IgnoreMask}"/>
+
   </StackPanel>
 
 </UserControl>
