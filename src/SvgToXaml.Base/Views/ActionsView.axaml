@@ -32,21 +32,6 @@
 
     <Button Margin="0,0,6,0" 
             Padding="6,7,6,7"
-            DockPanel.Dock="Right"
-            ToolTip.Tip="Settings">
-      <Button.Flyout>
-        <Flyout ShowMode="TransientWithDismissOnPointerMoveAway" 
-                Placement="BottomEdgeAlignedRight">
-          <views:SettingsView DataContext="{Binding Project.Settings}" />
-        </Flyout>
-      </Button.Flyout>
-      <PathIcon Width="16" Height="16" 
-                Margin="6,0,6,0"
-                Data="{DynamicResource SettingsIcon}"/>
-    </Button>
-
-    <Button Margin="0,0,12,0" 
-            Padding="6,7,6,7"
             IsEnabled="{Binding !!Project.SelectedItem}"
             DockPanel.Dock="Right"
             ToolTip.Tip="Preview">
