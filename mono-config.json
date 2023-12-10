@@ -109,6 +109,10 @@
     },
     {
       "behavior": "assembly",
+      "name": "SvgToXaml.Model.dll"
+    },
+    {
+      "behavior": "assembly",
       "name": "SvgToXaml.Web.dll"
     },
     {
