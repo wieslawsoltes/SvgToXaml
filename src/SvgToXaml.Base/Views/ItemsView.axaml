@@ -30,26 +30,11 @@
                VerticalAlignment="Stretch"
                HorizontalAlignment="Stretch"
                Focusable="True">
-          <Interaction.Behaviors>
-            <RoutedEventTriggerBehavior RoutedEvent="{x:Static InputElement.DoubleTappedEvent}" 
-                                        RoutingStrategies="Bubble">
-              <InvokeCommandAction Command="{Binding PreviewCommand}" CommandParameter="{x:Static rx:Unit.Default}"/>
-            </RoutedEventTriggerBehavior>
-          </Interaction.Behaviors>
           <Panel.KeyBindings>
             <KeyBinding Gesture="Delete" Command="{Binding RemoveCommand}" />
           </Panel.KeyBindings>
           <Panel.ContextFlyout>
             <MenuFlyout Placement="Bottom">
-              <MenuItem Command="{Binding PreviewCommand}">
-                <MenuItem.Header>
-                  <StackPanel Orientation="Horizontal">
-                    <PathIcon Width="16" Height="16" 
-                              Data="{DynamicResource PreviewIcon}"/>
-                    <TextBlock Margin="12,0,0,0" Text="Preview"/>
-                  </StackPanel>
-                </MenuItem.Header>
-              </MenuItem>
               <MenuItem Command="{Binding RemoveCommand}">
                 <MenuItem.Header>
                   <StackPanel Orientation="Horizontal">

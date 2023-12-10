@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -45,9 +44,6 @@ public class FileItemViewModel : ViewModelBase
     }
 
     [JsonIgnore]
-    public ICommand? PreviewCommand { get; private set; }
-
-    [JsonIgnore]
     public ICommand? RemoveCommand { get; private set; }
 
     [JsonConstructor]
@@ -57,16 +53,14 @@ public class FileItemViewModel : ViewModelBase
         _content = content;
     }
         
-    public FileItemViewModel(string name, string content, Func<FileItemViewModel, Task> preview, Func<FileItemViewModel, Task> remove) 
+    public FileItemViewModel(string name, string content, Func<FileItemViewModel, Task> remove) 
         : this(name, content)
     {
-        Initialize(preview, remove);
+        Initialize(remove);
     }
 
-    public void Initialize(Func<FileItemViewModel, Task> preview, Func<FileItemViewModel, Task> remove)
+    public void Initialize(Func<FileItemViewModel, Task> remove)
     {
-        PreviewCommand = new AsyncRelayCommand(async () => await preview(this));
-
         RemoveCommand = new AsyncRelayCommand(async () => await remove(this)); 
     }
  

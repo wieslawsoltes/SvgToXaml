@@ -619,7 +619,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         using var reader = new StreamReader(stream);
         var content = await reader.ReadToEndAsync();
-        var item = await Task.Run(() => new FileItemViewModel(name, content, Preview, Remove));
+        var item = await Task.Run(() => new FileItemViewModel(name, content, Remove));
         Project.Items.Add(item);
     }
 
@@ -689,35 +689,6 @@ public class MainWindowViewModel : ViewModelBase
         return null;
     }
 
-    private async Task Preview(FileItemViewModel item)
-    {
-        await Dispatcher.UIThread.InvokeAsync(async () =>
-        {
-            var previewItem = await GetPreview(item);
-            if (previewItem is null)
-            {
-                return;
-            }
-
-            var content = AvaloniaRuntimeXamlLoader.Parse<TabControl>(previewItem.TabControl);
-
-            content.DataContext = previewItem.Image;
-
-            var window = new PreviewWindow()
-            {
-                Content = content,
-                Width = 800,
-                Height = 600,
-            };
-
-            var owner = (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
-            if (owner is { })
-            {
-                await window.ShowDialog(owner);
-            }
-        });
-    }
-
     private async Task Remove(FileItemViewModel item)
     {
         await Task.Run(() =>
@@ -728,6 +699,6 @@ public class MainWindowViewModel : ViewModelBase
 
     public void Initialize(FileItemViewModel item)
     {
-        item.Initialize(Preview, Remove);
+        item.Initialize(Remove);
     }
 }
