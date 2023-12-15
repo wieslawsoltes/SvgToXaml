@@ -10,7 +10,7 @@
   <PropertyGroup>
     <Description>An Svg drawing model.</Description>
     <PackageId>SvgToXaml.Model</PackageId>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <PackageTags>svg;xaml;axaml;avalonia;avaloniaui;convert;converter;vector graphics;rendering;2d;graphics;geometry;shapes;skiasharp;skia</PackageTags>
   </PropertyGroup>
 

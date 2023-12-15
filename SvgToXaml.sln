@@ -21,8 +21,8 @@ EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{038CD179-37B9-4AD8-B94E-D077723F45D7}"
 ProjectSection(SolutionItems) = preProject
-	LICENSE = LICENSE
 	README.md = README.md
+	COPYING = COPYING
 EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0A02A9B3-8AF1-4AAD-93B8-2E18438C9A3F}"
