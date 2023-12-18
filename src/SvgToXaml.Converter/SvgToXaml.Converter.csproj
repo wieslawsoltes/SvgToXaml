@@ -10,12 +10,16 @@
   <PropertyGroup>
     <Description>An Svg drawing model.</Description>
     <PackageId>SvgToXaml.Converter</PackageId>
-    <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>svg;xaml;axaml;avalonia;avaloniaui;convert;converter;vector graphics;rendering;2d;graphics;geometry;shapes;skiasharp;skia</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SvgToXaml.Model\SvgToXaml.Model.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Generator\" />
   </ItemGroup>
 
   <Import Project="..\..\build\Base.props" />
