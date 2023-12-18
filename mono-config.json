@@ -13,14 +13,6 @@
     },
     {
       "behavior": "assembly",
-      "name": "Avalonia.Controls.ColorPicker.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "Avalonia.Controls.DataGrid.dll"
-    },
-    {
-      "behavior": "assembly",
       "name": "Avalonia.Controls.dll"
     },
     {
@@ -29,19 +21,7 @@
     },
     {
       "behavior": "assembly",
-      "name": "Avalonia.DesignerSupport.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "Avalonia.Diagnostics.dll"
-    },
-    {
-      "behavior": "assembly",
       "name": "Avalonia.Dialogs.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "Avalonia.dll"
     },
     {
       "behavior": "assembly",
@@ -69,10 +49,6 @@
     },
     {
       "behavior": "assembly",
-      "name": "Avalonia.Remote.Protocol.dll"
-    },
-    {
-      "behavior": "assembly",
       "name": "Avalonia.Skia.dll"
     },
     {
@@ -85,35 +61,7 @@
     },
     {
       "behavior": "assembly",
-      "name": "Avalonia.Themes.Simple.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "Avalonia.Xaml.Interactions.Custom.dll"
-    },
-    {
-      "behavior": "assembly",
       "name": "Avalonia.Xaml.Interactions.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "Avalonia.Xaml.Interactions.DragAndDrop.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "Avalonia.Xaml.Interactions.Draggable.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "Avalonia.Xaml.Interactions.Events.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "Avalonia.Xaml.Interactions.Reactive.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "Avalonia.Xaml.Interactions.Responsive.dll"
     },
     {
       "behavior": "assembly",
@@ -133,30 +81,6 @@
     },
     {
       "behavior": "assembly",
-      "name": "MicroCom.Runtime.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "Microsoft.CodeAnalysis.CSharp.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "Microsoft.CodeAnalysis.CSharp.Scripting.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "Microsoft.CodeAnalysis.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "Microsoft.CodeAnalysis.Scripting.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "Microsoft.CSharp.dll"
-    },
-    {
-      "behavior": "assembly",
       "name": "ReactiveMarbles.PropertyChanged.dll"
     },
     {
@@ -166,10 +90,6 @@
     {
       "behavior": "assembly",
       "name": "SkiaSharp.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "SkiaSharp.HarfBuzz.dll"
     },
     {
       "behavior": "assembly",
@@ -209,10 +129,6 @@
     },
     {
       "behavior": "assembly",
-      "name": "System.Collections.Immutable.dll"
-    },
-    {
-      "behavior": "assembly",
       "name": "System.Collections.NonGeneric.dll"
     },
     {
@@ -241,18 +157,6 @@
     },
     {
       "behavior": "assembly",
-      "name": "System.Diagnostics.Debug.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Diagnostics.DiagnosticSource.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Diagnostics.StackTrace.dll"
-    },
-    {
-      "behavior": "assembly",
       "name": "System.Diagnostics.TraceSource.dll"
     },
     {
@@ -269,19 +173,7 @@
     },
     {
       "behavior": "assembly",
-      "name": "System.Globalization.dll"
-    },
-    {
-      "behavior": "assembly",
       "name": "System.IO.Compression.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.IO.FileSystem.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.IO.MemoryMappedFiles.dll"
     },
     {
       "behavior": "assembly",
@@ -290,10 +182,6 @@
     {
       "behavior": "assembly",
       "name": "System.Linq.Expressions.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Linq.Queryable.dll"
     },
     {
       "behavior": "assembly",
@@ -310,10 +198,6 @@
     {
       "behavior": "assembly",
       "name": "System.Net.Requests.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Net.Sockets.dll"
     },
     {
       "behavior": "assembly",
@@ -341,67 +225,7 @@
     },
     {
       "behavior": "assembly",
-      "name": "System.Reflection.Metadata.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Reflection.Primitives.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Resources.ResourceManager.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Runtime.CompilerServices.Unsafe.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Runtime.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Runtime.Extensions.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Runtime.InteropServices.dll"
-    },
-    {
-      "behavior": "assembly",
       "name": "System.Runtime.InteropServices.JavaScript.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Runtime.InteropServices.RuntimeInformation.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Runtime.Loader.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Runtime.Numerics.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Security.Cryptography.Algorithms.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Security.Cryptography.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Security.Cryptography.Primitives.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Text.Encoding.CodePages.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Text.Encoding.Extensions.dll"
     },
     {
       "behavior": "assembly",
@@ -417,314 +241,12 @@
     },
     {
       "behavior": "assembly",
-      "name": "System.Threading.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Threading.Tasks.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Threading.Tasks.Parallel.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Threading.Thread.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Threading.ThreadPool.dll"
-    },
-    {
-      "behavior": "assembly",
       "name": "System.Xml.Linq.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Xml.ReaderWriter.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Xml.XDocument.dll"
-    },
-    {
-      "behavior": "assembly",
-      "name": "System.Xml.XPath.XDocument.dll"
-    },
-    {
-      "culture": "cs",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.resources.dll"
-    },
-    {
-      "culture": "cs",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll"
-    },
-    {
-      "culture": "cs",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.resources.dll"
-    },
-    {
-      "culture": "cs",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.Scripting.resources.dll"
-    },
-    {
-      "culture": "de",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.resources.dll"
-    },
-    {
-      "culture": "de",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll"
-    },
-    {
-      "culture": "de",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.resources.dll"
-    },
-    {
-      "culture": "de",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.Scripting.resources.dll"
-    },
-    {
-      "culture": "es",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.resources.dll"
-    },
-    {
-      "culture": "es",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll"
-    },
-    {
-      "culture": "es",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.resources.dll"
-    },
-    {
-      "culture": "es",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.Scripting.resources.dll"
-    },
-    {
-      "culture": "fr",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.resources.dll"
-    },
-    {
-      "culture": "fr",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll"
-    },
-    {
-      "culture": "fr",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.resources.dll"
-    },
-    {
-      "culture": "fr",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.Scripting.resources.dll"
-    },
-    {
-      "culture": "it",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.resources.dll"
-    },
-    {
-      "culture": "it",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll"
-    },
-    {
-      "culture": "it",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.resources.dll"
-    },
-    {
-      "culture": "it",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.Scripting.resources.dll"
-    },
-    {
-      "culture": "ja",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.resources.dll"
-    },
-    {
-      "culture": "ja",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll"
-    },
-    {
-      "culture": "ja",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.resources.dll"
-    },
-    {
-      "culture": "ja",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.Scripting.resources.dll"
-    },
-    {
-      "culture": "ko",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.resources.dll"
-    },
-    {
-      "culture": "ko",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll"
-    },
-    {
-      "culture": "ko",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.resources.dll"
-    },
-    {
-      "culture": "ko",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.Scripting.resources.dll"
-    },
-    {
-      "culture": "pl",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.resources.dll"
-    },
-    {
-      "culture": "pl",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll"
-    },
-    {
-      "culture": "pl",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.resources.dll"
-    },
-    {
-      "culture": "pl",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.Scripting.resources.dll"
-    },
-    {
-      "culture": "pt-BR",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.resources.dll"
-    },
-    {
-      "culture": "pt-BR",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll"
-    },
-    {
-      "culture": "pt-BR",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.resources.dll"
-    },
-    {
-      "culture": "pt-BR",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.Scripting.resources.dll"
-    },
-    {
-      "culture": "ru",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.resources.dll"
-    },
-    {
-      "culture": "ru",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll"
-    },
-    {
-      "culture": "ru",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.resources.dll"
-    },
-    {
-      "culture": "ru",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.Scripting.resources.dll"
-    },
-    {
-      "culture": "tr",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.resources.dll"
-    },
-    {
-      "culture": "tr",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll"
-    },
-    {
-      "culture": "tr",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.resources.dll"
-    },
-    {
-      "culture": "tr",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.Scripting.resources.dll"
-    },
-    {
-      "culture": "zh-Hans",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.resources.dll"
-    },
-    {
-      "culture": "zh-Hans",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll"
-    },
-    {
-      "culture": "zh-Hans",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.resources.dll"
-    },
-    {
-      "culture": "zh-Hans",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.Scripting.resources.dll"
-    },
-    {
-      "culture": "zh-Hant",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.resources.dll"
-    },
-    {
-      "culture": "zh-Hant",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll"
-    },
-    {
-      "culture": "zh-Hant",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.resources.dll"
-    },
-    {
-      "culture": "zh-Hant",
-      "behavior": "resource",
-      "name": "Microsoft.CodeAnalysis.Scripting.resources.dll"
     },
     {
       "virtualPath": "runtimeconfig.bin",
       "behavior": "vfs",
       "name": "supportFiles/0_runtimeconfig.bin"
-    },
-    {
-      "virtualPath": "dotnet.js.symbols",
-      "behavior": "vfs",
-      "name": "supportFiles/1_dotnet.js.symbols"
-    },
-    {
-      "loadRemote": false,
-      "behavior": "icu",
-      "name": "icudt.dat"
     },
     {
       "virtualPath": "/usr/share/zoneinfo/",
