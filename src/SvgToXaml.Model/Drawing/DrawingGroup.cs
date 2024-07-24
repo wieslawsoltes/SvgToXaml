@@ -127,9 +127,9 @@ public record DrawingGroup : Drawing
 
                     break;
                 }
-                case ShimSkiaSharp.SetMatrixCanvasCommand(var skMatrix):
+                case ShimSkiaSharp.SetMatrixCanvasCommand(_, var skTotalMatrix):
                 {
-                    var matrix = Factory.s_model.ToSKMatrix(skMatrix);
+                    var matrix = Factory.s_model.ToSKMatrix(skTotalMatrix);
                     if (matrix.IsIdentity)
                     {
                         break;
