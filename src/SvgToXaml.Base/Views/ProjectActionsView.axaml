@@ -24,7 +24,7 @@
             Padding="12,8,12,8"
             Margin="0,6,0,12">
       <Button.Content>
-        <PathIcon Width="16" Height="16" 
+        <PathIcon Width="16" Height="16"
                   Data="{DynamicResource DeleteIcon}"/>
       </Button.Content>
     </Button>
@@ -38,8 +38,22 @@
             Padding="12,8,12,8"
             Margin="0,6,0,12">
       <Button.Content>
-        <PathIcon Width="16" Height="16" 
+        <PathIcon Width="16" Height="16"
                   Data="{DynamicResource AddIcon}"/>
+      </Button.Content>
+    </Button>
+
+    <Button Command="{Binding AddFolderCommand}"
+            HorizontalContentAlignment="Center"
+            HorizontalAlignment="Left"
+            Background="Transparent"
+            DockPanel.Dock="Right"
+            ToolTip.Tip="Add Items In Folder"
+            Padding="12,8,12,8"
+            Margin="0,6,0,12">
+      <Button.Content>
+        <PathIcon Width="16" Height="16"
+                  Data="{DynamicResource AddFolderIcon}"/>
       </Button.Content>
     </Button>
 
@@ -52,7 +66,7 @@
             Padding="12,8,12,8"
             Margin="0,6,0,12">
       <Button.Content>
-        <PathIcon Width="16" Height="16" 
+        <PathIcon Width="16" Height="16"
                   Data="{DynamicResource OpenIcon}"/>
       </Button.Content>
     </Button>
@@ -66,7 +80,7 @@
             Padding="12,8,12,8"
             Margin="0,6,0,12">
       <Button.Content>
-        <PathIcon Width="16" Height="16" 
+        <PathIcon Width="16" Height="16"
                   Data="{DynamicResource SaveIcon}"/>
       </Button.Content>
     </Button>

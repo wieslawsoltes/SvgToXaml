@@ -1,9 +1,12 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Reflection;
+using System.Text.Json.Serialization;
 
 namespace SvgToXaml.ViewModels;
 
 public class SettingsViewModel : ViewModelBase
 {
+    private static string _version => Assembly.GetEntryAssembly()!.GetName().Version?.ToString() ?? "";
+
     private bool _enableGenerateImage;
     private bool _enableGeneratePreview;
     private bool _useResources;
@@ -15,6 +18,12 @@ public class SettingsViewModel : ViewModelBase
     private bool _ignoreFilter;
     private bool _ignoreClipPath;
     private bool _ignoreMask;
+
+    [JsonIgnore]
+    public string Version
+    {
+        get => _version;
+    }
 
     [JsonInclude]
     public bool EnableGenerateImage

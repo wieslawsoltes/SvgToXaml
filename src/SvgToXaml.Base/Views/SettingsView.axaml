@@ -85,6 +85,15 @@
                   Background="Transparent"
                   IsChecked="{Binding IgnoreMask}"/>
 
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+      <TextBlock Text="Version: " Foreground="Orange"
+                       Padding="12"
+                       IsHitTestVisible="False" />
+      <TextBlock Text="{Binding Version}" Foreground="LightBlue"
+                       Padding="12"
+                       IsHitTestVisible="False" />
+    </StackPanel>
+
   </StackPanel>
 
 </UserControl>

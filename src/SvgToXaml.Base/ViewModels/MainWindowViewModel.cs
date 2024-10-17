@@ -34,7 +34,7 @@ public class MainWindowViewModel : ViewModelBase
 
     [JsonIgnore]
     public ICommand ClearCommand { get; }
-        
+
     [JsonIgnore]
     public ICommand OpenCommand { get; }
 
@@ -43,6 +43,9 @@ public class MainWindowViewModel : ViewModelBase
 
     [JsonIgnore]
     public ICommand AddCommand { get; }
+
+    [JsonIgnore]
+    public ICommand AddFolderCommand { get; }
 
     [JsonIgnore]
     public ICommand CopySelectedCommand { get; }
@@ -63,7 +66,7 @@ public class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel()
     {
         _project = new ProjectViewModel();
-            
+
         ClearCommand = new RelayCommand(Clear);
 
         OpenCommand = new AsyncRelayCommand(async () => await Open());
@@ -71,6 +74,8 @@ public class MainWindowViewModel : ViewModelBase
         SaveCommand = new AsyncRelayCommand(async () => await Save());
 
         AddCommand = new AsyncRelayCommand(async () => await Add());
+
+        AddFolderCommand = new AsyncRelayCommand(async () => await AddFromFolders());
 
         CopySelectedCommand = new AsyncRelayCommand<string>(async format => await CopySelected(format));
 
@@ -90,7 +95,7 @@ public class MainWindowViewModel : ViewModelBase
                 await x.Load(Project.GetIgnoreAttributes());
             }
         });
-  
+
         // ReSharper disable once AsyncVoidLambda
         this.WhenChanged(x => x.Project.Settings.UseCompatMode).DistinctUntilChanged().Subscribe(async _ =>
         {
@@ -250,7 +255,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         var extension = Path.GetExtension(name);
         var memoryStream = new MemoryStream();
-        
+
         if (extension == "svgz")
         {
             await using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
@@ -264,7 +269,33 @@ public class MainWindowViewModel : ViewModelBase
         memoryStream.Position = 0;
         return memoryStream;
     }
-    
+
+    private async Task AddFromFolders()
+    {
+        var storageProvider = StorageService.GetStorageProvider();
+
+        if (storageProvider is null)
+        {
+            return;
+        }
+
+        var folderPickerOptions = new FolderPickerOpenOptions
+        {
+            Title = "Select folders containing SVG files",
+            AllowMultiple = true,
+        };
+
+        var selectedFolders = await storageProvider.OpenFolderPickerAsync(folderPickerOptions);
+
+        if (selectedFolders != null && selectedFolders.Any())
+        {
+            foreach (var folder in selectedFolders)
+            {
+                await ImportSvgFilesFromFolder(folder);
+            }
+        }
+    }
+
     private async Task Add()
     {
         var storageProvider = StorageService.GetStorageProvider();
@@ -293,6 +324,70 @@ public class MainWindowViewModel : ViewModelBase
                 Debug.WriteLine(ex.Message);
                 Debug.WriteLine(ex.StackTrace);
             }
+        }
+    }
+
+    private async Task ImportSvgFilesFromFolder(IStorageFolder folder)
+    {
+        IAsyncEnumerable<IStorageItem> files = folder.GetItemsAsync();
+
+        await foreach (var file in files)
+        {
+            var name = file.Name;
+
+            if (name.EndsWith(".svg", StringComparison.OrdinalIgnoreCase) ||
+                name.EndsWith(".svgz", StringComparison.OrdinalIgnoreCase))
+            {
+                if (file is IStorageFile storageFile)
+                {
+                    await ImportSvgFile(storageFile);
+                }
+            }
+            else if (file is IStorageFolder folder01)
+            {
+                var subItems = folder01.GetItemsAsync();
+
+                await foreach (var subItem in subItems)
+                {
+                    if (subItem is IStorageFile subFile)
+                    {
+                        var subName = subFile.Name;
+                        if (subName.EndsWith(".svg", StringComparison.OrdinalIgnoreCase) ||
+                            subName.EndsWith(".svgz", StringComparison.OrdinalIgnoreCase))
+                        {
+                            await ImportSvgFile(subFile);
+                        }
+                    }
+                    else if (subItem is IStorageFolder subFolder)
+                    {
+                        // Recursively scan subfolders
+                        await ImportSvgFilesFromFolder(subFolder);
+                    }
+                }
+            }
+        }
+    }
+
+    private async Task ImportSvgFiles(IReadOnlyList<IStorageFile> files)
+    {
+        foreach (var file in files)
+        {
+            await ImportSvgFile(file);
+        }
+    }
+
+    private async Task ImportSvgFile(IStorageFile file)
+    {
+        try
+        {
+            await using var stream = await file.OpenReadAsync();
+            var ms = await LoadFromStream(stream, file.Name);
+            await Add(ms, Path.GetFileName(file.Name));
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+            Debug.WriteLine(ex.StackTrace);
         }
     }
 
@@ -415,7 +510,7 @@ public class MainWindowViewModel : ViewModelBase
             {
                 if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime)
                 {
-                    if (lifetime.MainWindow?.Clipboard is {} clipboard)
+                    if (lifetime.MainWindow?.Clipboard is { } clipboard)
                     {
                         return await clipboard.GetTextAsync();
                     }
@@ -486,7 +581,7 @@ public class MainWindowViewModel : ViewModelBase
             {
                 if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime)
                 {
-                    if (lifetime.MainWindow?.Clipboard is {} clipboard)
+                    if (lifetime.MainWindow?.Clipboard is { } clipboard)
                     {
                         await clipboard.SetTextAsync(xaml);
                     }
@@ -520,7 +615,7 @@ public class MainWindowViewModel : ViewModelBase
             await selectedItem.Load(Project.GetIgnoreAttributes());
         }
     }
-        
+
     private async Task<string> ToXaml(FileItemViewModel fileItemViewModel, bool enableGenerateImage)
     {
         return await Task.Run(async () =>
@@ -572,7 +667,7 @@ public class MainWindowViewModel : ViewModelBase
         {
             var converter = new SvgToXamlConverter()
             {
-                UseCompatMode = Project.Settings.UseCompatMode, 
+                UseCompatMode = Project.Settings.UseCompatMode,
                 ReuseExistingResources = Project.Settings.ReuseExistingResources,
                 TransformGeometry = Project.Settings.TransformGeometry,
                 Resources = Project.Settings.UseResources ? new SvgToXaml.Model.Resources.ResourceDictionary() : null
@@ -601,13 +696,13 @@ public class MainWindowViewModel : ViewModelBase
             {
                 case ".svg":
                 case ".svgz":
-                {
-                    await using var stream = File.OpenRead(path);
-                    var ms = await LoadFromStream(stream, path);
-                    var name = Path.GetFileName(path);
-                    await Add(ms, name);
-                    break;
-                }
+                    {
+                        await using var stream = File.OpenRead(path);
+                        var ms = await LoadFromStream(stream, path);
+                        var name = Path.GetFileName(path);
+                        await Add(ms, name);
+                        break;
+                    }
             }
         }
     }
