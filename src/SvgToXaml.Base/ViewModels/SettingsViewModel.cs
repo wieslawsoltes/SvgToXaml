@@ -23,8 +23,7 @@ public class SettingsViewModel : ViewModelBase
     public string Version
     {
         get => _version;
-   }
-
+    }
 
     [JsonInclude]
     public bool EnableGenerateImage
