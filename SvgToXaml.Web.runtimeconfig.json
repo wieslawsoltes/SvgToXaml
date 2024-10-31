@@ -11,8 +11,7 @@
       "perHostConfig": [
         {
           "name": "browser",
-          "html-path": "index.html",
-          "Host": "browser"
+          "host": "browser"
         }
       ],
       "runtimeArgs": [],
