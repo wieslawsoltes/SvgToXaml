@@ -11,9 +11,12 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using ReactiveMarbles.PropertyChanged;
 using SvgToXaml.Converter;
@@ -166,6 +169,24 @@ public class MainWindowViewModel : ViewModelBase
         };
     }
 
+    private static IClipboard? GetClipboard()
+    {
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: { } window })
+        {
+            return window.Clipboard;
+        }
+
+        if (Application.Current?.ApplicationLifetime is ISingleViewApplicationLifetime { MainView: { } mainView })
+        {
+            if (mainView.GetVisualRoot() is TopLevel topLevel)
+            {
+                return topLevel.Clipboard;
+            }
+        }
+
+        return null;
+    }
+    
     private async Task Open()
     {
         var storageProvider = StorageService.GetStorageProvider();
@@ -413,12 +434,9 @@ public class MainWindowViewModel : ViewModelBase
         {
             try
             {
-                if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime)
+                if (GetClipboard() is {} clipboard)
                 {
-                    if (lifetime.MainWindow?.Clipboard is {} clipboard)
-                    {
-                        return await clipboard.GetTextAsync();
-                    }
+                    return await clipboard.GetTextAsync();
                 }
             }
             catch
@@ -484,12 +502,9 @@ public class MainWindowViewModel : ViewModelBase
         {
             try
             {
-                if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime)
+                if (GetClipboard() is {} clipboard)
                 {
-                    if (lifetime.MainWindow?.Clipboard is {} clipboard)
-                    {
-                        await clipboard.SetTextAsync(xaml);
-                    }
+                    await clipboard.SetTextAsync(xaml);
                 }
             }
             catch
