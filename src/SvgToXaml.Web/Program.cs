@@ -6,7 +6,7 @@ using SvgToXaml;
 
 [assembly:SupportedOSPlatform("browser")]
 
-internal class Program
+internal sealed partial class Program
 {
     private static async Task Main(string[] args) 
         => await BuildAvaloniaApp().StartBrowserAppAsync("out");
