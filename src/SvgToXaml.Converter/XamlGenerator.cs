@@ -611,6 +611,10 @@ public class XamlGenerator
                     {
                         return true;
                     }
+                    else if (x.Value.Paint.Shader is null && geometryDrawing.Paint.Shader is null && x.Value.Paint.Color.Equals(geometryDrawing.Paint.Color))
+                    {
+                        return true;
+                    }
 
                     return false;
                 });
@@ -654,6 +658,16 @@ public class XamlGenerator
                 {
                     if (x.Value.Paint.Shader is { } 
                         && x.Value.Paint.Shader.Equals(geometryDrawing.Paint.Shader)
+                        && x.Value.Paint.StrokeWidth.Equals(geometryDrawing.Paint.StrokeWidth)
+                        && x.Value.Paint.StrokeCap.Equals(geometryDrawing.Paint.StrokeCap)
+                        && x.Value.Paint.PathEffect == geometryDrawing.Paint.PathEffect
+                        && x.Value.Paint.StrokeJoin.Equals(geometryDrawing.Paint.StrokeJoin)
+                        && x.Value.Paint.StrokeMiter.Equals(geometryDrawing.Paint.StrokeMiter))
+                    {
+                        return true;
+                    }
+                    else if (x.Value.Paint.Shader is null && geometryDrawing.Paint.Shader is null 
+                        && x.Value.Paint.Color.Equals(geometryDrawing.Paint.Color)
                         && x.Value.Paint.StrokeWidth.Equals(geometryDrawing.Paint.StrokeWidth)
                         && x.Value.Paint.StrokeCap.Equals(geometryDrawing.Paint.StrokeCap)
                         && x.Value.Paint.PathEffect == geometryDrawing.Paint.PathEffect

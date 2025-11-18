@@ -135,16 +135,15 @@ internal static class Factory
 
     public static Pen? CreatePen(ShimSkiaSharp.SKPaint skPaint, SkiaSharp.SKRect skBounds, string? key)
     {
-        if (skPaint.Shader is null)
-        {
-            return null;
-        }
+        var brush = skPaint.Shader is { } 
+            ? CreateBrush(skPaint.Shader, skBounds) 
+            : new SolidColorBrush { Color = skPaint.Color ?? new ShimSkiaSharp.SKColor(0, 0, 0, 0) };
 
         var pen = new Pen
         {
             Key = key,
             Bounds = skBounds,
-            Brush = CreateBrush(skPaint.Shader, skBounds),
+            Brush = brush,
             StrokeWidth = skPaint.StrokeWidth,
             StrokeCap = skPaint.StrokeCap,
             StrokeJoin = skPaint.StrokeJoin,
