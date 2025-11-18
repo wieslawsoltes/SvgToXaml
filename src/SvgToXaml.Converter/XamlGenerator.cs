@@ -103,6 +103,19 @@ public class XamlGenerator
         return sb.ToString();
     }
 
+    private static string ToRect(SkiaSharp.SKRect sKRect)
+    {
+        var sb = new StringBuilder();
+        sb.Append(ToXamlString(sKRect.Left));
+        sb.Append(',');
+        sb.Append(ToXamlString(sKRect.Top));
+        sb.Append(',');
+        sb.Append(ToXamlString(sKRect.Width));
+        sb.Append(',');
+        sb.Append(ToXamlString(sKRect.Height));
+        return sb.ToString();
+    }
+
     private static string ToMatrix(SkiaSharp.SKMatrix skMatrix)
     {
         var sb = new StringBuilder();
@@ -568,8 +581,122 @@ public class XamlGenerator
             GeometryDrawing geometryDrawing => GenerateGeometryDrawing(geometryDrawing, settings, matrix),
             DrawingGroup drawingGroup => GenerateDrawingGroup(drawingGroup, settings),
             DrawingImage drawingImage => GenerateDrawingImage(drawingImage, settings, matrix),
+            ImageDrawing imageDrawing => GenerateImageDrawing(imageDrawing, settings, matrix),
+            GlyphRunDrawing glyphRunDrawing => GenerateGlyphRunDrawing(glyphRunDrawing, settings, matrix),
             _ => ""
         };
+    }
+
+    private string GenerateImageDrawing(ImageDrawing imageDrawing, XamlGeneratorSettings settings, SkiaSharp.SKMatrix? matrix)
+    {
+        var sb = new StringBuilder();
+        sb.Append($"<ImageDrawing{ToKey(imageDrawing.Key)}");
+        sb.Append($" Rect=\"{ToRect(imageDrawing.Rect)}\"");
+        if (imageDrawing.ImageSource is { })
+        {
+             sb.Append($" ImageSource=\"{imageDrawing.ImageSource}\"");
+        }
+        sb.Append($"/>{settings.NewLine}");
+        return sb.ToString();
+    }
+
+    private string GenerateGlyphRunDrawing(GlyphRunDrawing glyphRunDrawing, XamlGeneratorSettings settings, SkiaSharp.SKMatrix? matrix)
+    {
+        var sb = new StringBuilder();
+        sb.Append($"<GlyphRunDrawing{ToKey(glyphRunDrawing.Key)}");
+        
+        if (glyphRunDrawing.Foreground is SolidColorBrush solidColorBrush)
+        {
+             sb.Append($" Foreground=\"{ToHexColor(solidColorBrush.Color)}\"");
+        }
+
+        sb.Append($">{settings.NewLine}");
+
+        if (glyphRunDrawing.Foreground is not SolidColorBrush && glyphRunDrawing.Foreground is { })
+        {
+            sb.Append($"  <GlyphRunDrawing.Foreground>{settings.NewLine}");
+            sb.Append(GenerateBrush(glyphRunDrawing.Foreground, settings));
+            sb.Append($"  </GlyphRunDrawing.Foreground>{settings.NewLine}");
+        }
+
+        if (glyphRunDrawing.GlyphRun is { })
+        {
+            sb.Append($"  <GlyphRunDrawing.GlyphRun>{settings.NewLine}");
+            sb.Append(GenerateGlyphRun(glyphRunDrawing.GlyphRun, settings));
+            sb.Append($"  </GlyphRunDrawing.GlyphRun>{settings.NewLine}");
+        }
+
+        sb.Append($"</GlyphRunDrawing>{settings.NewLine}");
+        return sb.ToString();
+    }
+
+    private string GenerateGlyphRun(GlyphRun glyphRun, XamlGeneratorSettings settings)
+    {
+        var sb = new StringBuilder();
+        sb.Append($"<GlyphRun BaselineOrigin=\"{ToPoint(glyphRun.BaselineOrigin)}\"");
+
+        if (glyphRun.GlyphTypeface is { })
+        {
+            sb.Append($" GlyphTypeface=\"{glyphRun.GlyphTypeface}\"");
+        }
+
+        if (glyphRun.FontRenderingEmSize > 0)
+        {
+            sb.Append($" FontRenderingEmSize=\"{ToXamlString(glyphRun.FontRenderingEmSize)}\"");
+        }
+
+        if (glyphRun.GlyphIndices is { })
+        {
+            sb.Append($" GlyphIndices=\"{string.Join(",", glyphRun.GlyphIndices)}\"");
+        }
+
+        if (glyphRun.AdvanceWidths is { })
+        {
+            sb.Append($" AdvanceWidths=\"{string.Join(",", glyphRun.AdvanceWidths.Select(ToXamlString))}\"");
+        }
+
+        if (glyphRun.GlyphOffsets is { })
+        {
+            sb.Append($" GlyphOffsets=\"{string.Join(",", glyphRun.GlyphOffsets.Select(ToPoint))}\"");
+        }
+
+        if (glyphRun.Characters is { })
+        {
+            sb.Append($" Characters=\"{new string(glyphRun.Characters)}\"");
+        }
+
+        if (glyphRun.BidiLevel > 0)
+        {
+            sb.Append($" BidiLevel=\"{glyphRun.BidiLevel}\"");
+        }
+
+        if (glyphRun.Language is { })
+        {
+            sb.Append($" Language=\"{glyphRun.Language}\"");
+        }
+
+        if (glyphRun.DeviceFontName is { })
+        {
+            sb.Append($" DeviceFontName=\"{glyphRun.DeviceFontName}\"");
+        }
+
+        if (glyphRun.IsSideways)
+        {
+            sb.Append($" IsSideways=\"True\"");
+        }
+
+        if (glyphRun.ClusterMap is { })
+        {
+            sb.Append($" ClusterMap=\"{string.Join(",", glyphRun.ClusterMap)}\"");
+        }
+
+        if (glyphRun.CaretStops is { })
+        {
+            sb.Append($" CaretStops=\"{string.Join(",", glyphRun.CaretStops)}\"");
+        }
+
+        sb.Append($"/>{settings.NewLine}");
+        return sb.ToString();
     }
 
     private string GenerateGeometryDrawing(GeometryDrawing geometryDrawing, XamlGeneratorSettings settings, SkiaSharp.SKMatrix? matrix)
@@ -845,6 +972,8 @@ public class XamlGenerator
             GeometryDrawing geometryDrawing => GenerateGeometryDrawing(geometryDrawing, settings, matrix),
             DrawingGroup drawingGroup => GenerateDrawingGroup(drawingGroup, settings),
             DrawingImage drawingImage => GenerateDrawingImage(drawingImage, settings, matrix),
+            ImageDrawing imageDrawing => GenerateImageDrawing(imageDrawing, settings, matrix),
+            GlyphRunDrawing glyphRunDrawing => GenerateGlyphRunDrawing(glyphRunDrawing, settings, matrix),
             Image image => GenerateImage(image, settings, matrix),
             _ => ""
         };
