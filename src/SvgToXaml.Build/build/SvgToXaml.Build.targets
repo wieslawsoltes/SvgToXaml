@@ -6,6 +6,11 @@
 
   <UsingTask TaskName="SvgToXaml.Build.SvgToXamlTask" AssemblyFile="$(SvgToXamlTaskAssembly)" />
 
+  <ItemGroup>
+    <Watch Include="@(SvgFiles)" />
+    <CustomAdditionalCompileInputs Include="@(SvgFiles)" />
+  </ItemGroup>
+
   <Target Name="SvgToXamlConvert" BeforeTargets="Compile;CoreCompile" Condition="'@(SvgFiles)' != ''">
     <SvgToXamlTask InputFiles="@(SvgFiles)" />
   </Target>
