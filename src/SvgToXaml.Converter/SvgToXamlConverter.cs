@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Svg.Model;
+using Svg.Skia;
 
 namespace SvgToXaml.Converter;
 
@@ -19,7 +21,42 @@ public class SvgToXamlConverter
 
     public  bool TransformGeometry { get; set; }
 
+    public bool IgnoreOpacity { get; set; }
+
+    public bool IgnoreFilter { get; set; }
+
+    public bool IgnoreClipPath { get; set; }
+
+    public bool IgnoreMask { get; set; }
+
     public SvgToXaml.Model.Resources.ResourceDictionary? Resources { get; set; }
+
+    public DrawAttributes GetDrawAttributes()
+    {
+        var ignoreAttribute = DrawAttributes.None;
+
+        if (IgnoreOpacity)
+        {
+            ignoreAttribute |= DrawAttributes.Opacity;
+        }
+
+        if (IgnoreFilter)
+        {
+            ignoreAttribute |= DrawAttributes.Filter;
+        }
+
+        if (IgnoreClipPath)
+        {
+            ignoreAttribute |= DrawAttributes.ClipPath;
+        }
+
+        if (IgnoreMask)
+        {
+            ignoreAttribute |= DrawAttributes.Mask;
+        }
+
+        return ignoreAttribute;
+    }
 
     public string ToXamlDrawingGroup(ShimSkiaSharp.SKPicture? skPicture, string? key = null)
     {
@@ -67,24 +104,30 @@ public class SvgToXamlConverter
         {
             try
             {
-                var svg = new Svg.Skia.SKSvg();
-                svg.FromSvg(inputItem.Content);
-                if (svg.Model is null)
+                var svgDocument = SvgExtensions.FromSvg(inputItem.Content);
+                if (svgDocument is null)
                 {
                     continue;
                 }
 
-                var key = $"_{CreateKey(inputItem.Name)}";
+                var assetLoader = new SkiaAssetLoader(new SkiaModel(new SKSvgSettings()));
+                var model = SvgExtensions.ToModel(svgDocument, assetLoader, out _, out _, GetDrawAttributes());
+                if (model is null)
+                {
+                    continue;
+                }
+
+                var key = CreateKey(inputItem.Name);
                 if (generateImage)
                 {
-                    var drawingGroup = new SvgToXaml.Model.Drawing.DrawingGroup(svg.Model, Resources);
+                    var drawingGroup = new SvgToXaml.Model.Drawing.DrawingGroup(model, Resources);
                     var drawingImage = new SvgToXaml.Model.Drawing.DrawingImage(drawingGroup);
                     var image = new SvgToXaml.Model.Containers.Image(drawingImage, key);
                     results.Add((inputItem.Name, key, image));
                 }
                 else
                 {
-                    var drawingGroup = new SvgToXaml.Model.Drawing.DrawingGroup(svg.Model, Resources, key);
+                    var drawingGroup = new SvgToXaml.Model.Drawing.DrawingGroup(model, Resources, key);
                     results.Add((inputItem.Name, key, drawingGroup));
                 }
             }

@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+  </PropertyGroup>
+
+  <Import Project="..\..\build\Avalonia.props" />
+  <Import Project="..\..\build\Avalonia.Desktop.props" />
+  <Import Project="..\..\build\Avalonia.Themes.Fluent.props" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SvgToXaml.Build\SvgToXaml.Build.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <SvgToXamlTaskAssembly>$(MSBuildThisFileDirectory)..\..\src\SvgToXaml.Build\bin\Debug\netstandard2.0\SvgToXaml.Build.dll</SvgToXamlTaskAssembly>
+  </PropertyGroup>
+
+  <Import Project="..\..\src\SvgToXaml.Build\build\SvgToXaml.Build.targets" />
+
+  <ItemGroup>
+    <SvgFiles Include="Assets\**\*.svg" OutputFile="Assets\Icons.axaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\Icons.axaml" />
+  </ItemGroup>
+
+</Project>

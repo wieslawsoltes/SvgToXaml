@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SvgToXaml.Build\SvgToXaml.Build.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <SvgToXamlTaskAssembly>$(MSBuildThisFileDirectory)..\..\src\SvgToXaml.Build\bin\Debug\netstandard2.0\SvgToXaml.Build.dll</SvgToXamlTaskAssembly>
+  </PropertyGroup>
+
+  <Import Project="..\..\src\SvgToXaml.Build\build\SvgToXaml.Build.targets" />
+
+  <ItemGroup>
+    <SvgFiles Include="Assets\**\*.svg" OutputFile="$(OutputPath)Icons.axaml" />
+    <SvgFiles Include="Assets\**\*.svg" OutputDirectory="$(OutputPath)Converted" OutputExtension=".xaml" />
+  </ItemGroup>
+
+</Project>

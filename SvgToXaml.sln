@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-#
+# 
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7F50DE02-D1D9-48CF-B810-2F036D022B34}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgToXaml.Converter", "src\SvgToXaml.Converter\SvgToXaml.Converter.csproj", "{3066AB6A-F627-491B-A187-AE1DAB5C73C5}"
@@ -10,61 +10,61 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "svgxaml", "src\svgxaml\svgxaml.csproj", "{3C542F9C-446C-4B77-A4B6-FD0D74DCC9E7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{3DA1182D-FE58-4135-83B6-12612E71F8E9}"
-ProjectSection(SolutionItems) = preProject
-	.editorconfig = .editorconfig
-	build.ps1 = build.ps1
-	build.sh = build.sh
-	global.json = global.json
-	build\SvgToXaml.public.snk = build\SvgToXaml.public.snk
-	azure-pipelines.yml = azure-pipelines.yml
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		build.ps1 = build.ps1
+		build.sh = build.sh
+		global.json = global.json
+		build\SvgToXaml.public.snk = build\SvgToXaml.public.snk
+		azure-pipelines.yml = azure-pipelines.yml
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{038CD179-37B9-4AD8-B94E-D077723F45D7}"
-ProjectSection(SolutionItems) = preProject
-	LICENSE = LICENSE
-	README.md = README.md
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0A02A9B3-8AF1-4AAD-93B8-2E18438C9A3F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgToXamlConverter.UnitTests", "tests\SvgToXamlConverter.UnitTests\SvgToXamlConverter.UnitTests.csproj", "{A9A6981E-12E8-4553-AA63-0EF5F1E1B575}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "git", "git", "{AEF545DD-DD4E-454A-91E6-A1D82B6382F6}"
-ProjectSection(SolutionItems) = preProject
-	.gitattributes = .gitattributes
-	.gitignore = .gitignore
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{5B9F5688-208D-449D-A2D3-021834123C78}"
-ProjectSection(SolutionItems) = preProject
-	nuget.config = nuget.config
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		nuget.config = nuget.config
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "props", "props", "{D4B713E6-64FD-411D-93FD-462D35E4A3A1}"
-ProjectSection(SolutionItems) = preProject
-	build\Avalonia.Desktop.props = build\Avalonia.Desktop.props
-	build\Avalonia.Diagnostics.props = build\Avalonia.Diagnostics.props
-	build\Avalonia.props = build\Avalonia.props
-	build\Avalonia.Skia.props = build\Avalonia.Skia.props
-	build\Base.props = build\Base.props
-	build\ReferenceAssemblies.props = build\ReferenceAssemblies.props
-	build\SignAssembly.props = build\SignAssembly.props
-	build\SkiaSharp.Linux.props = build\SkiaSharp.Linux.props
-	build\SkiaSharp.props = build\SkiaSharp.props
-	build\SourceLink.props = build\SourceLink.props
-	build\System.CommandLine.props = build\System.CommandLine.props
-	build\XUnit.props = build\XUnit.props
-	build\Avalonia.Controls.Skia.props = build\Avalonia.Controls.Skia.props
-	build\Avalonia.Markup.Xaml.Loader.props = build\Avalonia.Markup.Xaml.Loader.props
-	build\Avalonia.Xaml.Behaviors.props = build\Avalonia.Xaml.Behaviors.props
-	build\Svg.Skia.props = build\Svg.Skia.props
-	build\System.Text.Json.props = build\System.Text.Json.props
-	build\Avalonia.Themes.Fluent.props = build\Avalonia.Themes.Fluent.props
-	build\CommunityToolkit.Mvvm.props = build\CommunityToolkit.Mvvm.props
-	build\ReactiveMarbles.PropertyChanged.props = build\ReactiveMarbles.PropertyChanged.props
-	build\Avalonia.ThemeManager.props = build\Avalonia.ThemeManager.props
-	build\Avalonia.Web.props = build\Avalonia.Web.props
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		build\Avalonia.Desktop.props = build\Avalonia.Desktop.props
+		build\Avalonia.Diagnostics.props = build\Avalonia.Diagnostics.props
+		build\Avalonia.props = build\Avalonia.props
+		build\Avalonia.Skia.props = build\Avalonia.Skia.props
+		build\Base.props = build\Base.props
+		build\ReferenceAssemblies.props = build\ReferenceAssemblies.props
+		build\SignAssembly.props = build\SignAssembly.props
+		build\SkiaSharp.Linux.props = build\SkiaSharp.Linux.props
+		build\SkiaSharp.props = build\SkiaSharp.props
+		build\SourceLink.props = build\SourceLink.props
+		build\System.CommandLine.props = build\System.CommandLine.props
+		build\XUnit.props = build\XUnit.props
+		build\Avalonia.Controls.Skia.props = build\Avalonia.Controls.Skia.props
+		build\Avalonia.Markup.Xaml.Loader.props = build\Avalonia.Markup.Xaml.Loader.props
+		build\Avalonia.Xaml.Behaviors.props = build\Avalonia.Xaml.Behaviors.props
+		build\Svg.Skia.props = build\Svg.Skia.props
+		build\System.Text.Json.props = build\System.Text.Json.props
+		build\Avalonia.Themes.Fluent.props = build\Avalonia.Themes.Fluent.props
+		build\CommunityToolkit.Mvvm.props = build\CommunityToolkit.Mvvm.props
+		build\ReactiveMarbles.PropertyChanged.props = build\ReactiveMarbles.PropertyChanged.props
+		build\Avalonia.ThemeManager.props = build\Avalonia.ThemeManager.props
+		build\Avalonia.Web.props = build\Avalonia.Web.props
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_build", "build\build\_build.csproj", "{E9A88CB0-B853-44C3-8A7E-F67DAD2A7F9B}"
 EndProject
@@ -75,6 +75,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgToXaml.Model", "src\SvgToXaml.Model\SvgToXaml.Model.csproj", "{67FC1B34-6B44-47EB-8D70-28A50B9B7F7C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{2500DF4E-966C-4DDF-8F48-2D2E96A12F1F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgToXaml.Build", "src\SvgToXaml.Build\SvgToXaml.Build.csproj", "{3DC97CAE-9492-4FEB-9FA9-0ABA5D90F1CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgToXaml.IntegrationTest", "tests\SvgToXaml.IntegrationTest\SvgToXaml.IntegrationTest.csproj", "{753876E8-2ED6-46D1-A6F8-DB0C7B4484D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgToXaml.Sample", "samples\SvgToXaml.Sample\SvgToXaml.Sample.csproj", "{688893E9-FFB3-4E18-AAA5-51D2B617D395}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -114,6 +120,18 @@ Global
 		{67FC1B34-6B44-47EB-8D70-28A50B9B7F7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{67FC1B34-6B44-47EB-8D70-28A50B9B7F7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{67FC1B34-6B44-47EB-8D70-28A50B9B7F7C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DC97CAE-9492-4FEB-9FA9-0ABA5D90F1CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DC97CAE-9492-4FEB-9FA9-0ABA5D90F1CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DC97CAE-9492-4FEB-9FA9-0ABA5D90F1CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DC97CAE-9492-4FEB-9FA9-0ABA5D90F1CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{753876E8-2ED6-46D1-A6F8-DB0C7B4484D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{753876E8-2ED6-46D1-A6F8-DB0C7B4484D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{753876E8-2ED6-46D1-A6F8-DB0C7B4484D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{753876E8-2ED6-46D1-A6F8-DB0C7B4484D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{688893E9-FFB3-4E18-AAA5-51D2B617D395}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{688893E9-FFB3-4E18-AAA5-51D2B617D395}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{688893E9-FFB3-4E18-AAA5-51D2B617D395}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{688893E9-FFB3-4E18-AAA5-51D2B617D395}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3066AB6A-F627-491B-A187-AE1DAB5C73C5} = {7F50DE02-D1D9-48CF-B810-2F036D022B34}
@@ -127,5 +145,8 @@ Global
 		{26D44BDD-F30E-42C5-AF90-B93BD53C67AC} = {2500DF4E-966C-4DDF-8F48-2D2E96A12F1F}
 		{FF9A2CC2-C733-421E-8F6D-39442041C86B} = {2500DF4E-966C-4DDF-8F48-2D2E96A12F1F}
 		{3C542F9C-446C-4B77-A4B6-FD0D74DCC9E7} = {2500DF4E-966C-4DDF-8F48-2D2E96A12F1F}
+		{3DC97CAE-9492-4FEB-9FA9-0ABA5D90F1CD} = {7F50DE02-D1D9-48CF-B810-2F036D022B34}
+		{753876E8-2ED6-46D1-A6F8-DB0C7B4484D0} = {0A02A9B3-8AF1-4AAD-93B8-2E18438C9A3F}
+		{688893E9-FFB3-4E18-AAA5-51D2B617D395} = {2500DF4E-966C-4DDF-8F48-2D2E96A12F1F}
 	EndGlobalSection
 EndGlobal

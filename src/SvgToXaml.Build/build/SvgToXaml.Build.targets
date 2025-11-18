@@ -1,0 +1,13 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <SvgToXamlTaskAssembly Condition="'$(SvgToXamlTaskAssembly)' == ''">$(MSBuildThisFileDirectory)..\lib\netstandard2.0\SvgToXaml.Build.dll</SvgToXamlTaskAssembly>
+  </PropertyGroup>
+
+  <UsingTask TaskName="SvgToXaml.Build.SvgToXamlTask" AssemblyFile="$(SvgToXamlTaskAssembly)" />
+
+  <Target Name="SvgToXamlConvert" BeforeTargets="Compile;CoreCompile" Condition="'@(SvgFiles)' != ''">
+    <SvgToXamlTask InputFiles="@(SvgFiles)" />
+  </Target>
+
+</Project>

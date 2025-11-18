@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <PackageId>SvgToXaml.Build</PackageId>
+    <Description>MSBuild task for SvgToXaml.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>svg;xaml;axaml;avalonia;avaloniaui;convert;converter;msbuild;task;build</PackageTags>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.0.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.0" />
+    <PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="2.88.8" GeneratePathProperty="true" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.macOS" Version="7.3.0.2" GeneratePathProperty="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SvgToXaml.Converter\SvgToXaml.Converter.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="build\SvgToXaml.Build.targets" Pack="true" PackagePath="build" />
+  </ItemGroup>
+
+  <Target Name="CopyRuntimes" AfterTargets="Build">
+    <ItemGroup>
+      <SkiaRuntimes Include="$(PkgSkiaSharp_NativeAssets_macOS)/runtimes/**/*.*" />
+      <HarfBuzzRuntimes Include="$(PkgHarfBuzzSharp_NativeAssets_macOS)/runtimes/**/*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(SkiaRuntimes)" DestinationFiles="@(SkiaRuntimes->'$(OutDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(HarfBuzzRuntimes)" DestinationFiles="@(HarfBuzzRuntimes->'$(OutDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>
