@@ -17,8 +17,10 @@
     <PackageReference Include="System.Text.Json" Version="10.0.0" />
     <PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="3.119.1" GeneratePathProperty="true" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.1" GeneratePathProperty="true" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="3.119.1" GeneratePathProperty="true" />
     <PackageReference Include="HarfBuzzSharp.NativeAssets.macOS" Version="8.3.1.2" GeneratePathProperty="true" />
     <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="8.3.1.2" GeneratePathProperty="true" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Win32" Version="8.3.1.2" GeneratePathProperty="true" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,8 +35,10 @@
     <ItemGroup>
       <SkiaRuntimes Include="$(PkgSkiaSharp_NativeAssets_macOS)/runtimes/osx*/native/*" />
       <SkiaRuntimes Include="$(PkgSkiaSharp_NativeAssets_Linux_NoDependencies)/runtimes/linux-x64/native/*" />
+      <SkiaRuntimes Include="$(PkgSkiaSharp_NativeAssets_Win32)/runtimes/win-x64/native/*" />
       <HarfBuzzRuntimes Include="$(PkgHarfBuzzSharp_NativeAssets_macOS)/runtimes/osx*/native/*" />
       <HarfBuzzRuntimes Include="$(PkgHarfBuzzSharp_NativeAssets_Linux)/runtimes/linux-x64/native/*" />
+      <HarfBuzzRuntimes Include="$(PkgHarfBuzzSharp_NativeAssets_Win32)/runtimes/win-x64/native/*" />
     </ItemGroup>
     <Copy SourceFiles="@(SkiaRuntimes)" DestinationFiles="@(SkiaRuntimes->'$(OutDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(HarfBuzzRuntimes)" DestinationFiles="@(HarfBuzzRuntimes->'$(OutDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
