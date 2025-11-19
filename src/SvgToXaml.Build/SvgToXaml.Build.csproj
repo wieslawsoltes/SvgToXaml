@@ -31,10 +31,10 @@
 
   <Target Name="CopyRuntimes" AfterTargets="Build">
     <ItemGroup>
-      <SkiaRuntimes Include="$(PkgSkiaSharp_NativeAssets_macOS)/runtimes/**/*.*" />
-      <SkiaRuntimes Include="$(PkgSkiaSharp_NativeAssets_Linux_NoDependencies)/runtimes/**/*.*" />
-      <HarfBuzzRuntimes Include="$(PkgHarfBuzzSharp_NativeAssets_macOS)/runtimes/**/*.*" />
-      <HarfBuzzRuntimes Include="$(PkgHarfBuzzSharp_NativeAssets_Linux)/runtimes/**/*.*" />
+      <SkiaRuntimes Include="$(PkgSkiaSharp_NativeAssets_macOS)/runtimes/osx*/native/*" />
+      <SkiaRuntimes Include="$(PkgSkiaSharp_NativeAssets_Linux_NoDependencies)/runtimes/linux-x64/native/*" />
+      <HarfBuzzRuntimes Include="$(PkgHarfBuzzSharp_NativeAssets_macOS)/runtimes/osx*/native/*" />
+      <HarfBuzzRuntimes Include="$(PkgHarfBuzzSharp_NativeAssets_Linux)/runtimes/linux-x64/native/*" />
     </ItemGroup>
     <Copy SourceFiles="@(SkiaRuntimes)" DestinationFiles="@(SkiaRuntimes->'$(OutDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(HarfBuzzRuntimes)" DestinationFiles="@(HarfBuzzRuntimes->'$(OutDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
