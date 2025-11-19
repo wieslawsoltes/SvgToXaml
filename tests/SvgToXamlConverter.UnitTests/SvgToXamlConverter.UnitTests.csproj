@@ -15,7 +15,7 @@
   <Import Project="..\..\build\Avalonia.Markup.Xaml.Loader.props" />
 
   <ItemGroup>
-    <PackageReference Include="Avalonia.Headless.XUnit" Version="11.2.0" />
+    <PackageReference Include="Avalonia.Headless.XUnit" Version="11.3.9" />
   </ItemGroup>
 
   <ItemGroup>
