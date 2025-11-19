@@ -8,6 +8,7 @@ using Svg.Skia;
 using SvgToXaml.Converter;
 using SvgToXaml.Model;
 using Svg.Model;
+using Svg.Model.Services;
 
 namespace SvgToXaml.Build;
 
@@ -72,11 +73,11 @@ public class SvgToXamlTask : Task
                 {
                     var converter = CreateConverter(item);
                     var content = File.ReadAllText(path);
-                    var svgDocument = SvgExtensions.FromSvg(content);
+                    var svgDocument = SvgService.FromSvg(content);
                     if (svgDocument != null)
                     {
-                        var assetLoader = new SkiaAssetLoader(new SkiaModel(new SKSvgSettings()));
-                        var model = SvgExtensions.ToModel(svgDocument, assetLoader, out _, out _, converter.GetDrawAttributes());
+                        var assetLoader = new SkiaSvgAssetLoader(new SkiaModel(new SKSvgSettings()));
+                        var model = SvgService.ToModel(svgDocument, assetLoader, out _, out _, converter.GetDrawAttributes());
                         if (model != null)
                         {
                             var xaml = converter.ToXamlImage(model);
