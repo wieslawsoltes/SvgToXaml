@@ -18,6 +18,7 @@
       "mainAssembly": "SvgToXaml.Web.dll"
     },
     "configProperties": {
+      "MVVMTOOLKIT_ENABLE_INOTIFYPROPERTYCHANGING_SUPPORT": true,
       "Microsoft.Extensions.DependencyInjection.VerifyOpenGenericServiceTrimmability": true,
       "System.ComponentModel.TypeConverter.EnableUnsafeBinaryFormatterInDesigntimeLicenseContextSerialization": false,
       "System.Reflection.Metadata.MetadataUpdater.IsSupported": false,
