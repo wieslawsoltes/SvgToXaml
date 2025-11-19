@@ -5,6 +5,9 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <Import Project="..\..\build\Base.props" />
+  <Import Project="..\..\build\Avalonia.props" />
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\SvgToXaml.Build\SvgToXaml.Build.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>

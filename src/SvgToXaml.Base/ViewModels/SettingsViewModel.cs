@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using SvgToXaml.Converter;
 
 namespace SvgToXaml.ViewModels;
 
@@ -15,6 +16,7 @@ public class SettingsViewModel : ViewModelBase
     private bool _ignoreFilter;
     private bool _ignoreClipPath;
     private bool _ignoreMask;
+    private GeneratorType _generatorType;
 
     [JsonInclude]
     public bool EnableGenerateImage
@@ -91,6 +93,13 @@ public class SettingsViewModel : ViewModelBase
     {
         get => _ignoreMask;
         set => SetProperty(ref _ignoreMask, value);
+    }
+
+    [JsonInclude]
+    public GeneratorType GeneratorType
+    {
+        get => _generatorType;
+        set => SetProperty(ref _generatorType, value);
     }
 
     [JsonConstructor]

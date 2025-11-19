@@ -13,565 +13,77 @@ public class XamlGenerator
 {
     private static string ToKey(string? key)
     {
-        return key is null ? "" : $" x:Key=\"{key}\"";
+        return GeneratorHelper.ToKey(key);
     }
 
     private static string ToGradientSpreadMethod(ShimSkiaSharp.SKShaderTileMode shaderTileMode)
     {
-        return shaderTileMode switch
-        {
-            ShimSkiaSharp.SKShaderTileMode.Clamp => "Pad",
-            ShimSkiaSharp.SKShaderTileMode.Repeat => "Repeat",
-            ShimSkiaSharp.SKShaderTileMode.Mirror => "Reflect",
-            _ => "Pad"
-        };
+        return GeneratorHelper.ToGradientSpreadMethod(shaderTileMode);
     }
 
     private static string ToTileMode(ShimSkiaSharp.SKShaderTileMode shaderTileMode)
     {
-        return shaderTileMode switch
-        {
-            ShimSkiaSharp.SKShaderTileMode.Clamp => "None",
-            ShimSkiaSharp.SKShaderTileMode.Repeat => "Tile",
-            ShimSkiaSharp.SKShaderTileMode.Mirror => "FlipXY",
-            _ => "None"
-        };
+        return GeneratorHelper.ToTileMode(shaderTileMode);
     }
 
     private static string ToPenLineCap(ShimSkiaSharp.SKStrokeCap strokeCap)
     {
-        return strokeCap switch
-        {
-            ShimSkiaSharp.SKStrokeCap.Butt => "Flat",
-            ShimSkiaSharp.SKStrokeCap.Round => "Round",
-            ShimSkiaSharp.SKStrokeCap.Square => "Square",
-            _ => "Flat"
-        };
+        return GeneratorHelper.ToPenLineCap(strokeCap);
     }
 
     private static string ToPenLineJoin(ShimSkiaSharp.SKStrokeJoin strokeJoin, bool useCompatMode = false)
     {
-        return strokeJoin switch
-        {
-            ShimSkiaSharp.SKStrokeJoin.Miter => "Miter",
-            ShimSkiaSharp.SKStrokeJoin.Round => "Round",
-            ShimSkiaSharp.SKStrokeJoin.Bevel => "Bevel",
-            _ => useCompatMode ? "Miter" : "Bevel"
-        };
+        return GeneratorHelper.ToPenLineJoin(strokeJoin, useCompatMode);
     }
 
     private static string ToXamlString(double value)
     {
-        return value.ToString(CultureInfo.InvariantCulture);
+        return GeneratorHelper.ToXamlString(value);
     }
 
     private static string ToXamlString(float value)
     {
-        return value.ToString(CultureInfo.InvariantCulture);
+        return GeneratorHelper.ToXamlString(value);
     }
 
     private static string ToHexColor(ShimSkiaSharp.SKColor skColor)
     {
-        var sb = new StringBuilder();
-        sb.Append('#');
-        sb.AppendFormat("{0:X2}", skColor.Alpha);
-        sb.AppendFormat("{0:X2}", skColor.Red);
-        sb.AppendFormat("{0:X2}", skColor.Green);
-        sb.AppendFormat("{0:X2}", skColor.Blue);
-        return sb.ToString();
+        return GeneratorHelper.ToHexColor(skColor);
     }
 
     private static string ToPoint(SkiaSharp.SKPoint skPoint)
     {
-        var sb = new StringBuilder();
-        sb.Append(ToXamlString(skPoint.X));
-        sb.Append(',');
-        sb.Append(ToXamlString(skPoint.Y));
-        return sb.ToString();
+        return GeneratorHelper.ToPoint(skPoint);
     }
 
     private static string ToRect(ShimSkiaSharp.SKRect sKRect)
     {
-        var sb = new StringBuilder();
-        sb.Append(ToXamlString(sKRect.Left));
-        sb.Append(',');
-        sb.Append(ToXamlString(sKRect.Top));
-        sb.Append(',');
-        sb.Append(ToXamlString(sKRect.Width));
-        sb.Append(',');
-        sb.Append(ToXamlString(sKRect.Height));
-        return sb.ToString();
+        return GeneratorHelper.ToRect(sKRect);
     }
 
     private static string ToRect(SkiaSharp.SKRect sKRect)
     {
-        var sb = new StringBuilder();
-        sb.Append(ToXamlString(sKRect.Left));
-        sb.Append(',');
-        sb.Append(ToXamlString(sKRect.Top));
-        sb.Append(',');
-        sb.Append(ToXamlString(sKRect.Width));
-        sb.Append(',');
-        sb.Append(ToXamlString(sKRect.Height));
-        return sb.ToString();
+        return GeneratorHelper.ToRect(sKRect);
     }
 
     private static string ToMatrix(SkiaSharp.SKMatrix skMatrix)
     {
-        var sb = new StringBuilder();
-        sb.Append(ToXamlString(skMatrix.ScaleX));
-        sb.Append(',');
-        sb.Append(ToXamlString(skMatrix.SkewY));
-        sb.Append(',');
-        sb.Append(ToXamlString(skMatrix.SkewX));
-        sb.Append(',');
-        sb.Append(ToXamlString(skMatrix.ScaleY));
-        sb.Append(',');
-        sb.Append(ToXamlString(skMatrix.TransX));
-        sb.Append(',');
-        sb.Append(ToXamlString(skMatrix.TransY));
-        return sb.ToString();
+        return GeneratorHelper.ToMatrix(skMatrix);
     }
 
     private static string ToSvgPathData(SkiaSharp.SKPath path, SkiaSharp.SKMatrix matrix)
     {
-        var transformedPath = new SkiaSharp.SKPath(path);
-        transformedPath.Transform(matrix);
-        if (transformedPath.FillType == SkiaSharp.SKPathFillType.EvenOdd)
-        {
-            // EvenOdd
-            var sb = new StringBuilder();
-            sb.Append("F0 ");
-            sb.Append(transformedPath.ToSvgPathData());
-            return sb.ToString();
-        }
-        else
-        {
-            // Nonzero 
-            var sb = new StringBuilder();
-            sb.Append("F1 ");
-            sb.Append(transformedPath.ToSvgPathData());
-            return sb.ToString();
-        }
+        return GeneratorHelper.ToSvgPathData(path, matrix);
     }
 
     private string GenerateBrush(Brush brush, XamlGeneratorSettings settings)
     {
-        return brush switch
-        {
-            SolidColorBrush solidColorBrush => GenerateSolidColorBrush(solidColorBrush, settings),
-            LinearGradientBrush linearGradientBrush => GenerateLinearGradientBrush(linearGradientBrush, settings),
-            RadialGradientBrush radialGradientBrush => GenerateRadialGradientBrush(radialGradientBrush, settings),
-            TwoPointConicalGradientBrush twoPointConicalGradientBrush => GenerateTwoPointConicalGradientBrush(twoPointConicalGradientBrush, settings),
-            PictureBrush pictureBrush => GeneratePictureBrush(pictureBrush, settings),
-            _ => ""
-        };
-    }
-
-    private string GenerateSolidColorBrush(SolidColorBrush solidColorBrush, XamlGeneratorSettings settings)
-    {
-        var sb = new StringBuilder();
-
-        sb.Append($"<SolidColorBrush{ToKey(solidColorBrush.Key)}");
-        sb.Append($" Color=\"{ToHexColor(solidColorBrush.Color)}\"");
-        sb.Append($"/>{settings.NewLine}");
-
-        return sb.ToString();
-    }
-
-    private string GenerateLinearGradientBrush(LinearGradientBrush linearGradientBrush, XamlGeneratorSettings settings)
-    {
-        var sb = new StringBuilder();
-
-        var start = linearGradientBrush.Start;
-        var end = linearGradientBrush.End;
-
-        sb.Append($"<LinearGradientBrush{ToKey(linearGradientBrush.Key)}");
-
-        sb.Append($" StartPoint=\"{ToPoint(start)}\"");
-        sb.Append($" EndPoint=\"{ToPoint(end)}\"");
-
-        if (linearGradientBrush.Mode != ShimSkiaSharp.SKShaderTileMode.Clamp)
-        {
-            sb.Append($" SpreadMethod=\"{ToGradientSpreadMethod(linearGradientBrush.Mode)}\"");
-        }
-
-        if (settings.UseCompatMode)
-        {
-            sb.Append($" MappingMode=\"Absolute\"");
-        }
-
-        sb.Append($">{settings.NewLine}");
-
-        if (linearGradientBrush.LocalMatrix is { })
-        {
-            var localMatrix = linearGradientBrush.LocalMatrix.Value;
-
-            sb.Append($"  <LinearGradientBrush.Transform>{settings.NewLine}");
-            sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{settings.NewLine}");
-            sb.Append($"  </LinearGradientBrush.Transform>{settings.NewLine}");
-        }
-
-        if (linearGradientBrush.GradientStops.Count > 0)
-        {
-            sb.Append($"  <LinearGradientBrush.GradientStops>{settings.NewLine}");
-
-            foreach (var stop in linearGradientBrush.GradientStops)
-            {
-                var color = ToHexColor(stop.Color);
-                var offset = ToXamlString(stop.Offset);
-                sb.Append($"    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{settings.NewLine}");
-            }
-
-            sb.Append($"  </LinearGradientBrush.GradientStops>{settings.NewLine}");
-        }
-
-        sb.Append($"</LinearGradientBrush>{settings.NewLine}");
-
-        return sb.ToString();
-    }
-
-    private string GenerateRadialGradientBrush(RadialGradientBrush radialGradientBrush, XamlGeneratorSettings settings)
-    {
-        var sb = new StringBuilder();
-
-        var radius = radialGradientBrush.Radius;
-
-        var center = radialGradientBrush.Center;
-        var gradientOrigin = radialGradientBrush.Center;
-
-        if (!settings.UseCompatMode)
-        {
-            radius = radius / radialGradientBrush.Bounds.Width;
-        }
-
-        sb.Append($"<RadialGradientBrush{ToKey(radialGradientBrush.Key)}");
-
-        sb.Append($" Center=\"{ToPoint(center)}\"");
-        sb.Append($" GradientOrigin=\"{ToPoint(gradientOrigin)}\"");
-
-        if (settings.UseCompatMode)
-        {
-            sb.Append($" RadiusX=\"{ToXamlString(radius)}\"");
-            sb.Append($" RadiusY=\"{ToXamlString(radius)}\"");
-        }
-        else
-        {
-            sb.Append($" Radius=\"{ToXamlString(radius)}\"");
-        }
-
-        if (settings.UseCompatMode)
-        {
-            sb.Append($" MappingMode=\"Absolute\"");
-        }
-
-        if (radialGradientBrush.Mode != ShimSkiaSharp.SKShaderTileMode.Clamp)
-        {
-            sb.Append($" SpreadMethod=\"{ToGradientSpreadMethod(radialGradientBrush.Mode)}\"");
-        }
-
-        sb.Append($">{settings.NewLine}");
-
-        if (radialGradientBrush.LocalMatrix is { })
-        {
-            var localMatrix = radialGradientBrush.LocalMatrix.Value;
-
-            sb.Append($"  <RadialGradientBrush.Transform>{settings.NewLine}");
-            sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{settings.NewLine}");
-            sb.Append($"  </RadialGradientBrush.Transform>{settings.NewLine}");
-        }
-
-        if (radialGradientBrush.GradientStops.Count > 0)
-        {
-            sb.Append($"  <RadialGradientBrush.GradientStops>{settings.NewLine}");
-
-            foreach (var stop in radialGradientBrush.GradientStops)
-            {
-                var color = ToHexColor(stop.Color);
-                var offset = ToXamlString(stop.Offset);
-                sb.Append($"    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{settings.NewLine}");
-            }
-
-            sb.Append($"  </RadialGradientBrush.GradientStops>{settings.NewLine}");
-        }
-
-        sb.Append($"</RadialGradientBrush>{settings.NewLine}");
-
-        return sb.ToString();
-    }
-
-    private string GenerateTwoPointConicalGradientBrush(TwoPointConicalGradientBrush twoPointConicalGradientBrush, XamlGeneratorSettings settings)
-    {
-        var sb = new StringBuilder();
-
-        // NOTE: twoPointConicalGradientShader.StartRadius is always 0.0
-        // ReSharper disable once UnusedVariable
-        var startRadius = twoPointConicalGradientBrush.StartRadius;
-
-        // TODO: Avalonia is passing 'radius' to 'SKShader.CreateTwoPointConicalGradient' as 'startRadius'
-        // TODO: but we need to pass it as 'endRadius' to 'SKShader.CreateTwoPointConicalGradient'
-        var endRadius = twoPointConicalGradientBrush.EndRadius;
-
-        var center = twoPointConicalGradientBrush.End;
-        var gradientOrigin = twoPointConicalGradientBrush.Start;
-
-        if (!settings.UseCompatMode)
-        {
-            endRadius = endRadius / twoPointConicalGradientBrush.Bounds.Width;
-        }
-
-        sb.Append($"<RadialGradientBrush{ToKey(twoPointConicalGradientBrush.Key)}");
-
-        sb.Append($" Center=\"{ToPoint(center)}\"");
-        sb.Append($" GradientOrigin=\"{ToPoint(gradientOrigin)}\"");
-
-        if (settings.UseCompatMode)
-        {
-            sb.Append($" RadiusX=\"{ToXamlString(endRadius)}\"");
-            sb.Append($" RadiusY=\"{ToXamlString(endRadius)}\"");
-        }
-        else
-        {
-            sb.Append($" Radius=\"{ToXamlString(endRadius)}\"");
-        }
-
-        if (settings.UseCompatMode)
-        {
-            sb.Append($" MappingMode=\"Absolute\"");
-        }
-
-        if (twoPointConicalGradientBrush.Mode != ShimSkiaSharp.SKShaderTileMode.Clamp)
-        {
-            sb.Append($" SpreadMethod=\"{ToGradientSpreadMethod(twoPointConicalGradientBrush.Mode)}\"");
-        }
-
-        sb.Append($">{settings.NewLine}");
-
-        if (twoPointConicalGradientBrush.LocalMatrix is { })
-        {
-            var localMatrix = twoPointConicalGradientBrush.LocalMatrix.Value;
-
-            sb.Append($"  <RadialGradientBrush.Transform>{settings.NewLine}");
-            sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{settings.NewLine}");
-            sb.Append($"  </RadialGradientBrush.Transform>{settings.NewLine}");
-        }
-
-        if (twoPointConicalGradientBrush.GradientStops.Count > 0)
-        {
-            sb.Append($"  <RadialGradientBrush.GradientStops>{settings.NewLine}");
-
-            foreach (var stop in twoPointConicalGradientBrush.GradientStops)
-            {
-                var color = ToHexColor(stop.Color);
-                var offset = ToXamlString(stop.Offset);
-                sb.Append($"    <GradientStop Offset=\"{offset}\" Color=\"{color}\"/>{settings.NewLine}");
-            }
-
-            sb.Append($"  </RadialGradientBrush.GradientStops>{settings.NewLine}");
-        }
-
-        sb.Append($"</RadialGradientBrush>{settings.NewLine}");
-
-        return sb.ToString();
-    }
-
-    private string GeneratePictureBrush(PictureBrush pictureBrush, XamlGeneratorSettings settings)
-    {
-        if (pictureBrush.Picture is null)
-        {
-            return "";
-        }
-
-        var sb = new StringBuilder();
-
-        var sourceRect = pictureBrush.CullRect;
-        var destinationRect = pictureBrush.Tile;
-
-        // TODO: Use different visual then Image ?
-        sb.Append($"<VisualBrush{ToKey(pictureBrush.Key)}");
-
-        if (pictureBrush.TileMode != ShimSkiaSharp.SKShaderTileMode.Clamp)
-        {
-            sb.Append($" TileMode=\"{ToTileMode(pictureBrush.TileMode)}\"");
-        }
-
-        if (settings.UseCompatMode)
-        {
-            if (!sourceRect.IsEmpty)
-            {
-                sb.Append($" Viewport=\"{ToRect(sourceRect)}\" ViewportUnits=\"Absolute\"");
-            }
-
-            if (!destinationRect.IsEmpty)
-            {
-                sb.Append($" Viewbox=\"{ToRect(destinationRect)}\" ViewboxUnits=\"Absolute\"");
-            }
-        }
-        else
-        {
-            if (!sourceRect.IsEmpty)
-            {
-                sb.Append($" SourceRect=\"{ToRect(sourceRect)}\"");
-            }
-
-            if (!destinationRect.IsEmpty)
-            {
-                sb.Append($" DestinationRect=\"{ToRect(destinationRect)}\"");
-            }
-        }
-
-        sb.Append($">{settings.NewLine}");
-
-        if (pictureBrush.LocalMatrix is { })
-        {
-            var localMatrix = pictureBrush.LocalMatrix.Value;
-
-            sb.Append($"  <VisualBrush.Transform>{settings.NewLine}");
-            sb.Append($"    <MatrixTransform Matrix=\"{ToMatrix(localMatrix)}\"/>{settings.NewLine}");
-            sb.Append($"  </VisualBrush.Transform>{settings.NewLine}");
-        }
-
-        if (pictureBrush.Picture is not null)
-        {
-            sb.Append($"  <VisualBrush.Visual>{settings.NewLine}");
-            sb.Append(GenerateImage(pictureBrush.Picture, settings with { WriteResources = false, AddTransparentBackground = false }, SkiaSharp.SKMatrix.CreateIdentity()));
-            sb.Append($"{settings.NewLine}");
-            sb.Append($"  </VisualBrush.Visual>{settings.NewLine}");
-        }
-
-        sb.Append($"</VisualBrush>{settings.NewLine}");
-
-        return sb.ToString();
+        return BrushGenerator.GenerateBrush(brush, settings, (image, s, m) => GenerateImage(image, s with { WriteResources = false, AddTransparentBackground = false }, m));
     }
 
     private string GeneratePen(Pen pen, XamlGeneratorSettings settings)
     {
-        if (pen.Brush is null)
-        {
-            return "";
-        }
-
-        var sb = new StringBuilder();
-
-        sb.Append($"<Pen{ToKey(pen.Key)}");
-
-        if (pen.Brush is SolidColorBrush solidColorBrush)
-        {
-            sb.Append($" Brush=\"{ToHexColor(solidColorBrush.Color)}\"");
-        }
-
-        // ReSharper disable once CompareOfFloatsByEqualityOperator
-        if (pen.StrokeWidth != 1.0)
-        {
-            sb.Append($" Thickness=\"{ToXamlString(pen.StrokeWidth)}\"");
-        }
-
-        if (pen.StrokeCap != ShimSkiaSharp.SKStrokeCap.Butt)
-        {
-            if (settings.UseCompatMode)
-            {
-                sb.Append($" StartLineCap=\"{ToPenLineCap(pen.StrokeCap)}\"");
-                sb.Append($" EndLineCap=\"{ToPenLineCap(pen.StrokeCap)}\"");
-            }
-            else
-            {
-                sb.Append($" LineCap=\"{ToPenLineCap(pen.StrokeCap)}\"");
-            }
-        }
-
-        if (settings.UseCompatMode)
-        {
-            if (pen.Dashes is { Intervals: { } })
-            {
-                if (pen.StrokeCap != ShimSkiaSharp.SKStrokeCap.Square)
-                {
-                    sb.Append($" DashCap=\"{ToPenLineCap(pen.StrokeCap)}\"");
-                }
-            }
-
-            if (pen.StrokeJoin != ShimSkiaSharp.SKStrokeJoin.Miter)
-            {
-                sb.Append($" LineJoin=\"{ToPenLineJoin(pen.StrokeJoin)}\"");
-            }
-        }
-        else
-        {
-            if (pen.StrokeJoin != ShimSkiaSharp.SKStrokeJoin.Bevel)
-            {
-                sb.Append($" LineJoin=\"{ToPenLineJoin(pen.StrokeJoin)}\"");
-            }
-        }
-
-        if (settings.UseCompatMode)
-        {
-            var miterLimit = pen.StrokeMiter;
-            var strokeWidth = pen.StrokeWidth;
-
-            if (miterLimit < 1.0f)
-            {
-                miterLimit = 10.0f;
-            }
-            else
-            {
-                if (strokeWidth <= 0.0f)
-                {
-                    miterLimit = 1.0f;
-                }
-            }
-
-            // ReSharper disable once CompareOfFloatsByEqualityOperator
-            if (miterLimit != 10.0)
-            {
-                sb.Append($" MiterLimit=\"{ToXamlString(miterLimit)}\"");
-            }
-        }
-        else
-        {
-            // ReSharper disable once CompareOfFloatsByEqualityOperator
-            if (pen.StrokeMiter != 10.0)
-            {
-                sb.Append($" MiterLimit=\"{ToXamlString(pen.StrokeMiter)}\"");
-            }
-        }
-
-        if (pen.Brush is not SolidColorBrush || pen.Dashes is { Intervals: { } })
-        {
-            sb.Append($">{settings.NewLine}");
-        }
-        else
-        {
-            sb.Append($"/>{settings.NewLine}");
-        }
-
-        if (pen.Dashes is { Intervals: { } })
-        {
-            var dashes = new List<double>();
-
-            foreach (var interval in pen.Dashes.Intervals)
-            {
-                dashes.Add(interval / pen.StrokeWidth);
-            }
-
-            var offset = pen.Dashes.Phase / pen.StrokeWidth;
-
-            sb.Append($"  <Pen.DashStyle>{settings.NewLine}");
-            sb.Append($"    <DashStyle Dashes=\"{string.Join(",", dashes.Select(ToXamlString))}\" Offset=\"{ToXamlString(offset)}\"/>{settings.NewLine}");
-            sb.Append($"  </Pen.DashStyle>{settings.NewLine}");
-        }
-
-        if (pen.Brush is not SolidColorBrush)
-        {
-            sb.Append($"  <Pen.Brush>{settings.NewLine}");
-            sb.Append(GenerateBrush(pen.Brush, settings));
-            sb.Append($"  </Pen.Brush>{settings.NewLine}");
-        }
-
-        if (pen.Brush is not SolidColorBrush || pen.Dashes is { Intervals: { } })
-        {
-            sb.Append($"</Pen>{settings.NewLine}");
-        }
-
-        return sb.ToString();
+        return PenGenerator.GeneratePen(pen, settings, (image, s, m) => GenerateImage(image, s with { WriteResources = false, AddTransparentBackground = false }, m));
     }
 
     private string GenerateDrawing(Drawing drawing, XamlGeneratorSettings settings, SkiaSharp.SKMatrix? matrix)
@@ -963,11 +475,11 @@ public class XamlGenerator
     {
         return resource switch
         {
-            SolidColorBrush solidColorBrush => GenerateSolidColorBrush(solidColorBrush, settings),
-            LinearGradientBrush linearGradientBrush => GenerateLinearGradientBrush(linearGradientBrush, settings),
-            RadialGradientBrush radialGradientBrush => GenerateRadialGradientBrush(radialGradientBrush, settings),
-            TwoPointConicalGradientBrush twoPointConicalGradientBrush => GenerateTwoPointConicalGradientBrush(twoPointConicalGradientBrush, settings),
-            PictureBrush pictureBrush => GeneratePictureBrush(pictureBrush, settings),
+            SolidColorBrush solidColorBrush => BrushGenerator.GenerateSolidColorBrush(solidColorBrush, settings),
+            LinearGradientBrush linearGradientBrush => BrushGenerator.GenerateLinearGradientBrush(linearGradientBrush, settings),
+            RadialGradientBrush radialGradientBrush => BrushGenerator.GenerateRadialGradientBrush(radialGradientBrush, settings),
+            TwoPointConicalGradientBrush twoPointConicalGradientBrush => BrushGenerator.GenerateTwoPointConicalGradientBrush(twoPointConicalGradientBrush, settings),
+            PictureBrush pictureBrush => BrushGenerator.GeneratePictureBrush(pictureBrush, settings, (image, s, m) => GenerateImage(image, s with { WriteResources = false, AddTransparentBackground = false }, m)),
             Pen pen => GeneratePen(pen, settings),
             GeometryDrawing geometryDrawing => GenerateGeometryDrawing(geometryDrawing, settings, matrix),
             DrawingGroup drawingGroup => GenerateDrawingGroup(drawingGroup, settings),
@@ -981,34 +493,7 @@ public class XamlGenerator
 
     private string GenerateResourceDictionary(ResourceDictionary resourceDictionary, XamlGeneratorSettings settings)
     {
-        var sb = new StringBuilder();
-
-        if (settings.ReuseExistingResources)
-        {
-            foreach (var resource in resourceDictionary.UseBrushes)
-            {
-                sb.Append(GenerateBrush(resource, settings));
-            }
-
-            foreach (var resource in resourceDictionary.UsePens)
-            {
-                sb.Append(GeneratePen(resource, settings));
-            }
-        }
-        else
-        {
-            foreach (var resource in resourceDictionary.Brushes)
-            {
-                sb.Append(GenerateBrush(resource.Value.Brush, settings));
-            }
-
-            foreach (var resource in resourceDictionary.Pens)
-            {
-                sb.Append(GeneratePen(resource.Value.Pen, settings));
-            }               
-        }
-
-        return sb.ToString();
+        return ResourceGenerator.GenerateResourceDictionary(resourceDictionary, settings, (image, s, m) => GenerateImage(image, s with { WriteResources = false, AddTransparentBackground = false }, m));
     }
 
     public string GenerateImage(Image image, XamlGeneratorSettings settings, SkiaSharp.SKMatrix? matrix)
@@ -1060,93 +545,6 @@ public class XamlGenerator
 
     public string GenerateStyles(Styles styles, XamlGeneratorSettings settings)
     {
-        if (styles.Resources is null)
-        {
-            return "";
-        }
-
-        var sb = new StringBuilder();
-
-        var content = new StringBuilder();
-
-        foreach (var result in styles.Resources)
-        {
-            content.Append(GenerateResource(result, settings with { WriteResources = false, AddTransparentBackground = false }, SkiaSharp.SKMatrix.CreateIdentity()));
-            content.Append(settings.NewLine);
-        }
-
-        if (settings.UseCompatMode)
-        {
-            sb.Append($"<ResourceDictionary xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"{settings.NewLine}");
-            sb.Append($"                    xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">{settings.NewLine}");
-        }
-        else
-        {
-            sb.Append($"<Styles xmlns=\"https://github.com/avaloniaui\"{settings.NewLine}");
-            sb.Append($"        xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">{settings.NewLine}");
-        }
-
-        if (styles.GeneratePreview && !settings.UseCompatMode)
-        {
-            sb.Append($"  <Design.PreviewWith>{settings.NewLine}");
-            sb.Append($"    <ScrollViewer HorizontalScrollBarVisibility=\"Auto\" VerticalScrollBarVisibility=\"Auto\">{settings.NewLine}");
-            sb.Append($"      <WrapPanel ItemWidth=\"50\" ItemHeight=\"50\" MaxWidth=\"400\">{settings.NewLine}");
-
-            foreach (var result in styles.Resources)
-            {
-                if (styles.GenerateImage)
-                {
-                    sb.Append($"        <ContentControl Content=\"{{DynamicResource {result.Key}}}\"/>{settings.NewLine}");
-                }
-                else
-                {
-                    sb.Append($"        <Image>{settings.NewLine}");
-
-                    if (settings.UseCompatMode)
-                    {
-                        sb.Append($"            <Image.Source>{settings.NewLine}");
-                    }
-
-                    sb.Append($"                <DrawingImage Drawing=\"{{DynamicResource {result.Key}}}\"/>{settings.NewLine}");
-
-                    if (settings.UseCompatMode)
-                    {
-                        sb.Append($"            </Image.Source>{settings.NewLine}");
-                    }
-
-                    sb.Append($"        </Image>{settings.NewLine}");
-                }
-            }
-
-            sb.Append($"      </WrapPanel>{settings.NewLine}");
-            sb.Append($"    </ScrollViewer>{settings.NewLine}");
-            sb.Append($"  </Design.PreviewWith>{settings.NewLine}");
-        }
-
-        if (!settings.UseCompatMode)
-        {
-            sb.Append($"  <Style>{settings.NewLine}");
-            sb.Append($"    <Style.Resources>{settings.NewLine}");
-        }
-
-        if (settings.Resources is { } && (settings.Resources.Brushes.Count > 0 || settings.Resources.Pens.Count > 0))
-        {
-            sb.Append(GenerateResourceDictionary(settings.Resources, settings with { WriteResources = false, AddTransparentBackground = false }));
-        }
-
-        sb.Append(content);
-
-        if (settings.UseCompatMode)
-        {
-            sb.Append($"</ResourceDictionary>");
-        }
-        else
-        {
-            sb.Append($"    </Style.Resources>{settings.NewLine}");
-            sb.Append($"  </Style>{settings.NewLine}");
-            sb.Append($"</Styles>{settings.NewLine}");
-        }
-
-        return sb.ToString();
+        return ResourceGenerator.GenerateStyles(styles, settings, GenerateResource, GenerateResourceDictionary);
     }
 }

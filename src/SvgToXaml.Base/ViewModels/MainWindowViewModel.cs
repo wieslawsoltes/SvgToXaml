@@ -555,6 +555,7 @@ public class MainWindowViewModel : ViewModelBase
                         AddTransparentBackground = Project.Settings.AddTransparentBackground,
                         ReuseExistingResources = Project.Settings.ReuseExistingResources,
                         TransformGeometry = Project.Settings.TransformGeometry,
+                        GeneratorType = Project.Settings.GeneratorType,
                         Resources = Project.Settings.UseResources ? new SvgToXaml.Model.Resources.ResourceDictionary() : null
                     };
 
@@ -569,6 +570,7 @@ public class MainWindowViewModel : ViewModelBase
                         AddTransparentBackground = Project.Settings.AddTransparentBackground,
                         ReuseExistingResources = Project.Settings.ReuseExistingResources,
                         TransformGeometry = Project.Settings.TransformGeometry,
+                        GeneratorType = Project.Settings.GeneratorType,
                         Resources = Project.Settings.UseResources ? new SvgToXaml.Model.Resources.ResourceDictionary() : null
                     };
 
@@ -590,6 +592,7 @@ public class MainWindowViewModel : ViewModelBase
                 UseCompatMode = Project.Settings.UseCompatMode, 
                 ReuseExistingResources = Project.Settings.ReuseExistingResources,
                 TransformGeometry = Project.Settings.TransformGeometry,
+                GeneratorType = Project.Settings.GeneratorType,
                 Resources = Project.Settings.UseResources ? new SvgToXaml.Model.Resources.ResourceDictionary() : null
             };
 
@@ -656,6 +659,7 @@ public class MainWindowViewModel : ViewModelBase
                 UseCompatMode = Project.Settings.UseCompatMode,
                 ReuseExistingResources = Project.Settings.ReuseExistingResources,
                 TransformGeometry = Project.Settings.TransformGeometry,
+                GeneratorType = Project.Settings.GeneratorType,
                 Resources = Project.Settings.UseResources ? new SvgToXaml.Model.Resources.ResourceDictionary() : null
             };
 

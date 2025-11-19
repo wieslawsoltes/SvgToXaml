@@ -29,6 +29,8 @@ public class SvgToXamlConverter
 
     public bool IgnoreMask { get; set; }
 
+    public GeneratorType GeneratorType { get; set; } = GeneratorType.Drawing;
+
     public SvgToXaml.Model.Resources.ResourceDictionary? Resources { get; set; }
 
     public DrawAttributes GetDrawAttributes()
@@ -70,8 +72,14 @@ public class SvgToXamlConverter
             ReuseExistingResources = ReuseExistingResources,
             TransformGeometry = TransformGeometry,
             WriteResources = false,
+            GeneratorType = GeneratorType,
             Resources = Resources
         };
+
+        if (GeneratorType == GeneratorType.Canvas)
+        {
+            return new CanvasGenerator().GenerateDrawingGroup(drawingGroup, context);
+        }
 
         return new XamlGenerator().GenerateDrawingGroup(drawingGroup, context);
     }
@@ -90,8 +98,14 @@ public class SvgToXamlConverter
             ReuseExistingResources = ReuseExistingResources,
             TransformGeometry = TransformGeometry,
             WriteResources = true,
+            GeneratorType = GeneratorType,
             Resources = Resources
         };
+
+        if (GeneratorType == GeneratorType.Canvas)
+        {
+            return new CanvasGenerator().GenerateImage(image, context, null);
+        }
 
         return new XamlGenerator().GenerateImage(image, context, null);
     }
@@ -148,8 +162,14 @@ public class SvgToXamlConverter
             ReuseExistingResources = ReuseExistingResources,
             TransformGeometry = TransformGeometry,
             WriteResources = false,
+            GeneratorType = GeneratorType,
             Resources = Resources
         };
+
+        if (GeneratorType == GeneratorType.Canvas)
+        {
+            return new CanvasGenerator().GenerateStyles(styles, context);
+        }
 
         return new XamlGenerator().GenerateStyles(styles, context);
     }

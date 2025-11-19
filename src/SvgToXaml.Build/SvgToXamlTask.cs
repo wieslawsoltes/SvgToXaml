@@ -121,6 +121,7 @@ public class SvgToXamlTask : Task
         }
 
         var useResources = GetBool(item, "UseResources");
+        var generatorType = GetGeneratorType(item, "GeneratorType");
 
         return new SvgToXamlConverter()
         {
@@ -133,8 +134,19 @@ public class SvgToXamlTask : Task
             IgnoreFilter = GetBool(item, "IgnoreFilter"),
             IgnoreClipPath = GetBool(item, "IgnoreClipPath"),
             IgnoreMask = GetBool(item, "IgnoreMask"),
+            GeneratorType = generatorType,
             Resources = useResources ? new SvgToXaml.Model.Resources.ResourceDictionary() : null
         };
+    }
+
+    private GeneratorType GetGeneratorType(ITaskItem item, string name)
+    {
+        var value = item.GetMetadata(name);
+        if (Enum.TryParse<GeneratorType>(value, true, out var result))
+        {
+            return result;
+        }
+        return GeneratorType.Drawing;
     }
 
     private bool GetBool(ITaskItem item, string name)

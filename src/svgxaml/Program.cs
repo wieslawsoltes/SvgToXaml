@@ -7,16 +7,41 @@ using Svg.Skia;
 using SvgToXaml.Converter;
 using SvgToXaml.Model;
 
-if (args.Length != 1 && args.Length != 2)
+var inputPath = "";
+var outputPath = "";
+var generatorType = GeneratorType.Drawing;
+
+for (int i = 0; i < args.Length; i++)
 {
-    Console.WriteLine("Usage: svgxaml <InputPath> [OutputPath]");
+    if (args[i] == "-g" || args[i] == "--generator")
+    {
+        if (i + 1 < args.Length)
+        {
+            if (Enum.TryParse<GeneratorType>(args[i + 1], true, out var result))
+            {
+                generatorType = result;
+                i++;
+            }
+        }
+    }
+    else if (string.IsNullOrEmpty(inputPath))
+    {
+        inputPath = args[i];
+    }
+    else if (string.IsNullOrEmpty(outputPath))
+    {
+        outputPath = args[i];
+    }
+}
+
+if (string.IsNullOrEmpty(inputPath))
+{
+    Console.WriteLine("Usage: svgxaml <InputPath> [OutputPath] [-g|--generator Drawing|Canvas]");
     return;
 }
 
 try
 {
-    var inputPath = args[0];
-
     if (File.GetAttributes(inputPath).HasFlag(FileAttributes.Directory))
     {
         var paths = new List<string>();
@@ -35,6 +60,7 @@ try
             UseCompatMode = false,
             ReuseExistingResources = false,
             TransformGeometry = false,
+            GeneratorType = generatorType,
             Resources = null
         };
 
@@ -47,17 +73,13 @@ try
             return new InputItem(Path.GetFileName(x), content);
         }).ToList());
 
-        if (args.Length == 1)
+        if (string.IsNullOrEmpty(outputPath))
         {
             Console.WriteLine(converter.Format(xaml));
             return;
         }
 
-        if (args.Length == 2)
-        {
-            var outputPath = args[1];
-            File.WriteAllText(outputPath, converter.Format(xaml));
-        }
+        File.WriteAllText(outputPath, converter.Format(xaml));
     }
     else
     {
@@ -66,6 +88,7 @@ try
             UseCompatMode = false,
             ReuseExistingResources = false,
             TransformGeometry = false,
+            GeneratorType = generatorType,
             Resources = null
         };
 
@@ -74,17 +97,13 @@ try
 
         var xaml = converter.ToXamlImage(skSvg.Model);
 
-        if (args.Length == 1)
+        if (string.IsNullOrEmpty(outputPath))
         {
             Console.WriteLine(converter.Format(xaml));
             return;
         }
 
-        if (args.Length == 2)
-        {
-            var outputPath = args[1];
-            File.WriteAllText(outputPath, converter.Format(xaml));
-        }
+        File.WriteAllText(outputPath, converter.Format(xaml));
     }
 }
 catch (Exception ex)
