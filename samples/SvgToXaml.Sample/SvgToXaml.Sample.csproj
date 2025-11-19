@@ -18,12 +18,6 @@
   <PropertyGroup>
     <SvgToXamlTaskAssembly>$(MSBuildThisFileDirectory)..\..\src\SvgToXaml.Build\bin\$(Configuration)\netstandard2.0\SvgToXaml.Build.dll</SvgToXamlTaskAssembly>
   </PropertyGroup>
-  <PropertyGroup Condition="!Exists('$(SvgToXamlTaskAssembly)')">
-     <SvgToXamlTaskAssembly>$(MSBuildThisFileDirectory)..\..\src\SvgToXaml.Build\bin\Release\netstandard2.0\SvgToXaml.Build.dll</SvgToXamlTaskAssembly>
-  </PropertyGroup>
-  <PropertyGroup Condition="!Exists('$(SvgToXamlTaskAssembly)')">
-     <SvgToXamlTaskAssembly>$(MSBuildThisFileDirectory)..\..\src\SvgToXaml.Build\bin\Debug\netstandard2.0\SvgToXaml.Build.dll</SvgToXamlTaskAssembly>
-  </PropertyGroup>
 
   <ItemGroup>
     <SvgFiles Include="Assets\**\*.svg" OutputFile="Assets\Icons.axaml" />
