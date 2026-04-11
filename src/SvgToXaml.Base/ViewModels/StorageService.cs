@@ -2,7 +2,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
-using Avalonia.VisualTree;
 
 namespace SvgToXaml.ViewModels;
 
@@ -64,8 +63,7 @@ internal static class StorageService
 
         if (Application.Current?.ApplicationLifetime is ISingleViewApplicationLifetime { MainView: { } mainView })
         {
-            var visualRoot = mainView.GetVisualRoot();
-            if (visualRoot is TopLevel topLevel)
+            if (TopLevel.GetTopLevel(mainView) is { } topLevel)
             {
                 return topLevel.StorageProvider;
             }

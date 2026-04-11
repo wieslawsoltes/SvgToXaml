@@ -178,7 +178,7 @@ public class MainWindowViewModel : ViewModelBase
 
         if (Application.Current?.ApplicationLifetime is ISingleViewApplicationLifetime { MainView: { } mainView })
         {
-            if (mainView.GetVisualRoot() is TopLevel topLevel)
+            if (TopLevel.GetTopLevel(mainView) is { } topLevel)
             {
                 return topLevel.Clipboard;
             }
@@ -436,7 +436,7 @@ public class MainWindowViewModel : ViewModelBase
             {
                 if (GetClipboard() is {} clipboard)
                 {
-                    return await clipboard.GetTextAsync();
+                    return await clipboard.TryGetTextAsync();
                 }
             }
             catch
@@ -447,7 +447,12 @@ public class MainWindowViewModel : ViewModelBase
             return "";
         });
 
-        var skSvg = new SvgViewModel();
+        if (string.IsNullOrWhiteSpace(svg))
+        {
+            return;
+        }
+
+        using var skSvg = new SvgViewModel();
 
         try
         {
@@ -456,6 +461,11 @@ public class MainWindowViewModel : ViewModelBase
         catch
         {
             // ignored
+        }
+
+        if (skSvg.Model is null)
+        {
+            return;
         }
 
         var text = await Task.Run(() =>

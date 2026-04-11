@@ -42,9 +42,7 @@
       </Border.Background>
     </Border>
 
-    <Viewbox>
-      <SKPictureControl Picture="{Binding Project.SelectedItem.Picture, FallbackValue={x:Null}}" />
-    </Viewbox>
+    <Image Source="{Binding Project.SelectedItem.PreviewBitmap, FallbackValue={x:Null}}" Stretch="Uniform" />
 
   </Panel>
 

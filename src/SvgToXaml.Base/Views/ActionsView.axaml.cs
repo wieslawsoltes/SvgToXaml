@@ -1,4 +1,6 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Styling;
 
 namespace SvgToXaml.Views;
 
@@ -17,7 +19,10 @@ public partial class ActionsView : UserControl
         ThemeButton.Click += (_, _) =>
         {
             dark = !dark;
-            App.ThemeManager?.Switch(dark ? 1 : 0);
+            if (Application.Current is { } application)
+            {
+                application.RequestedThemeVariant = dark ? ThemeVariant.Dark : ThemeVariant.Light;
+            }
         };
     }
 }
