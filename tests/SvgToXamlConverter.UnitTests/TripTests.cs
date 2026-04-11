@@ -4,7 +4,6 @@ using Avalonia.Headless.XUnit;
 using Avalonia.Markup.Xaml;
 using SvgToXaml.Model;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace SvgToXamlConverter.UnitTests;
 
@@ -40,6 +39,7 @@ public class TripTests
 
         Assert.NotNull(xaml);
         Assert.NotEmpty(xaml);
+        Assert.Contains("GeometryDrawing", xaml);
 
         var loaded = AvaloniaRuntimeXamlLoader.Load(xaml);
         Assert.NotNull(loaded);
@@ -68,6 +68,7 @@ public class TripTests
 
         Assert.NotNull(xaml);
         Assert.NotEmpty(xaml);
+        Assert.Contains("<Path", xaml);
 
         var loaded = AvaloniaRuntimeXamlLoader.Load(xaml);
         Assert.NotNull(loaded);
@@ -100,6 +101,7 @@ public class TripTests
 
         Assert.NotNull(xaml);
         Assert.NotEmpty(xaml);
+        Assert.Contains("GeometryDrawing", xaml);
 
         var loaded = AvaloniaRuntimeXamlLoader.Load(xaml);
         Assert.NotNull(loaded);
@@ -132,6 +134,7 @@ public class TripTests
 
         Assert.NotNull(xaml);
         Assert.NotEmpty(xaml);
+        Assert.Contains("<Path", xaml);
 
         var loaded = AvaloniaRuntimeXamlLoader.Load(xaml);
         Assert.NotNull(loaded);
