@@ -308,6 +308,20 @@ public record DrawingGroup : Drawing
 
                     break;
                 }
+                case ShimSkiaSharp.DrawPictureCanvasCommand(var nestedPicture):
+                {
+                    if (nestedPicture is null)
+                    {
+                        break;
+                    }
+
+                    var nestedDrawing = new DrawingGroup(nestedPicture, resources);
+
+                    var currentLayer = layerStack.Peek();
+                    currentLayer.Children.Add(nestedDrawing);
+
+                    break;
+                }
                 case ShimSkiaSharp.DrawTextCanvasCommand(var text, var x, var y, var skPaint):
                 {
                     if (skPaint is null)
@@ -319,7 +333,19 @@ public record DrawingGroup : Drawing
                     {
                         break;
                     }
-                    var path = paint.GetTextPath(text, x, y);
+                    #pragma warning disable CS0618
+                    using var font = new SkiaSharp.SKFont(
+                        Factory.s_model.ToSKTypeface(skPaint.Typeface),
+                        skPaint.TextSize,
+                        paint.TextScaleX,
+                        paint.TextSkewX)
+                    {
+                        Edging = paint.IsAntialias ? SkiaSharp.SKFontEdging.Antialias : SkiaSharp.SKFontEdging.Alias,
+                        Embolden = paint.FakeBoldText,
+                        Subpixel = skPaint.SubpixelText
+                    };
+                    #pragma warning restore CS0618
+                    var path = font.GetTextPath(text, new SkiaSharp.SKPoint(x, y));
                     if (path.IsEmpty)
                     {
                         break;

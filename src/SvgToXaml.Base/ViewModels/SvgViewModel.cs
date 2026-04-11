@@ -1,34 +1,25 @@
+using System;
 using System.IO;
 using Svg.Model;
-using Svg.Model.Services;
 using ShimSkiaSharp;
 using Svg.Skia;
 
 namespace SvgToXaml.ViewModels;
 
-public class SvgViewModel : ViewModelBase
+public class SvgViewModel : ViewModelBase, IDisposable
 {
-    private static readonly SkiaModel s_model;
-    private static readonly ISvgAssetLoader s_assetLoader;
-
-    public SKDrawable? Drawable { get; private set; }
+    private SKSvg? _svg;
 
     public SKPicture? Model { get; private set; }
 
     public SkiaSharp.SKPicture? Picture { get; private set; }
 
-    static SvgViewModel()
-    {
-        s_model = new SkiaModel(new SKSvgSettings());
-        s_assetLoader = new SkiaSvgAssetLoader(s_model);
-    }
-
     private void Reset()
     {
-        Model = null;
-        Drawable = null;
+        _svg?.Dispose();
+        _svg = null;
 
-        Picture?.Dispose();
+        Model = null;
         Picture = null;
     }
 
@@ -40,28 +31,36 @@ public class SvgViewModel : ViewModelBase
     public SkiaSharp.SKPicture? Load(Stream stream, DrawAttributes ignoreAttributes)
     {
         Reset();
-        var svgDocument = SvgService.Open(stream);
-        if (svgDocument is { })
+        _svg = new SKSvg
         {
-            Model = SvgService.ToModel(svgDocument, s_assetLoader, out var drawable, out _, ignoreAttributes);
-            Drawable = drawable;
-            Picture = s_model.ToSKPicture(Model);
+            IgnoreAttributes = ignoreAttributes
+        };
+
+        Picture = _svg.Load(stream);
+        Model = _svg.Model;
+        if (Picture is { } && Model is { })
+        {
             return Picture;
         }
+
         return null;
     }
 
     public SkiaSharp.SKPicture? FromSvg(string svg, DrawAttributes ignoreAttributes)
     {
         Reset();
-        var svgDocument = SvgService.FromSvg(svg);
-        if (svgDocument is { })
+        _svg = new SKSvg
         {
-            Model = SvgService.ToModel(svgDocument, s_assetLoader, out var drawable, out _, ignoreAttributes);
-            Drawable = drawable;
-            Picture = s_model.ToSKPicture(Model);
+            IgnoreAttributes = ignoreAttributes
+        };
+
+        Picture = _svg.FromSvg(svg);
+        Model = _svg.Model;
+        if (Picture is { } && Model is { })
+        {
             return Picture;
         }
+
         return null;
     }
 }
