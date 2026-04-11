@@ -1,0 +1,220 @@
+name: Release
+
+permissions:
+  contents: write
+  packages: write
+
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to release when manually triggered
+        required: true
+        type: string
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  WEB_PROJECT_PATH: src/SvgToXaml.Web/SvgToXaml.Web.csproj
+  DESKTOP_PROJECT_PATH: src/SvgToXaml.Desktop/SvgToXaml.Desktop.csproj
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore browser workloads
+        run: dotnet workload restore ${{ env.WEB_PROJECT_PATH }}
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release --no-restore
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore browser workloads
+        run: dotnet workload restore ${{ env.WEB_PROJECT_PATH }}
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release --no-restore
+
+      - name: Test
+        run: dotnet test tests/SvgToXamlConverter.UnitTests/SvgToXamlConverter.UnitTests.csproj -c Release --no-build --logger trx --results-directory artifacts/test
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-test-results
+          path: artifacts/test/**/*.trx
+          if-no-files-found: error
+          retention-days: 7
+
+  pack:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Pack
+        run: |
+          mkdir -p artifacts/packages
+          for project in \
+            src/SvgToXaml.Model/SvgToXaml.Model.csproj \
+            src/SvgToXaml.Converter/SvgToXaml.Converter.csproj \
+            src/SvgToXaml.Build/SvgToXaml.Build.csproj \
+            src/svgxaml/svgxaml.csproj
+          do
+            dotnet pack "$project" -c Release -o artifacts/packages
+          done
+
+      - name: Upload NuGet packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: artifacts/packages/*.nupkg
+          if-no-files-found: error
+
+  publish-desktop:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: macos-latest
+            rid: osx-x64
+          - os: macos-latest
+            rid: osx-arm64
+    runs-on: ${{ matrix.os }}
+    name: Publish ${{ matrix.rid }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Publish desktop app
+        run: dotnet publish ${{ env.DESKTOP_PROJECT_PATH }} -c Release -f net8.0 -r ${{ matrix.rid }} --self-contained true -o artifacts/publish/${{ matrix.rid }}
+
+      - name: Archive publish output (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts/release | Out-Null
+          Compress-Archive -Path "artifacts/publish/${{ matrix.rid }}/*" -DestinationPath "artifacts/release/SvgToXaml.Desktop-${{ matrix.rid }}.zip" -Force
+
+      - name: Archive publish output (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          mkdir -p artifacts/release
+          tar -C artifacts/publish -czf artifacts/release/SvgToXaml.Desktop-${{ matrix.rid }}.tar.gz ${{ matrix.rid }}
+
+      - name: Upload desktop release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.rid }}
+          path: artifacts/release/*
+          if-no-files-found: error
+
+  nuget-push:
+    runs-on: ubuntu-latest
+    needs: pack
+    steps:
+      - name: Download NuGet packages
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-packages
+          path: release/packages
+
+      - name: Push packages to NuGet
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        if: env.NUGET_API_KEY != ''
+        run: |
+          shopt -s nullglob
+          for package in release/packages/*.nupkg; do
+            if [[ "$package" == *.snupkg ]]; then
+              continue
+            fi
+            dotnet nuget push "$package" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          done
+
+  github-release:
+    runs-on: ubuntu-latest
+    needs:
+      - pack
+      - publish-desktop
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref }}
+
+      - name: Download NuGet packages
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-packages
+          path: release/packages
+
+      - name: Download desktop artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: desktop-*
+          path: release/desktop
+          merge-multiple: true
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          draft: false
+          prerelease: false
+          files: |
+            release/packages/*.nupkg
+            release/desktop/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

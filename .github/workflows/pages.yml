@@ -1,8 +1,11 @@
 name: Deploy to GitHub Pages
 
+permissions:
+  contents: write
+
 env:
-    PROJECT_PATH: src/SvgToXaml.Web/SvgToXaml.Web.csproj
-    OUTPUT_PATH: src/SvgToXaml.Web/bin/Release/net10.0-browser1.0/publish/wwwroot
+  PROJECT_PATH: src/SvgToXaml.Web/SvgToXaml.Web.csproj
+  OUTPUT_PATH: release/wwwroot
 on:
   push:
     branches: [ main ]
@@ -13,34 +16,34 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup .NET Core SDK
+    - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 10.0.201
+        global-json-file: global.json
 
     - name: Install wasm-tools
-      run: dotnet workload restore $PROJECT_PATH
+      run: dotnet workload restore "$PROJECT_PATH"
 
     - name: Install DotNetCompress
       run: dotnet tool install --global DotNetCompress --version 3.0.0 --no-cache
 
-    - name: Publish .NET Project
-      run: dotnet publish $PROJECT_PATH -c Release -o release --nologo
+    - name: Publish .NET project
+      run: dotnet publish "$PROJECT_PATH" -c Release -o release --nologo
 
     - name: Change base-tag in index.html
-      run: sed -i 's/<base href="\/" \/>/<base href="\/SvgToXaml\/" \/>/g' $OUTPUT_PATH/index.html
+      run: sed -i 's/<base href="\/" \/>/<base href="\/SvgToXaml\/" \/>/g' "$OUTPUT_PATH/index.html"
 
     - name: copy index.html to 404.html
-      run: cp $OUTPUT_PATH/index.html $OUTPUT_PATH/404.html
+      run: cp "$OUTPUT_PATH/index.html" "$OUTPUT_PATH/404.html"
 
     - name: Compress Output using Brotli
-      run: DotNetCompress -d $OUTPUT_PATH/ -p "*.dll" "*.js" "*.wasm" --format br --threads 4
+      run: DotNetCompress -d "$OUTPUT_PATH/" -p "*.dll" "*.js" "*.wasm" --format br --threads 4
 
     - name: Compress Output using GZip
-      run: DotNetCompress -d $OUTPUT_PATH -p "*.dll" "*.js" "*.wasm" --format gz --threads 4
+      run: DotNetCompress -d "$OUTPUT_PATH" -p "*.dll" "*.js" "*.wasm" --format gz --threads 4
 
     - name: Add .nojekyll file
-      run: touch $OUTPUT_PATH/.nojekyll
+      run: touch "$OUTPUT_PATH/.nojekyll"
 
     - name: Commit wwwroot to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@4.1.7
