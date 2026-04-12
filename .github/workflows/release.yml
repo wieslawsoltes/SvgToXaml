@@ -21,6 +21,7 @@ env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   WEB_PROJECT_PATH: src/SvgToXaml.Web/SvgToXaml.Web.csproj
   DESKTOP_PROJECT_PATH: src/SvgToXaml.Desktop/SvgToXaml.Desktop.csproj
+  DESKTOP_TARGET_FRAMEWORK: net10.0
 
 jobs:
   build:
@@ -137,7 +138,7 @@ jobs:
           global-json-file: global.json
 
       - name: Publish desktop app
-        run: dotnet publish ${{ env.DESKTOP_PROJECT_PATH }} -c Release -f net8.0 -r ${{ matrix.rid }} --self-contained true -o artifacts/publish/${{ matrix.rid }}
+        run: dotnet publish ${{ env.DESKTOP_PROJECT_PATH }} -c Release -f ${{ env.DESKTOP_TARGET_FRAMEWORK }} -r ${{ matrix.rid }} --self-contained true -o artifacts/publish/${{ matrix.rid }}
 
       - name: Archive publish output (Windows)
         if: runner.os == 'Windows'
