@@ -12,6 +12,9 @@ namespace SvgToXaml.ViewModels;
 
 public class FileItemViewModel : ViewModelBase
 {
+    private const int MaxPreviewDimension = 1024;
+    private const double MaxPreviewPixels = MaxPreviewDimension * MaxPreviewDimension;
+
     private bool _isLoading;
     private string _name;
     private string _content;
@@ -151,12 +154,16 @@ public class FileItemViewModel : ViewModelBase
         }
 
         var bounds = picture.CullRect;
-        var width = Math.Max((int)Math.Ceiling(bounds.Width), 1);
-        var height = Math.Max((int)Math.Ceiling(bounds.Height), 1);
+        var sourceWidth = Math.Max((int)Math.Ceiling(bounds.Width), 1);
+        var sourceHeight = Math.Max((int)Math.Ceiling(bounds.Height), 1);
+        var scale = CalculatePreviewScale(sourceWidth, sourceHeight);
+        var width = Math.Max((int)Math.Ceiling(sourceWidth * scale), 1);
+        var height = Math.Max((int)Math.Ceiling(sourceHeight * scale), 1);
 
         using var bitmap = new SKBitmap(width, height, isOpaque: false);
         using var canvas = new SKCanvas(bitmap);
         canvas.Clear(SKColors.Transparent);
+        canvas.Scale((float)scale);
         canvas.Translate(-bounds.Left, -bounds.Top);
         canvas.DrawPicture(picture);
         canvas.Flush();
@@ -170,5 +177,16 @@ public class FileItemViewModel : ViewModelBase
 
         using var stream = new MemoryStream(data.ToArray());
         return new Bitmap(stream);
+    }
+
+    private static double CalculatePreviewScale(int width, int height)
+    {
+        var scaleByDimension = Math.Min(
+            1d,
+            Math.Min((double)MaxPreviewDimension / width, (double)MaxPreviewDimension / height));
+
+        var scaleByPixels = Math.Min(1d, Math.Sqrt(MaxPreviewPixels / (width * (double)height)));
+
+        return Math.Min(scaleByDimension, scaleByPixels);
     }
 }

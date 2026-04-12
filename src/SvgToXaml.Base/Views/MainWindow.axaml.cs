@@ -31,7 +31,7 @@ public partial class MainWindow : Window
     {
         var paths = e.DataTransfer.TryGetFiles()?
             .Select(x => x.Path)
-            .Where(x => x.IsAbsoluteUri && x.IsFile)
+            .Where(x => x.IsAbsoluteUri)
             .Select(x => x.LocalPath)
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .ToArray();
