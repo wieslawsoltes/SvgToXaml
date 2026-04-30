@@ -92,7 +92,7 @@ try
             Resources = null
         };
 
-        var skSvg = new SKSvg();
+        using var skSvg = new SKSvg();
         skSvg.Load(inputPath);
 
         var xaml = converter.ToXamlImage(skSvg.Model);

@@ -7,8 +7,6 @@ using Microsoft.Build.Utilities;
 using Svg.Skia;
 using SvgToXaml.Converter;
 using SvgToXaml.Model;
-using Svg.Model;
-using Svg.Model.Services;
 
 namespace SvgToXaml.Build;
 
@@ -73,34 +71,35 @@ public class SvgToXamlTask : Task
                 {
                     var converter = CreateConverter(item);
                     var content = File.ReadAllText(path);
-                    var svgDocument = SvgService.FromSvg(content);
-                    if (svgDocument != null)
+                    using var skSvg = new SKSvg
                     {
-                        var assetLoader = new SkiaSvgAssetLoader(new SkiaModel(new SKSvgSettings()));
-                        var model = SvgService.ToModel(svgDocument, assetLoader, out _, out _, converter.GetDrawAttributes());
-                        if (model != null)
-                        {
-                            var xaml = converter.ToXamlImage(model);
-                            var formatted = converter.Format(xaml);
-                            
-                            if (!Directory.Exists(outputDirectory))
-                            {
-                                Directory.CreateDirectory(outputDirectory);
-                            }
+                        IgnoreAttributes = converter.GetDrawAttributes()
+                    };
 
-                            var extension = item.GetMetadata("OutputExtension");
-                            if (string.IsNullOrEmpty(extension))
-                            {
-                                extension = ".axaml";
-                            }
-
-                            var fileName = Path.ChangeExtension(Path.GetFileName(path), extension);
-                            var outputPath = Path.Combine(outputDirectory, fileName);
-                            
-                            File.WriteAllText(outputPath, formatted);
-                            Log.LogMessage(MessageImportance.High, $"Generated {outputPath}");
-                        }
+                    if (skSvg.FromSvg(content) is null || skSvg.Model is null)
+                    {
+                        continue;
                     }
+
+                    var xaml = converter.ToXamlImage(skSvg.Model);
+                    var formatted = converter.Format(xaml);
+
+                    if (!Directory.Exists(outputDirectory))
+                    {
+                        Directory.CreateDirectory(outputDirectory);
+                    }
+
+                    var extension = item.GetMetadata("OutputExtension");
+                    if (string.IsNullOrEmpty(extension))
+                    {
+                        extension = ".axaml";
+                    }
+
+                    var fileName = Path.ChangeExtension(Path.GetFileName(path), extension);
+                    var outputPath = Path.Combine(outputDirectory, fileName);
+
+                    File.WriteAllText(outputPath, formatted);
+                    Log.LogMessage(MessageImportance.High, $"Generated {outputPath}");
                 }
             }
 

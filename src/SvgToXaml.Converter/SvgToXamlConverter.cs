@@ -4,9 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using Svg.Model;
 using Svg.Skia;
-using Svg.Model.Services;
+using Svg.Model;
 
 namespace SvgToXaml.Converter;
 
@@ -119,14 +118,17 @@ public class SvgToXamlConverter
         {
             try
             {
-                var svgDocument = SvgService.FromSvg(inputItem.Content);
-                if (svgDocument is null)
+                using var skSvg = new SKSvg
+                {
+                    IgnoreAttributes = GetDrawAttributes()
+                };
+
+                if (skSvg.FromSvg(inputItem.Content) is null)
                 {
                     continue;
                 }
 
-                var assetLoader = new SkiaSvgAssetLoader(new SkiaModel(new SKSvgSettings()));
-                var model = SvgService.ToModel(svgDocument, assetLoader, out _, out _, GetDrawAttributes());
+                var model = skSvg.Model;
                 if (model is null)
                 {
                     continue;

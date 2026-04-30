@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -20,31 +21,32 @@ public partial class MainWindow : Window
 
     private void DragOver(object? sender, DragEventArgs e)
     {
-        e.DragEffects = e.DragEffects & (DragDropEffects.Copy | DragDropEffects.Link);
-
-        if (!e.Data.Contains(DataFormats.Files))
-        {
-            e.DragEffects = DragDropEffects.None;
-        }
+        var files = e.DataTransfer.TryGetFiles();
+        e.DragEffects = files is { Length: > 0 }
+            ? e.DragEffects & (DragDropEffects.Copy | DragDropEffects.Link)
+            : DragDropEffects.None;
     }
 
     private void Drop(object? sender, DragEventArgs e)
     {
-        if (e.Data.Contains(DataFormats.Files))
+        var paths = e.DataTransfer.TryGetFiles()?
+            .Select(x => x.Path)
+            .Where(x => x.IsAbsoluteUri)
+            .Select(x => x.LocalPath)
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .ToArray();
+
+        if (paths is { Length: > 0 })
         {
-            var paths = e.Data.GetFileNames();
-            if (paths is { })
+            if (DataContext is MainWindowViewModel vm)
             {
-                if (DataContext is MainWindowViewModel vm)
+                try
                 {
-                    try
-                    {
-                        vm.Drop(paths);
-                    }
-                    catch (Exception)
-                    {
-                        // ignored
-                    }
+                    vm.Drop(paths);
+                }
+                catch (Exception)
+                {
+                    // ignored
                 }
             }
         }

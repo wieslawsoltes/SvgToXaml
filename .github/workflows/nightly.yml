@@ -1,0 +1,92 @@
+name: Nightly Packages
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  WEB_PROJECT_PATH: src/SvgToXaml.Web/SvgToXaml.Web.csproj
+  NUGET_SOURCE: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+
+jobs:
+  nightly:
+    name: Build and Publish Nightly
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore browser workloads
+        run: dotnet workload restore "${{ env.WEB_PROJECT_PATH }}"
+
+      - name: Determine version suffix
+        id: version
+        run: |
+          DATE=$(date -u +%Y%m%d)
+          echo "version-suffix=nightly.${DATE}.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release --no-restore -p:VersionSuffix="${{ steps.version.outputs.version-suffix }}"
+
+      - name: Test
+        run: dotnet test tests/SvgToXamlConverter.UnitTests/SvgToXamlConverter.UnitTests.csproj -c Release --no-build --logger trx --results-directory artifacts/test
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nightly-test-results
+          path: artifacts/test/**/*.trx
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Pack
+        run: |
+          mkdir -p artifacts/packages
+          for project in \
+            src/SvgToXaml.Model/SvgToXaml.Model.csproj \
+            src/SvgToXaml.Converter/SvgToXaml.Converter.csproj \
+            src/SvgToXaml.Build/SvgToXaml.Build.csproj \
+            src/svgxaml/svgxaml.csproj
+          do
+            dotnet pack "$project" -c Release --no-build -p:VersionSuffix="${{ steps.version.outputs.version-suffix }}" -o artifacts/packages
+          done
+
+      - name: Publish to GitHub Packages
+        run: |
+          shopt -s nullglob
+          for package in artifacts/packages/*.nupkg; do
+            if [[ "$package" == *.snupkg ]]; then
+              continue
+            fi
+            echo "Publishing $package..."
+            dotnet nuget push "$package" \
+              --api-key ${{ secrets.GITHUB_TOKEN }} \
+              --source "${{ env.NUGET_SOURCE }}" \
+              --skip-duplicate
+          done
+
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-packages
+          path: artifacts/packages/*.nupkg
+          if-no-files-found: error
+          retention-days: 7

@@ -1,6 +1,5 @@
 # SvgToXaml
 
-[![Build Status](https://dev.azure.com/wieslawsoltes/GitHub/_apis/build/status/wieslawsoltes.SvgToXaml?branchName=main)](https://dev.azure.com/wieslawsoltes/GitHub/_build/latest?definitionId=92&branchName=main)
 [![CI](https://github.com/wieslawsoltes/SvgToXaml/actions/workflows/build.yml/badge.svg)](https://github.com/wieslawsoltes/SvgToXaml/actions/workflows/build.yml)
 
 [![NuGet](https://img.shields.io/nuget/v/SvgToXamlConverter.svg)](https://www.nuget.org/packages/SvgToXamlConverter)
